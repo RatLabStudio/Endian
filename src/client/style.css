@@ -1,0 +1,56 @@
+html,
+body {
+  background-color: black;
+  margin: 0;
+}
+
+a {
+  color: rgb(25, 223, 230);
+  text-decoration: none;
+  transition: filter 0.2s ease;
+}
+
+a:hover {
+  filter: brightness(150%);
+}
+
+.hud {
+  z-index: 10;
+}
+
+.versionInfo {
+  position: absolute;
+  top: 2vh;
+  right: 2vh;
+  font-size: 2.5vh;
+  font-family: sans-serif;
+  color: rgb(43, 238, 245);
+  margin: 0;
+  text-align: right;
+}
+
+.versionInfo p {
+  font-size: 2.75vh;
+  margin: 0;
+  margin-bottom: 1vh;
+}
+
+.versionInfo a {
+  font-size: 2.25vh;
+  color: rgb(229, 250, 135);
+}
+
+.crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.5%;
+}
+
+.hand {
+  position: absolute;
+  bottom: 0;
+  right: 2%;
+  width: 30%;
+}
