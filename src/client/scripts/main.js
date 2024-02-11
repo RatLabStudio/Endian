@@ -1,7 +1,12 @@
+// Endian Alpha v5
+// Copyright Rat Lab Studio 2024
+
+// Importing Engine Classes
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 
+// Importing Supporting Game Classes
 import { GameObject } from './classes/GameObject.js';
 import { Player } from './classes/Player.js';
 
@@ -33,6 +38,18 @@ let cube = new GameObject(
 );
 cube.setPosition(0, 0, -10);
 let cr = { x: 0, y: 0 };
+
+// Create test voxels
+for (let i = 0; i < 10; i++) {
+  for (let j = 0; j < 10; j++) {
+    let c = new GameObject(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshNormalMaterial(),
+      scene
+    );
+    c.setPosition(i * -1, -3, j * -1);
+  }
+}
 
 // Game Loop
 function animate() {
