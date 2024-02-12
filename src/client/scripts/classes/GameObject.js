@@ -7,6 +7,8 @@ export class GameObject {
         this.scene = scene;
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
 
         scene.add(this.mesh);
     }
