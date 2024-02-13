@@ -9,6 +9,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 // Importing Supporting Game Classes
 import { GameObject } from './classes/GameObject.js';
 import { Player } from './classes/Player.js';
+import * as NetworkManager from './NetworkManager.js';
 
 // Three.js Scene
 const scene = new THREE.Scene();
@@ -108,6 +109,7 @@ function animate() {
   player.applyInputs(dt);
   cube.setRotation(cr.x += 0.01, 0, cr.y += 0.01);
   stats.update();
+  NetworkManager.sendInfoToServer(player);
 
   renderer.render(scene, player.camera);
   previousTime = currentTime;
@@ -122,3 +124,7 @@ window.addEventListener('resize', () => {
   player.camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+renderer.setPixelRatio(0.4);
+
+NetworkManager.initialize(player);

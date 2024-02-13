@@ -15,12 +15,15 @@ export class Player {
 
     keys = []; // Stores which keys are currently pressed
 
+    networkId = 0;
+
     // Player controls
     controlKeys = {
         forward: 87,  // W
         backward: 83, // S
         left: 65,     // A
-        right: 68     // D
+        right: 68,    // D
+        sprint: 16,   // Shift
     };
 
     constructor(scene) {
@@ -33,6 +36,16 @@ export class Player {
     }
 
     processInput() {
+        if (this.keys[this.controlKeys.sprint]) {
+            this.maxSpeed = 15;
+            this.camera.fov = 76;
+            this.camera.updateProjectionMatrix();
+        } else {
+            this.maxSpeed = 10;
+            this.camera.fov = 70;
+            this.camera.updateProjectionMatrix();
+        }
+
         let zSpeed = 0;
         if (this.keys[this.controlKeys.forward])
             zSpeed += this.maxSpeed;
