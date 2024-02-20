@@ -3,11 +3,15 @@
 
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import { NetworkObject } from './NetworkObject';
 
 export class Player {
     maxSpeed = 10;
     input = new THREE.Vector3();
     velocity = new THREE.Vector3();
+
+    pos = { x: 0, y: 0, z: 0 };
+    rot = { x: 0, y: 0, z: 0 };
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
     controls = new PointerLockControls(this.camera, document.body); // Allows you to move the camera
@@ -27,8 +31,16 @@ export class Player {
     };
 
     constructor(scene) {
+        this.scene = scene;
         scene.add(this.camera);
         //scene.add(this.cameraHelper);
+
+        this.networkObject = new NetworkObject();
+        this.networkObject.infoToSend = {
+            networkId: this.networkId,
+            position: this.pos,
+            rotation: this.rot
+        }
 
         document.addEventListener('click', this.lockControls.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
@@ -68,7 +80,16 @@ export class Player {
             this.velocity.z = this.input.z;
             this.controls.moveRight(this.velocity.x * dt);
             this.controls.moveForward(this.velocity.z * dt);
-
+            this.pos = {
+                x: this.camera.position.x,
+                y: this.camera.position.y,
+                z: this.camera.position.z,
+            }
+            this.rot = {
+                x: this.camera.rotation.x,
+                y: this.camera.rotation.y,
+                z: this.camera.rotation.z,
+            }
             document.getElementById("playerPosition").innerHTML = `${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)}, ${this.position.z.toFixed(1)}`;
         }
     }

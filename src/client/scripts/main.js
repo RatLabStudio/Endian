@@ -103,13 +103,16 @@ for (let i = -20; i < 20; i++) {
 let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
-  let dt = (currentTime - previousTime) / 1000;
+  let dt = (currentTime - previousTime) / 1000; // Delta Time
   requestAnimationFrame(animate);
 
   player.applyInputs(dt);
   cube.setRotation(cr.x += 0.01, 0, cr.y += 0.01);
   stats.update();
+
   NetworkManager.sendInfoToServer(player);
+  let playerCount = Object.keys(NetworkManager.playerList).length;
+  document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
 
   renderer.render(scene, player.camera);
   previousTime = currentTime;

@@ -31,8 +31,9 @@ a:hover {
   text-align: right;
 }
 
-.versionInfo p {
+.versionInfo h1 {
   font-size: 2.25vh;
+  font-weight: normal;
   margin: 0;
   margin-bottom: 0.5vh;
 }
@@ -40,6 +41,13 @@ a:hover {
 .versionInfo a {
   font-size: 1.75vh;
   color: rgb(229, 250, 135);
+}
+
+.versionInfo p {
+  color: white;
+  font-size: 1.5vh;
+  margin: 0;
+  margin-top: 1vh;
 }
 
 .crosshair {
