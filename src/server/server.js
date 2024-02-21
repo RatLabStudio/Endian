@@ -8,15 +8,15 @@ let players = {};
 
 // Called when the socket connection is created
 io.on("connection", socket => {
-    //console.log(socket.id + " connected");
+    console.log(socket.id + " connected");
 
     socket.on("playerUpdate", player => {
-        players[player.networkId] = player;
+        players[socket.id] = player;
         socket.emit("playerClientUpdate", players);
     });
 
     socket.on("disconnect", () => {
         delete players[socket.id];
-        socket.emit("removePlayer", socket.id);
+        console.log(`${socket.id} disconnected`);
     });
 });

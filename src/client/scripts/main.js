@@ -18,7 +18,7 @@ const scene = new THREE.Scene();
 const orbitCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
 const player = new Player(scene);
 
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -32,6 +32,16 @@ document.body.append(stats.dom);
 const controls = new OrbitControls(orbitCamera, renderer.domElement);
 controls.target.set(5, -5, 5);
 controls.update();
+
+// Setting up the sky:
+const loader = new THREE.CubeTextureLoader();
+loader.setPath( 'assets/textures/sky/' );
+const textureCube = loader.load([
+  'sky.jpg', 'sky.jpg',
+  'sky.jpg', 'sky.jpg',
+  'sky.jpg', 'sky.jpg'
+]);
+scene.background = textureCube;
 
 function setupLights() {
   const sun = new THREE.DirectionalLight();
@@ -54,8 +64,8 @@ function setupLights() {
   );
   visualSun.setPosition(sun.position.x, sun.position.y, sun.position.z);
   visualSun.mesh.castShadow = false;
-  const shadowHelper = new THREE.CameraHelper(sun.shadow.camera);
-  scene.add(shadowHelper);
+  /*const shadowHelper = new THREE.CameraHelper(sun.shadow.camera);
+  scene.add(shadowHelper);*/
 
   const ambient = new THREE.AmbientLight();
   ambient.intensity = 0.25;
@@ -111,8 +121,9 @@ function animate() {
   stats.update();
 
   NetworkManager.sendInfoToServer(player);
-  let playerCount = Object.keys(NetworkManager.playerList).length;
+  let playerCount = Object.keys(NetworkManager.playerList).length + 1;
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
+  document.getElementById("netId").innerHTML = `${player.networkObject.networkId}`;
 
   renderer.render(scene, player.camera);
   previousTime = currentTime;

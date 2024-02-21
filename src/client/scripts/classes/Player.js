@@ -19,8 +19,6 @@ export class Player {
 
     keys = []; // Stores which keys are currently pressed
 
-    networkId = 0;
-
     // Player controls
     controlKeys = {
         forward: 87,  // W
@@ -37,7 +35,7 @@ export class Player {
 
         this.networkObject = new NetworkObject();
         this.networkObject.infoToSend = {
-            networkId: this.networkId,
+            networkId: this.networkObject.networkId,
             position: this.pos,
             rotation: this.rot
         }
@@ -91,6 +89,13 @@ export class Player {
                 z: this.camera.rotation.z,
             }
             document.getElementById("playerPosition").innerHTML = `${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)}, ${this.position.z.toFixed(1)}`;
+        }
+
+        // Update for networking
+        this.networkObject.infoToSend = {
+            networkId: this.networkObject.networkId,
+            position: this.pos,
+            rotation: this.rot
         }
     }
 
