@@ -1,6 +1,10 @@
 // Endian Alpha v5
 // Copyright Rat Lab Studio 2024
 
+// Version Information
+import { info } from './versionInfo.js';
+document.getElementById("versionInfo").innerHTML = `${info.name} ${info.version}`;
+
 // Importing Engine Classes
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';

@@ -1,33 +1,135 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" href="https://ratlabstudio.github.io/JavaScript/resources/assets/favicon.png"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="style.css">
-  <title>Endian Alpha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endian Alpha</title>
+    <link rel="icon" href="assets/icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
+
+    <style>
+        .megrim-regular {
+            font-family: "Megrim", system-ui;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        html,
+        body {
+            user-select: none;
+            background-color: rgb(50, 50, 50);
+            background: radial-gradient(rgb(50, 50, 50), rgb(15, 15, 15));
+            background-size: cover;
+            background-position: 0px 0px;
+            margin: 0;
+            color: white;
+            text-align: center;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #title {
+            color: black;
+            -webkit-text-fill-color: black;
+            font-size: 11vh;
+            -webkit-text-stroke-width: 2px;
+            -webkit-text-stroke-color: aqua;
+            text-shadow: 4px 4px 8px black;
+            margin-bottom: 0;
+        }
+
+        #subtitle {
+            margin: 0;
+        }
+
+        button {
+            padding: 1vh;
+            min-width: 40vh;
+            margin: 1vh;
+            background-color: rgba(255, 255, 255, 0.25);
+            border: solid 1px aqua;
+            border-radius: 2px;
+            color: white;
+            font-size: 2vh;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            filter: opacity(50%);
+        }
+
+        button:disabled:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        button:active {
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        #versionInfo {
+            position: absolute;
+            bottom: 1vh;
+            left: 1vh;
+            margin: 0;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 2vh;
+        }
+
+        #copyrightInfo {
+            position: absolute;
+            bottom: 1vh;
+            right: 1vh;
+            margin: 0;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            font-size: 2vh;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="hud versionInfo">
-    <h1>Endian Alpha v5.1.0</h1>
-    <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
-    <p id="playerCount">0 Players Connected</p>
-    <p id="netId" style="font-size: 10px;">NetID: </p>
-  </div>
+    <br><br>
+    <h1 id="title" class="megrim-regular">Endia<span class="flicker">n</span></h1>
+    <h2 id="subtitle" class="megrim-regular">Rat Lab Studio</h2>
+    <br><br><br><br><br><br><br>
+    <div>
+        <button disabled>Singleplayer</button>
+        <br>
+        <button onclick="window.open('game.html', '_self')">Multiplayer</button>
+        <br>
+        <button disabled>Options</button>
+        <br>
+        <button onclick="window.open('https://ratlabstudio.com', '_self')">Return to Rat Lab Studio</button>
+    </div>
+    <p id="versionInfo">Alpha v5.1.1</p>
+    <p id="copyrightInfo">Copyright Rat Lab Studio 2024</p>
 
-  <!--<img class="hud crosshair" src="assets/textures/gui/crosshair.png">-->
-  <div class="hud crosshair">
-    <div class="crosshairVertical"></div>
-    <div class="crosshairHorizontal"></div>
-  </div>
+    <script type="module">
+        // Version Information
+        import { info } from './scripts/versionInfo.js';
+        document.getElementById("versionInfo").innerHTML = `${info.version}`;
 
-  <img class="hud hand" src="assets/textures/gui/gun.png">
-
-  <p class="hud" id="playerPosition"></p>
-
-  <script type="module" src="scripts/main.js"></script>
+        let flickerElements = document.getElementsByClassName("flicker");
+        setInterval(function () {
+            for (let i = 0; i < flickerElements.length; i++) {
+                let elem = flickerElements[i];
+                if (Math.floor(Math.random() * 100) >= 60) {
+                    elem.style.webkitTextStrokeColor = "black";
+                    setTimeout(function () {
+                        elem.style.webkitTextStrokeColor = "aqua";
+                    }, 200);
+                }
+            }
+        }, 3000);
+    </script>
 </body>
 
 </html>

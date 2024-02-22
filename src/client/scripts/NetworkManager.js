@@ -2,8 +2,8 @@ import { io } from "socket.io-client";
 import * as THREE from 'three';
 import { GameObject } from './classes/GameObject.js';
 
-const socket = io("http://10.226.241.85:3000");
-//const socket = io("http://localhost:3000");
+//const socket = io("http://10.226.241.85:3000");
+const socket = io("http://localhost:3000");
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
