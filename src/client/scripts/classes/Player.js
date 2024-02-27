@@ -4,6 +4,9 @@
 import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { NetworkObject } from './NetworkObject';
+import { GameObject } from './GameObject';
+
+import * as CANNON from 'cannon-es';
 
 export class Player {
     maxSpeed = 10;
@@ -28,11 +31,12 @@ export class Player {
         sprint: 16,   // Shift
     };
 
-    constructor(scene) {
-        this.scene = scene;
-        scene.add(this.camera);
-        //scene.add(this.cameraHelper);
+    constructor(game) {
+        this.game = game;
+        this.game.scene.add(this.camera);
+        //this.game.scene.add(this.cameraHelper);
 
+        // Network Setup
         this.networkObject = new NetworkObject();
         this.networkObject.infoToSend = {
             networkId: this.networkObject.networkId,
@@ -40,12 +44,38 @@ export class Player {
             rotation: this.rot
         }
 
+        // Physics Object for Collisions
+        this.gameObject = new GameObject(
+            new THREE.CylinderGeometry(2, 2, 0, 16, 1, false),
+            new THREE.MeshBasicMaterial(),
+            new CANNON.Body({
+                mass: 10,
+                shape: new CANNON.Cylinder(1.5, 1.5, 5, 8)
+            }),
+            this.game
+        );
+        // Remove the visual object from the local client because you cannot see it
+        this.game.scene.remove(this.gameObject.mesh);
+        this.gameObject.material.dispose();
+
         document.addEventListener('click', this.lockControls.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
+
+        this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
     }
 
+    physicsUpdate() {
+        // Sync Camera to Physics Body
+        this.position.set(this.gameObject.position.x, this.gameObject.position.y, this.gameObject.position.z);
+        // Keep Player Upright
+        this.gameObject.body.quaternion.x = 0;
+        this.gameObject.body.quaternion.z = 0;
+    }
+
+    // Determine which keys are pressed and store the information
     processInput() {
+        // Temporary Sprinting
         if (this.keys[this.controlKeys.sprint]) {
             this.maxSpeed = 15;
             this.camera.fov = 76;
@@ -56,6 +86,7 @@ export class Player {
             this.camera.updateProjectionMatrix();
         }
 
+        // Store Movement Controls
         let zSpeed = 0;
         if (this.keys[this.controlKeys.forward])
             zSpeed += this.maxSpeed;
@@ -71,13 +102,19 @@ export class Player {
         this.input.x = xSpeed;
     }
 
+    // Take the info stored from processInput() and apply it to the player
     applyInputs(dt) {
         this.processInput();
         if (this.controls.isLocked) {
+            // Collect Velocity Vectors
             this.velocity.x = this.input.x;
             this.velocity.z = this.input.z;
-            this.controls.moveRight(this.velocity.x * dt);
-            this.controls.moveForward(this.velocity.z * dt);
+
+            // Move Player
+            this.moveRight(this.velocity.x * dt);
+            this.moveForward(this.velocity.z * dt);
+
+            // Network Sharing Info
             this.pos = {
                 x: this.camera.position.x,
                 y: this.camera.position.y,
@@ -88,7 +125,13 @@ export class Player {
                 y: this.camera.rotation.y,
                 z: this.camera.rotation.z,
             }
-            document.getElementById("playerPosition").innerHTML = `${this.position.x.toFixed(1)}, ${this.position.y.toFixed(1)}, ${this.position.z.toFixed(1)}`;
+
+            // Coordinates Display
+            document.getElementById("playerPosition").innerHTML = `
+                ${this.position.x.toFixed(1)}, 
+                ${this.position.y.toFixed(1)}, 
+                ${this.position.z.toFixed(1)}
+            `;
         }
 
         // Update for networking
@@ -97,6 +140,18 @@ export class Player {
             position: this.pos,
             rotation: this.rot
         }
+    }
+
+    // Moves the entire player object forward based on where it's camera is facing (negative to go back)
+    moveForward(distance) {
+        this.gameObject.body.position.x -= Math.sin(this.camera.rotation.y) * distance;
+        this.gameObject.body.position.z -= Math.cos(this.camera.rotation.y) * distance;
+    }
+
+    // Moves the entire player object to the right based on where it's camera is facing (negative to go left)
+    moveRight(distance) {
+        this.gameObject.body.position.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distance;
+        this.gameObject.body.position.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distance;
     }
 
     // Locks the mouse to the screen for gameplay

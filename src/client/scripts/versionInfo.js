@@ -3,10 +3,10 @@
 
 export let info = {
     name: "Endian",
-    version: "Alpha 5.1.1",
+    version: "Alpha 5.1.2",
     host: "Rat Lab Studio",
     date: {
-        day: 22,
+        day: 26,
         month: 2,
         year: 2024
     }

@@ -7,20 +7,30 @@ document.getElementById("versionInfo").innerHTML = `${info.name} ${info.version}
 
 // Importing Engine Classes
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
+import * as CANNON from 'cannon-es';
+import CannonDebugger from 'cannon-es-debugger';
 
 // Importing Supporting Game Classes
 import { GameObject } from './classes/GameObject.js';
 import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
+import { Voxel } from './classes/Voxel.js';
+
+const world = new CANNON.World({
+  gravity: new CANNON.Vec3(0, -10, 0)
+});
 
 // Three.js Scene
 const scene = new THREE.Scene();
 
+const game = {
+  scene: scene,
+  world: world
+};
+
 // Camera and Player
-const orbitCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight);
-const player = new Player(scene);
+const player = new Player(game);
 
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,14 +42,9 @@ document.body.appendChild(renderer.domElement);
 const stats = new Stats();
 document.body.append(stats.dom);
 
-// OrbitCamera Controls
-const controls = new OrbitControls(orbitCamera, renderer.domElement);
-controls.target.set(5, -5, 5);
-controls.update();
-
 // Setting up the sky:
 const loader = new THREE.CubeTextureLoader();
-loader.setPath( 'assets/textures/sky/' );
+loader.setPath('assets/textures/sky/');
 const textureCube = loader.load([
   'sky.jpg', 'sky.jpg',
   'sky.jpg', 'sky.jpg',
@@ -64,7 +69,11 @@ function setupLights() {
   let visualSun = new GameObject(
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.MeshLambertMaterial({ color: 0xFFFF00 }),
-    scene
+    new CANNON.Body({
+      mass: 0,
+      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
+    }),
+    game
   );
   visualSun.setPosition(sun.position.x, sun.position.y, sun.position.z);
   visualSun.mesh.castShadow = false;
@@ -77,41 +86,12 @@ function setupLights() {
 }
 setupLights();
 
-// Test Cube
-let cube = new GameObject(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshNormalMaterial(),
-  scene
-);
-cube.setPosition(0, 0, -10);
-let cr = { x: 0, y: 0 };
+let ground = new Voxel({ x: 60, y: 1, z: 60 }, 0, new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }), game);
+ground.setPosition(0, -5, 0);
 
-let cL = new GameObject(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshLambertMaterial({ color: 0x0099FF }),
-  scene
-);
-cL.setPosition(-2 * 1, -2, -10 * 1);
-
-let cR = new GameObject(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshLambertMaterial({ color: 0x00FF99 }),
-  scene
-);
-cR.setPosition(2 * 1, -2, -10 * 1);
-
-// Create test voxels
-for (let i = -20; i < 20; i++) {
-  for (let j = -20; j < 20; j++) {
-    let c = new GameObject(
-      new THREE.BoxGeometry(1, 1, 1),
-      new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }),
-      scene
-    );
-    c.setPosition(i * -1, -3, j * -1);
-    c.mesh.castShadow = false;
-  }
-}
+let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ color: 0x00FFFF }), game);
+test.setPosition(0, 2, -10);
+const cannonDebugger = new CannonDebugger(scene, world, {});
 
 // Game Loop
 let previousTime = performance.now();
@@ -120,9 +100,15 @@ function animate() {
   let dt = (currentTime - previousTime) / 1000; // Delta Time
   requestAnimationFrame(animate);
 
-  player.applyInputs(dt);
-  cube.setRotation(cr.x += 0.01, 0, cr.y += 0.01);
-  stats.update();
+  world.fixedStep(dt); // Update the physics world
+  //cannonDebugger.update(); // Display the physics world
+
+  test.update(); // This will later be done to all objects
+
+  player.applyInputs(dt); // Detect and apply all inputs from the controls
+  player.physicsUpdate(); // Update the player in the physics world
+  
+  stats.update(); // FPS Counter
 
   NetworkManager.sendInfoToServer(player);
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
@@ -143,6 +129,6 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-renderer.setPixelRatio(0.4);
+//renderer.setPixelRatio(1);
 
 NetworkManager.initialize(player);

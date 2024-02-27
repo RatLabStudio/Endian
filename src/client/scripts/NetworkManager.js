@@ -33,7 +33,7 @@ function createPlayerObj(newPlayer) {
     playerObjs[newPlayer.networkId] = new GameObject(
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshLambertMaterial({ color: 0x00FFFF }),
-        localPlayer.scene
+        localPlayer.game
     );
     playerObjs[newPlayer.networkId].mesh.position.set(
         newPlayer.position.x,
