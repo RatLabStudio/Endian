@@ -16,9 +16,10 @@ import { GameObject } from './classes/GameObject.js';
 import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
+import * as Lighting from './lighting.js';
 
 const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -10, 0)
+  gravity: new CANNON.Vec3(0, -30, 0)
 });
 
 // Three.js Scene
@@ -31,8 +32,9 @@ const game = {
 
 // Camera and Player
 const player = new Player(game);
+player.setPosition(0, 2, 0);
 
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -52,46 +54,32 @@ const textureCube = loader.load([
 ]);
 scene.background = textureCube;
 
-function setupLights() {
-  const sun = new THREE.DirectionalLight();
-  sun.intensity = 0.8;
-  sun.position.set(-10, 20, -20);
-  sun.castShadow = true;
-  sun.shadow.camera.left = -50;
-  sun.shadow.camera.right = 50;
-  sun.shadow.camera.bottom = -50;
-  sun.shadow.camera.top = 50;
-  sun.shadow.camera.near = 0.1;
-  sun.shadow.camera.far = 100;
-  sun.shadow.bias = -0.0001;
-  sun.shadow.mapSize = new THREE.Vector2(1024, 1024)
-  scene.add(sun);
-  let visualSun = new GameObject(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshLambertMaterial({ color: 0xFFFF00 }),
-    new CANNON.Body({
-      mass: 0,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
-    }),
-    game
-  );
-  visualSun.setPosition(sun.position.x, sun.position.y, sun.position.z);
-  visualSun.mesh.castShadow = false;
-  /*const shadowHelper = new THREE.CameraHelper(sun.shadow.camera);
-  scene.add(shadowHelper);*/
+Lighting.setupLights(game);
 
-  const ambient = new THREE.AmbientLight();
-  ambient.intensity = 0.25;
-  scene.add(ambient);
-}
-setupLights();
-
-let ground = new Voxel({ x: 60, y: 1, z: 60 }, 0, new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }), game);
+let ground = new Voxel({ x: 60, y: 5, z: 60 }, 0, new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }), game);
 ground.setPosition(0, -5, 0);
 
 let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ color: 0x00FFFF }), game);
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
+
+// Detect when the user leaves pointerLock
+document.addEventListener("pointerlockchange", function (e) {
+  if (!player.controls.isLocked) {
+    setPause(true);
+  }
+});
+
+// Displays pause menu and handles pointerlock
+function setPause(state) {
+  if (state) {
+    document.getElementById("pauseMenu").style.visibility = "unset";
+  } else {
+    player.lockControls();
+    document.getElementById("pauseMenu").style.visibility = "hidden";
+  }
+}
+window.setPause = setPause;
 
 // Game Loop
 let previousTime = performance.now();
@@ -105,9 +93,8 @@ function animate() {
 
   test.update(); // This will later be done to all objects
 
-  player.applyInputs(dt); // Detect and apply all inputs from the controls
-  player.physicsUpdate(); // Update the player in the physics world
-  
+  player.update(dt);
+
   stats.update(); // FPS Counter
 
   NetworkManager.sendInfoToServer(player);
@@ -129,6 +116,6 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-//renderer.setPixelRatio(1);
+renderer.setPixelRatio(1);
 
 NetworkManager.initialize(player);

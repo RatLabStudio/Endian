@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" href="assets/icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css">
   <title>Endian Alpha</title>
 </head>
@@ -26,6 +26,18 @@
   <img class="hud hand" src="assets/textures/gui/gun.png">
 
   <p class="hud" id="playerPosition"></p>
+
+  <div class="pauseMenu" id="pauseMenu" style="visibility: hidden;">
+    <div class="menu">
+      <button onclick="setPause(false)">Back to Game</button>
+      <button disabled>Settings</button>
+      <button onclick="window.open('index.html', '_self')">Return to Title Screen</button>
+    </div>
+  </div>
+
+  <div class="panel" id="settingsPanel" style="visibility: hidden;">
+    <iframe src="settings.html"></iframe>
+  </div>
 
   <script type="module" src="scripts/main.js"></script>
 </body>

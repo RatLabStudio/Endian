@@ -40,8 +40,8 @@ export class Player {
         this.networkObject = new NetworkObject();
         this.networkObject.infoToSend = {
             networkId: this.networkObject.networkId,
-            position: this.pos,
-            rotation: this.rot
+            position: this.camera.position,
+            rotation: this.camera.rotation
         }
 
         // Physics Object for Collisions
@@ -49,8 +49,8 @@ export class Player {
             new THREE.CylinderGeometry(2, 2, 0, 16, 1, false),
             new THREE.MeshBasicMaterial(),
             new CANNON.Body({
-                mass: 10,
-                shape: new CANNON.Cylinder(1.5, 1.5, 5, 8)
+                mass: 1000,
+                shape: new CANNON.Cylinder(0.45, 0.45, 2.5, 8)
             }),
             this.game
         );
@@ -58,16 +58,21 @@ export class Player {
         this.game.scene.remove(this.gameObject.mesh);
         this.gameObject.material.dispose();
 
-        document.addEventListener('click', this.lockControls.bind(this));
+        //document.getElementsByTagName("canvas").addEventListener('click', this.lockControls.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
 
         this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
     }
 
+    update(dt) {
+        this.physicsUpdate();
+        this.applyInputs(dt);
+    }
+
     physicsUpdate() {
         // Sync Camera to Physics Body
-        this.position.set(this.gameObject.position.x, this.gameObject.position.y, this.gameObject.position.z);
+        this.position.set(this.gameObject.position.x, this.gameObject.position.y + 1, this.gameObject.position.z);
         // Keep Player Upright
         this.gameObject.body.quaternion.x = 0;
         this.gameObject.body.quaternion.z = 0;
@@ -114,18 +119,6 @@ export class Player {
             this.moveRight(this.velocity.x * dt);
             this.moveForward(this.velocity.z * dt);
 
-            // Network Sharing Info
-            this.pos = {
-                x: this.camera.position.x,
-                y: this.camera.position.y,
-                z: this.camera.position.z,
-            }
-            this.rot = {
-                x: this.camera.rotation.x,
-                y: this.camera.rotation.y,
-                z: this.camera.rotation.z,
-            }
-
             // Coordinates Display
             document.getElementById("playerPosition").innerHTML = `
                 ${this.position.x.toFixed(1)}, 
@@ -137,8 +130,8 @@ export class Player {
         // Update for networking
         this.networkObject.infoToSend = {
             networkId: this.networkObject.networkId,
-            position: this.pos,
-            rotation: this.rot
+            position: this.camera.position,
+            rotation: this.camera.rotation
         }
     }
 
@@ -163,6 +156,14 @@ export class Player {
 
     get position() {
         return this.camera.position;
+    }
+
+    setPosition(x, y, z) {
+        this.gameObject.setPosition(x, y, z);
+    }
+
+    setRotation(x, y, z) {
+        this.gameObject.setRotation(x, y, z);
     }
 
     onKeyDown(event) {

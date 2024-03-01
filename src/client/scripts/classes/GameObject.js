@@ -13,6 +13,11 @@ export class GameObject {
         game.scene.add(this.mesh);
 
         this.body = body;
+
+        this.body.allowSleep = true;
+        this.body.sleepSpeedLimit = 1.0;
+        this.body.sleepTimeLimit = 1;
+
         game.world.addBody(this.body);
     }
 
