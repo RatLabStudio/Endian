@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endian Alpha</title>
     <link rel="icon" href="assets/icon.png">
-
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
@@ -105,12 +105,18 @@
         <br>
         <button onclick="window.open('game.html', '_self')">Multiplayer</button>
         <br>
-        <button disabled>Options</button>
+        <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">Settings</button>
         <br>
         <button onclick="window.open('https://ratlabstudio.com', '_self')">Return to Rat Lab Studio</button>
     </div>
     <p id="versionInfo">Alpha v5.1.1</p>
     <p id="copyrightInfo">Copyright Rat Lab Studio 2024</p>
+
+    <div class="panel" id="settingsPanel" style="visibility: hidden;">
+        <button class="closePanel"
+            onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
+        <iframe src="settings.html"></iframe>
+    </div>
 
     <script type="module">
         // Version Information

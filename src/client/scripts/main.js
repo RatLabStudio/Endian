@@ -21,6 +21,7 @@ import * as Lighting from './lighting.js';
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -30, 0)
 });
+world.allowSleep = true;
 
 // Three.js Scene
 const scene = new THREE.Scene();
@@ -63,6 +64,15 @@ let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ co
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
+document.addEventListener("keydown", function (e) {
+  let k = e.key;
+  if (k == "Escape") {
+    console.log("Escape")
+    document.getElementById('settingsPanel').style.visibility = 'hidden';
+    setPause(false);
+  }
+});
+
 // Detect when the user leaves pointerLock
 document.addEventListener("pointerlockchange", function (e) {
   if (!player.controls.isLocked) {
@@ -88,7 +98,7 @@ function animate() {
   let dt = (currentTime - previousTime) / 1000; // Delta Time
   requestAnimationFrame(animate);
 
-  world.fixedStep(dt); // Update the physics world
+  world.fixedStep(); // Update the physics world
   //cannonDebugger.update(); // Display the physics world
 
   test.update(); // This will later be done to all objects
@@ -109,8 +119,6 @@ animate();
 
 // Adjusts cameras when the window is resized
 window.addEventListener('resize', () => {
-  orbitCamera.aspect = window.innerWidth / window.innerHeight;
-  orbitCamera.updateProjectionMatrix();
   player.camera.aspect = window.innerWidth / window.innerHeight;
   player.camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);

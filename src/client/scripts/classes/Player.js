@@ -58,7 +58,11 @@ export class Player {
         this.game.scene.remove(this.gameObject.mesh);
         this.gameObject.material.dispose();
 
-        //document.getElementsByTagName("canvas").addEventListener('click', this.lockControls.bind(this));
+        let temp = this;
+        document.addEventListener('click', function (e) {
+            if (e.target.tagName.toUpperCase() === "CANVAS")
+                temp.lockControls();
+        });
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
 
@@ -137,12 +141,16 @@ export class Player {
 
     // Moves the entire player object forward based on where it's camera is facing (negative to go back)
     moveForward(distance) {
+        if (distance != 0)
+            this.gameObject.body.wakeUp();
         this.gameObject.body.position.x -= Math.sin(this.camera.rotation.y) * distance;
         this.gameObject.body.position.z -= Math.cos(this.camera.rotation.y) * distance;
     }
 
     // Moves the entire player object to the right based on where it's camera is facing (negative to go left)
     moveRight(distance) {
+        if (distance != 0)
+            this.gameObject.body.wakeUp();
         this.gameObject.body.position.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distance;
         this.gameObject.body.position.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distance;
     }

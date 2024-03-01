@@ -110,6 +110,7 @@ button {
   font-size: 2vh;
   transition: background-color 0.2s ease;
   cursor: pointer;
+  z-index: 2;
 }
 
 button:disabled {
@@ -157,7 +158,7 @@ button:active {
   height: 80%;
   z-index: 10;
   border: solid 2px white;
-  border-radius: 1vh;
+  border-radius: 0vh;
   background-color: rgb(50, 50, 50);
   background: radial-gradient(rgb(50, 50, 50), rgb(15, 15, 15));
   background-size: cover;
@@ -172,6 +173,14 @@ button:active {
   width: 100%;
   height: 100%;
   border: none;
+  z-index: 1;
+}
+
+.closePanel {
+  position: absolute;
+  top: 3vh;
+  right: 3vh;
+  min-width: 20vh;
 }
 
 .backToGame {

@@ -30,12 +30,16 @@
   <div class="pauseMenu" id="pauseMenu" style="visibility: hidden;">
     <div class="menu">
       <button onclick="setPause(false)">Back to Game</button>
-      <button disabled>Settings</button>
+      <br>
+      <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">Settings</button>
+      <br>
       <button onclick="window.open('index.html', '_self')">Return to Title Screen</button>
     </div>
   </div>
 
   <div class="panel" id="settingsPanel" style="visibility: hidden;">
+    <button class="closePanel"
+      onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
     <iframe src="settings.html"></iframe>
   </div>
 
