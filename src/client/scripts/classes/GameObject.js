@@ -10,7 +10,7 @@ export class GameObject {
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
 
-        game.scene.add(this.mesh);
+        this.game.scene.add(this.mesh);
 
         this.body = body;
 
@@ -18,12 +18,14 @@ export class GameObject {
         this.body.sleepSpeedLimit = 1.0;
         this.body.sleepTimeLimit = 1;
 
-        game.world.addBody(this.body);
+        this.game.world.addBody(this.body);
     }
 
     physicsUpdate() {
-        let vY = this.body.velocity.y;
-        this.body.velocity.y = vY;
+        // Please figure out what this does
+        /*let vY = this.body.velocity.y;
+        this.body.velocity.y = vY;*/
+        // ^^^^^^^
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
     }
@@ -41,8 +43,16 @@ export class GameObject {
         this.mesh.position.set(x, y, z);
     }
 
-    setRotation(x, y, z) {
-        this.body.rotation.set(x, y, z);
-        this.mesh.rotation.set(x, y, z);
+    setRotationFromQuaternion(q) {
+        // Physics Body
+        this.body.quaternion.x = q[0];
+        this.body.quaternion.y = q[1];
+        this.body.quaternion.z = q[2];
+        this.body.quaternion.w = q[3];
+        // Three Mesh
+        this.mesh.quaternion.x = q[0];
+        this.mesh.quaternion.y = q[1];
+        this.mesh.quaternion.z = q[2];
+        this.mesh.quaternion.w = q[3];
     }
 }

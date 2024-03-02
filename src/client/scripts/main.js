@@ -33,7 +33,11 @@ const game = {
 
 // Camera and Player
 const player = new Player(game);
-player.setPosition(0, 2, 0);
+player.setPosition(
+  Math.round(Math.random() * 20 - 10),
+  2,
+  Math.round(Math.random() * 20 - 10)
+);
 
 const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -67,17 +71,18 @@ const cannonDebugger = new CannonDebugger(scene, world, {});
 document.addEventListener("keydown", function (e) {
   let k = e.key;
   if (k == "Escape") {
-    console.log("Escape")
+    e.preventDefault();
+    console.log("Escape");
     document.getElementById('settingsPanel').style.visibility = 'hidden';
-    setPause(false);
+    document.getElementById("pauseMenu").style.visibility = "hidden";
+    //setPause(false);
   }
 });
 
 // Detect when the user leaves pointerLock
 document.addEventListener("pointerlockchange", function (e) {
-  if (!player.controls.isLocked) {
+  if (!player.controls.isLocked)
     setPause(true);
-  }
 });
 
 // Displays pause menu and handles pointerlock

@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 import * as THREE from 'three';
 import { GameObject } from './classes/GameObject.js';
+import * as CANNON from 'cannon-es';
 
 //const socket = io("http://10.226.241.85:3000");
 const socket = io("http://localhost:3000");
@@ -31,8 +32,14 @@ export function sendInfoToServer(player) {
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
     playerObjs[newPlayer.networkId] = new GameObject(
-        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.BoxGeometry(1.5, 1.5, 1.5),
         new THREE.MeshLambertMaterial({ color: 0x00FFFF }),
+        new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(
+                new CANNON.Vec3(0.75, 0.75, 0.75)
+            )
+        }),
         localPlayer.game
     );
     playerObjs[newPlayer.networkId].mesh.position.set(
@@ -42,11 +49,13 @@ function createPlayerObj(newPlayer) {
     );
 }
 
+// Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
-    let player = playerObjs[playerNetId];
-    player.scene.remove(player.mesh);
-    player.material.dispose();
-    delete playerObjs[playerNetId];
+    let player = playerObjs[playerNetId]; // Player to be removed
+    player.game.scene.remove(player.mesh); // Remove player model
+    player.material.dispose(); // Dispose of model texture
+    player.game.world.removeBody(player.body); // Remove physics body
+    delete playerObjs[playerNetId]; // Delete JS object
 }
 
 // Updates all player objects and creates new ones if necessary
@@ -63,17 +72,13 @@ function updatePlayerObjs() {
             return;
         }
         // Update Position
-        obj.mesh.position.set(
+        obj.setPosition(
             p.position.x,
             p.position.y,
             p.position.z
         );
         // Update Rotation
-        obj.mesh.rotation.set(
-            p.rotation.x,
-            p.rotation.y,
-            p.rotation.z
-        );
+        obj.setRotationFromQuaternion(p.rotation);
 
         updated[playersArr[i]] = true;
     }

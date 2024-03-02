@@ -41,7 +41,7 @@ export class Player {
         this.networkObject.infoToSend = {
             networkId: this.networkObject.networkId,
             position: this.camera.position,
-            rotation: this.camera.rotation
+            rotation: this.camera.quaternion
         }
 
         // Physics Object for Collisions
@@ -135,7 +135,7 @@ export class Player {
         this.networkObject.infoToSend = {
             networkId: this.networkObject.networkId,
             position: this.camera.position,
-            rotation: this.camera.rotation
+            rotation: this.camera.quaternion
         }
     }
 
