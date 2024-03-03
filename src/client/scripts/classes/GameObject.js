@@ -22,10 +22,6 @@ export class GameObject {
     }
 
     physicsUpdate() {
-        // Please figure out what this does
-        /*let vY = this.body.velocity.y;
-        this.body.velocity.y = vY;*/
-        // ^^^^^^^
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
     }

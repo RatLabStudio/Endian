@@ -17,11 +17,20 @@ import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
 import * as Lighting from './lighting.js';
+import * as GUI from './hand.js';
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -30, 0)
 });
 world.allowSleep = true;
+
+// GUI Scene
+const guiScene = new THREE.Scene();
+const guiCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
+const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+guiRenderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById("gui").appendChild(guiRenderer.domElement);
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 1));
 
 // Three.js Scene
 const scene = new THREE.Scene();
@@ -39,11 +48,11 @@ player.setPosition(
   Math.round(Math.random() * 20 - 10)
 );
 
-const renderer = new THREE.WebGLRenderer({ alpha: false, antialias: false });
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
-document.body.appendChild(renderer.domElement);
+document.getElementById("game").appendChild(renderer.domElement);
 
 // FPS Counter Creation
 const stats = new Stats();
@@ -96,6 +105,8 @@ function setPause(state) {
 }
 window.setPause = setPause;
 
+GUI.loadHand(guiScene, player);
+
 // Game Loop
 let previousTime = performance.now();
 function animate() {
@@ -118,6 +129,8 @@ function animate() {
   document.getElementById("netId").innerHTML = `${player.networkObject.networkId}`;
 
   renderer.render(scene, player.camera);
+  guiRenderer.render(guiScene, guiCamera);
+
   previousTime = currentTime;
 }
 animate();
@@ -127,6 +140,10 @@ window.addEventListener('resize', () => {
   player.camera.aspect = window.innerWidth / window.innerHeight;
   player.camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+
+  guiCamera.aspect = window.innerWidth / window.innerHeight;
+  //guiCamera.updateProjectionMatrix();
+  guiRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 renderer.setPixelRatio(1);

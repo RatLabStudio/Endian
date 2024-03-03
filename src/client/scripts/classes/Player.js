@@ -166,6 +166,10 @@ export class Player {
         return this.camera.position;
     }
 
+    get rotation() {
+        return this.camera.rotation;
+    }
+
     setPosition(x, y, z) {
         this.gameObject.setPosition(x, y, z);
     }
