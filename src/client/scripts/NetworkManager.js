@@ -4,7 +4,8 @@ import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
 
 //const socket = io("http://10.226.241.85:3000");
-const socket = io("http://localhost:3000");
+//const socket = io("http://localhost:3000");
+export let socket = io("http://192.168.1.254:3000");
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
@@ -16,6 +17,10 @@ socket.on("connect", () => {
     localPlayer.networkObject.networkId = socket.id;
     connected = true;
 });
+
+export function setOffline() {
+    socket = io('http://localhost:3000');
+}
 
 // Set the local player
 export function initialize(playerObj) {
@@ -32,7 +37,7 @@ export function sendInfoToServer(player) {
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
     playerObjs[newPlayer.networkId] = new GameObject(
-        new THREE.BoxGeometry(1.5, 1.5, 1.5),
+        new THREE.BoxGeometry(1.25, 1.25, 1.25),
         new THREE.MeshLambertMaterial({ color: 0x00FFFF }),
         new CANNON.Body({
             mass: 0,

@@ -31,22 +31,28 @@ export function loadHand(scene, player) {
     });
 }
 
+let previousTime = performance.now();
 setInterval(function () {
+    let currentTime = performance.now();
+    let dt = currentTime - previousTime;
+
     if (hand.object == null)
         return;
 
     // Modifies the blaster position based on player movement
     if (hand.player.controls.isLocked) {
-        hand.object.position.x += hand.player.velocity.x * -0.001;
+        hand.object.position.x += hand.player.velocity.x * -0.0003 * dt;
         if (hand.object.position.y < -1)
-            hand.object.position.y += hand.player.gameObject.body.velocity.y * -0.0001;
-        hand.object.position.z += hand.player.velocity.z * 0.001;
+            hand.object.position.y += hand.player.gameObject.body.velocity.y * -0.0002 * dt;
+        hand.object.position.z += hand.player.velocity.z * 0.0003 * dt;
     }
 
     // Returns the hand to the default position over time
-    hand.object.position.x += (defaultPos.x - hand.object.position.x) * 0.1;
-    hand.object.position.y += (defaultPos.y - hand.object.position.y) * 0.1;
-    hand.object.position.z += (defaultPos.z - hand.object.position.z) * 0.1;
+    hand.object.position.x += (defaultPos.x - hand.object.position.x) * 0.03 * dt;
+    hand.object.position.y += (defaultPos.y - hand.object.position.y) * 0.03 * dt;
+    hand.object.position.z += (defaultPos.z - hand.object.position.z) * 0.03 * dt;
+
+    previousTime = performance.now();
 }, 1);
 
 // Apply hand movement
@@ -54,9 +60,16 @@ document.addEventListener('mousemove', function (event) {
     if (!hand.player.controls.isLocked)
         return;
 
+    let mouseDisplacement = {
+        x: event.movementX * -0.001,
+        y: event.movementY * 0.001,
+    };
+
+    let max = 0.5;
+
     hand.object.position.set(
-        hand.object.position.x + event.movementX * -0.001,
-        hand.object.position.y + event.movementY * 0.001,
+        hand.object.position.x + (Math.abs(mouseDisplacement.x) <= max ? mouseDisplacement.x : max),
+        hand.object.position.y + (Math.abs(mouseDisplacement.y) <= max ? mouseDisplacement.y : max),
         hand.object.position.z
     );
 });

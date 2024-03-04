@@ -32,6 +32,6 @@ export function setupLights(game) {
     scene.add(shadowHelper);*/
   
     const ambient = new THREE.AmbientLight();
-    ambient.intensity = 0.25;
+    ambient.intensity = 0.5;
     scene.add(ambient);
   }

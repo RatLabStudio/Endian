@@ -10,6 +10,7 @@ import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Importing Supporting Game Classes
 import { GameObject } from './classes/GameObject.js';
@@ -20,7 +21,7 @@ import * as Lighting from './lighting.js';
 import * as GUI from './hand.js';
 
 const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -30, 0)
+  gravity: new CANNON.Vec3(0, -50, 0)
 });
 world.allowSleep = true;
 
@@ -70,12 +71,56 @@ scene.background = textureCube;
 
 Lighting.setupLights(game);
 
+let isMultiplayer = document.URL.substring(document.URL.indexOf("?") + 1) != 'offline';
+if (!isMultiplayer)
+  NetworkManager.setOffline();
+
+// DEBUG ASSETS ------------
+
 let ground = new Voxel({ x: 60, y: 5, z: 60 }, 0, new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }), game);
 ground.setPosition(0, -5, 0);
 
 let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ color: 0x00FFFF }), game);
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
+
+const gltfLoader = new GLTFLoader();
+function loadShip(scene) {
+  gltfLoader.load('assets/model/MainRoom3.gltf', (gltfScene) => {
+
+    gltfScene.scene.receiveShadow = true;
+    gltfScene.scene.castShadow = true;
+
+    gltfScene.scene.position.set(-4, -3.9, 0);
+    gltfScene.scene.scale.set(0.75, 0.75, 0.75);
+
+    scene.add(gltfScene.scene);
+
+  }, undefined, function (error) {
+    console.error(error);
+  });
+}
+loadShip(scene);
+
+let bulb = new THREE.DirectionalLight(0x222200, 10);
+bulb.position.set(0, 10, 0);
+bulb.lookAt(0, -10, 0);
+bulb.castShadow = true;
+scene.add(bulb);
+
+let visualSun = new GameObject(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshLambertMaterial({ color: 0xFFFF00 }),
+  new CANNON.Body({
+    mass: 0,
+    shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
+  }),
+  game
+);
+visualSun.setPosition(bulb.position.x, bulb.position.y, bulb.position.z);
+visualSun.mesh.castShadow = false;
+
+// -------------------------
 
 document.addEventListener("keydown", function (e) {
   let k = e.key;
@@ -112,11 +157,15 @@ let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
   let dt = (currentTime - previousTime) / 1000; // Delta Time
+
   requestAnimationFrame(animate);
+
+  /*if (currentTime - previousTime < 1000 / 60)
+    return;*/
 
   world.fixedStep(); // Update the physics world
   //cannonDebugger.update(); // Display the physics world
-
+ 
   test.update(); // This will later be done to all objects
 
   player.update(dt);
@@ -146,6 +195,7 @@ window.addEventListener('resize', () => {
   guiRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-renderer.setPixelRatio(1);
+/*renderer.setPixelRatio(0.5);
+guiRenderer.setPixelRatio(0.5);*/
 
 NetworkManager.initialize(player);

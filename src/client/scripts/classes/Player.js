@@ -29,6 +29,8 @@ export class Player {
         left: 65,     // A
         right: 68,    // D
         sprint: 16,   // Shift
+        jump: 32,     // Space
+        zoom: 67,     // C
     };
 
     constructor(game) {
@@ -50,7 +52,7 @@ export class Player {
             new THREE.MeshBasicMaterial(),
             new CANNON.Body({
                 mass: 1000,
-                shape: new CANNON.Cylinder(0.45, 0.45, 2.5, 8)
+                shape: new CANNON.Cylinder(0.45, 0.45, 2.5, 8),
             }),
             this.game
         );
@@ -67,6 +69,25 @@ export class Player {
         document.addEventListener('keyup', this.onKeyUp.bind(this));
 
         this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
+
+        this.canJump = false;
+        this.gameObject.body.addEventListener("collide", function (e) {
+            let contactNormal = new CANNON.Vec3();
+            let upAxis = new CANNON.Vec3(0, 1, 0);
+            let contact = e.contact;
+            if (contact.bi.id == this.gameObject.body.id)
+                contact.ni.negate(contactNormal);
+            else
+                contactNormal.copy(contact.ni);
+            if (contactNormal.dot(upAxis) > 0.5) { //Threshhold between 0-1
+                this.canJump = true;
+                this.gameObject.body.velocity.y = 0;
+            }
+        }.bind(this));
+
+        this.normalFov = 70; // FOV of the camera
+        this.sprintFov = this.normalFov + 6; // FOV to use while sprinting
+        this.zoomFov = this.normalFov - 50;
     }
 
     update(dt) {
@@ -87,12 +108,33 @@ export class Player {
         // Temporary Sprinting
         if (this.keys[this.controlKeys.sprint]) {
             this.maxSpeed = 15;
-            this.camera.fov = 76;
+            // Slowly bring FOV up
+            if (this.camera.fov < this.sprintFov)
+                this.camera.fov += 0.5;
             this.camera.updateProjectionMatrix();
         } else {
             this.maxSpeed = 10;
-            this.camera.fov = 70;
+            // Slowly bring FOV back down
+            if (this.camera.fov > this.normalFov)
+                this.camera.fov -= 0.5;
             this.camera.updateProjectionMatrix();
+        }
+
+        if (this.keys[this.controlKeys.zoom]) {
+            // Slowly bring FOV down
+            if (this.camera.fov > this.zoomFov)
+                this.camera.fov -= 2;
+            this.camera.updateProjectionMatrix();
+        } else {
+            // Slowly bring FOV back up
+            if (this.camera.fov < this.normalFov)
+                this.camera.fov += 2;
+            this.camera.updateProjectionMatrix();
+        }
+
+        if (this.keys[this.controlKeys.jump] && this.canJump) {
+            this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 17500, 0));
+            this.canJump = false;
         }
 
         // Store Movement Controls

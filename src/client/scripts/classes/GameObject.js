@@ -16,7 +16,7 @@ export class GameObject {
 
         this.body.allowSleep = true;
         this.body.sleepSpeedLimit = 1.0;
-        this.body.sleepTimeLimit = 1;
+        this.body.sleepTimeLimit = 0.5;
 
         this.game.world.addBody(this.body);
     }
