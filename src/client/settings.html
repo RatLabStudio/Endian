@@ -27,13 +27,97 @@
             font-size: 3vh;
             margin: 4vh;
         }
+
+        .slidecontainer {
+            width: 70%;
+            margin: auto;
+        }
+
+        /* The slider itself */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 25px;
+            background: #d3d3d37d;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border: solid 2px var(--blue);
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            background: var(--blue);
+            cursor: pointer;
+            border: solid 2px white;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 32px;
+            height: 32px;
+            background: var(--blue);
+            cursor: pointer;
+            border: solid 2px white;
+        }
     </style>
 </head>
 
 <body>
     <h1>Settings</h1>
     <br><br>
-    <p>Nothing to see here yet, just play it how I made it!</p>
+
+    <div id="settingsContainer"></div>
+
+    <script type="module">
+        import * as Settings from './scripts/settings.js';
+        const settingsContainer = document.getElementById("settingsContainer");
+
+        Settings.loadAllSettings();
+
+        let sliders = [];
+
+        function createSlider(name, min, max, step, value) {
+            settingsContainer.innerHTML += `
+                <div class="slidecontainer">
+                    <h2>${name}: <span id="${name.replace(' ', '-')}-display">${value}</span></h2>
+                    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" class="slider" id="${name.replace(' ', '-')}">
+                    <br><br>
+                </div>
+            `;
+            sliders = document.getElementsByClassName("slider");
+        }
+
+        createSlider("FOV", 51, 100, 1, 70);
+        createSlider("Resolution", 0.1, 2, 0.1, 1);
+
+        // Slider Event Listeners
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i].addEventListener("input", function (event) {
+                let id = event.target.id;
+                document.getElementById(id + "-display").innerHTML = event.target.value;
+                Settings.settings[id.toLowerCase()] = event.target.value;
+            });
+
+            sliders[i].addEventListener("change", function (event) {
+                Settings.saveAllSettings();
+            });
+        }
+
+        // Load all settings to sliders:
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i].value = Settings.settings[sliders[i].id.toLowerCase()];
+            document.getElementById(sliders[i].id + "-display").innerHTML = Settings.settings[sliders[i].id.toLowerCase()];
+        }
+    </script>
 </body>
 
 </html>

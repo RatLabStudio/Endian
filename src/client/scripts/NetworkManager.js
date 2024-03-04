@@ -4,8 +4,8 @@ import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
 
 //const socket = io("http://10.226.241.85:3000");
-//const socket = io("http://localhost:3000");
-export let socket = io("http://192.168.1.254:3000");
+const socket = io("http://localhost:3000");
+//export let socket = io("http://192.168.1.254:3000");
 let connected = false;
 
 let localPlayer = null; // The player on the local computer

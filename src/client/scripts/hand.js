@@ -57,7 +57,7 @@ setInterval(function () {
 
 // Apply hand movement
 document.addEventListener('mousemove', function (event) {
-    if (!hand.player.controls.isLocked)
+    if (hand.player == null || !hand.player.controls.isLocked)
         return;
 
     let mouseDisplacement = {

@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 import { NetworkObject } from './NetworkObject';
 import { GameObject } from './GameObject';
+import * as Settings from '../settings.js';
 
 import * as CANNON from 'cannon-es';
 
@@ -85,7 +86,7 @@ export class Player {
             }
         }.bind(this));
 
-        this.normalFov = 70; // FOV of the camera
+        this.normalFov = Settings.settings.fov; // FOV of the camera
         this.sprintFov = this.normalFov + 6; // FOV to use while sprinting
         this.zoomFov = this.normalFov - 50;
     }

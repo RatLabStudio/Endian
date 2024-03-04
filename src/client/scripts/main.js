@@ -19,6 +19,9 @@ import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
 import * as Lighting from './lighting.js';
 import * as GUI from './hand.js';
+import * as Settings from './settings.js';
+
+import { threeToCannon, ShapeType } from 'three-to-cannon';
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -84,49 +87,13 @@ let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ co
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
-const gltfLoader = new GLTFLoader();
-function loadShip(scene) {
-  gltfLoader.load('assets/model/MainRoom3.gltf', (gltfScene) => {
-
-    gltfScene.scene.receiveShadow = true;
-    gltfScene.scene.castShadow = true;
-
-    gltfScene.scene.position.set(-4, -3.9, 0);
-    gltfScene.scene.scale.set(0.75, 0.75, 0.75);
-
-    scene.add(gltfScene.scene);
-
-  }, undefined, function (error) {
-    console.error(error);
-  });
-}
-loadShip(scene);
-
-let bulb = new THREE.DirectionalLight(0x222200, 10);
-bulb.position.set(0, 10, 0);
-bulb.lookAt(0, -10, 0);
-bulb.castShadow = true;
-scene.add(bulb);
-
-let visualSun = new GameObject(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshLambertMaterial({ color: 0xFFFF00 }),
-  new CANNON.Body({
-    mass: 0,
-    shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
-  }),
-  game
-);
-visualSun.setPosition(bulb.position.x, bulb.position.y, bulb.position.z);
-visualSun.mesh.castShadow = false;
-
 // -------------------------
 
 document.addEventListener("keydown", function (e) {
   let k = e.key;
   if (k == "Escape") {
     e.preventDefault();
-    console.log("Escape");
+    //console.log("Escape");
     document.getElementById('settingsPanel').style.visibility = 'hidden';
     document.getElementById("pauseMenu").style.visibility = "hidden";
     //setPause(false);
@@ -152,6 +119,22 @@ window.setPause = setPause;
 
 GUI.loadHand(guiScene, player);
 
+function applySettings() {
+  Settings.loadAllSettings();
+
+  player.normalFov = Settings.settings.fov * 1;
+  player.sprintFov = player.normalFov * 1 + 6;
+  player.zoomFov = player.normalFov * 1 - 50;
+
+  renderer.setPixelRatio(Settings.settings.resolution);
+  guiRenderer.setPixelRatio(Settings.settings.resolution);
+
+  player.camera.fov = player.normalFov;
+  player.camera.updateProjectionMatrix();
+}
+window.applySettings = applySettings;
+setTimeout(applySettings(), 100);
+
 // Game Loop
 let previousTime = performance.now();
 function animate() {
@@ -165,7 +148,7 @@ function animate() {
 
   world.fixedStep(); // Update the physics world
   //cannonDebugger.update(); // Display the physics world
- 
+
   test.update(); // This will later be done to all objects
 
   player.update(dt);
@@ -195,7 +178,7 @@ window.addEventListener('resize', () => {
   guiRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-/*renderer.setPixelRatio(0.5);
-guiRenderer.setPixelRatio(0.5);*/
+renderer.setPixelRatio(Settings.settings.resolution);
+guiRenderer.setPixelRatio(Settings.settings.resolution);
 
 NetworkManager.initialize(player);
