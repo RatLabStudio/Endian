@@ -21,8 +21,7 @@ import { Voxel } from './classes/Voxel.js';
 import * as Lighting from './lighting.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
-
-import { vCpu } from './classes/VCPU.js';
+import { Computer } from './classes/Computer.js';
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -95,18 +94,9 @@ let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ co
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
-let vCpus = [];
-vCpus.push(new vCpu(0, 0, -20, 620, 440, 0, scene, cssScene));
-vCpus[0].typeString("Visual CPU v3.1");
-vCpus[0].type("Enter");
-vCpus[0].typeString("2023 Rat Lab");
-vCpus[0].type("Enter");
-vCpus[0].type("Enter");
-vCpus[0].typeString("Press Enter to type");
-vCpus[0].type("Enter");
-
-let cpuBox = new Voxel(4, 0, new THREE.MeshLambertMaterial(), game);
-cpuBox.setPosition(0, 0, -20.1);
+let computer = new Computer(game, cssScene);
+computer.setPosition(Math.floor(player.position.x), -1.5, Math.floor(player.position.z - 10));
+computer.displayTestMessage();
 
 // -------------------------
 
@@ -198,6 +188,7 @@ window.addEventListener('resize', () => {
   guiCamera.aspect = window.innerWidth / window.innerHeight;
   //guiCamera.updateProjectionMatrix();
   guiRenderer.setSize(window.innerWidth, window.innerHeight);
+  cssRenderer.setSize(window.innerWidth, window.innerHeight);
 });
 
 renderer.setPixelRatio(Settings.settings.resolution);

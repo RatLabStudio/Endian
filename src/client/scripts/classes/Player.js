@@ -214,6 +214,7 @@ export class Player {
     }
 
     setPosition(x, y, z) {
+        this.position.set(x, y, z);
         this.gameObject.setPosition(x, y, z);
     }
 

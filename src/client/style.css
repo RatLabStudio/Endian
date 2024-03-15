@@ -90,13 +90,6 @@ a:hover {
   transform: translateY(-50%);
 }
 
-.hand {
-  position: absolute;
-  bottom: 0;
-  right: 2%;
-  width: 25%;
-}
-
 #playerPosition {
   position: absolute;
   bottom: 1vh;
@@ -203,4 +196,21 @@ button:active {
   margin: 0;
   top: 5vh;
   right: 5vh;
+}
+
+.renderer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.computerDisplay {
+  background-color: black;
+}
+
+.displayCanvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
