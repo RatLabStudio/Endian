@@ -40,12 +40,12 @@
   <div class="panel" id="settingsPanel" style="visibility: hidden;">
     <button class="closePanel"
       onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
-    <button id="applySettings"
-      onclick="applySettings()">Apply Settings</button>
+    <button id="applySettings" onclick="applySettings()">Apply Settings</button>
     <iframe src="settings.html"></iframe>
   </div>
 
-  <div id="gui" style="position: absolute; z-index: 1;"></div>
+  <div id="gui" style="position: absolute; z-index: 2;"></div>
+  <div id="css3d" style="position: absolute; z-index: 1;"></div>
   <div id="game" style="position: absolute; z-index: 0;"></div>
 
   <script type="module" src="scripts/main.js"></script>

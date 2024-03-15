@@ -11,6 +11,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 
 // Importing Supporting Game Classes
 import { GameObject } from './classes/GameObject.js';
@@ -21,7 +22,7 @@ import * as Lighting from './lighting.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
 
-import { threeToCannon, ShapeType } from 'three-to-cannon';
+import { vCpu } from './classes/VCPU.js';
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -35,6 +36,13 @@ const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 guiRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("gui").appendChild(guiRenderer.domElement);
 guiScene.add(new THREE.AmbientLight(0xFFFFFF, 1));
+
+// CSS3D Scene
+let css3dContainer = document.getElementById("css3d");
+var cssScene = new THREE.Scene();
+let cssRenderer = new CSS3DRenderer();
+cssRenderer.setSize(window.innerWidth, window.innerHeight);
+css3dContainer.appendChild(cssRenderer.domElement);
 
 // Three.js Scene
 const scene = new THREE.Scene();
@@ -86,6 +94,19 @@ ground.setPosition(0, -5, 0);
 let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ color: 0x00FFFF }), game);
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
+
+let vCpus = [];
+vCpus.push(new vCpu(0, 0, -20, 620, 440, 0, scene, cssScene));
+vCpus[0].typeString("Visual CPU v3.1");
+vCpus[0].type("Enter");
+vCpus[0].typeString("2023 Rat Lab");
+vCpus[0].type("Enter");
+vCpus[0].type("Enter");
+vCpus[0].typeString("Press Enter to type");
+vCpus[0].type("Enter");
+
+let cpuBox = new Voxel(4, 0, new THREE.MeshLambertMaterial(), game);
+cpuBox.setPosition(0, 0, -20.1);
 
 // -------------------------
 
@@ -160,6 +181,7 @@ function animate() {
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
   document.getElementById("netId").innerHTML = `${player.networkObject.networkId}`;
 
+  cssRenderer.render(cssScene, player.camera);
   renderer.render(scene, player.camera);
   guiRenderer.render(guiScene, guiCamera);
 
