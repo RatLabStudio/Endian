@@ -14,14 +14,13 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 
 // Importing Supporting Game Classes
-import { GameObject } from './classes/GameObject.js';
 import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
-import * as Lighting from './lighting.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
 import { Computer } from './classes/Computer.js';
+import * as Lighting from './classes/Lighting.js';
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -34,7 +33,6 @@ const guiCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.inn
 const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 guiRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("gui").appendChild(guiRenderer.domElement);
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 1));
 
 // CSS3D Scene
 let css3dContainer = document.getElementById("css3d");
@@ -48,6 +46,8 @@ const scene = new THREE.Scene();
 
 const game = {
   scene: scene,
+  guiScene: guiScene,
+  guiCamera: guiCamera,
   world: world
 };
 
@@ -79,7 +79,7 @@ const textureCube = loader.load([
 ]);
 scene.background = textureCube;
 
-Lighting.setupLights(game);
+Lighting.initializeLighting(game);
 
 let isMultiplayer = document.URL.substring(document.URL.indexOf("?") + 1) != 'offline';
 if (!isMultiplayer)
@@ -94,9 +94,22 @@ let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ co
 test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
+let sun = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.3));
+
 let computer = new Computer(game, cssScene);
-computer.setPosition(Math.floor(player.position.x), -1.5, Math.floor(player.position.z - 10));
-computer.displayTestMessage();
+computer.setPosition(Math.floor(player.position.x), -1, Math.floor(player.position.z - 10));
+//computer.displayTestMessage();
+
+computer.nextLine();
+computer.printString('  Endian CPU');
+computer.nextLine();
+computer.printString('  Copyright Rat Lab Studio');
+computer.nextLine();
+computer.nextLine();
+computer.nextLine();
+computer.printString('  Error: No Bootable device');
+computer.nextLine();
+computer.printString('  found!');
 
 // -------------------------
 
@@ -170,6 +183,8 @@ function animate() {
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
   document.getElementById("netId").innerHTML = `${player.networkObject.networkId}`;
+
+  Lighting.updateGuiLights(player);
 
   cssRenderer.render(cssScene, player.camera);
   renderer.render(scene, player.camera);

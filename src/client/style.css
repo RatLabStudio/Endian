@@ -213,4 +213,18 @@ button:active {
 .displayCanvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  background-color: blue;
+  padding: 2px;
+}
+
+.displayOverlay {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url('./public/assets/textures/ScreenOverlay.png');
+  background-repeat: repeat;
+  background-size: 30%;
+  opacity: 50%;
+  filter: "blur('100px');";
 }

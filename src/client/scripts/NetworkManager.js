@@ -12,6 +12,8 @@ let localPlayer = null; // The player on the local computer
 export let playerList = {}; // List of players shared from the server
 let playerObjs = {}; // List of physical player objects
 
+export let objs = [];
+
 socket.on("connect", () => {
     console.log(`Connected with ID: ${socket.id}`);
     localPlayer.networkObject.networkId = socket.id;
@@ -107,7 +109,20 @@ socket.on("playerClientUpdate", players => {
 });
 
 socket.on("removePlayer", playerNetId => {
-    console.log(`Deleting player ${playerNetId}`);
     let playerToRemove = playerList[playerNetId];
     removePlayerObj(playerToRemove);
+});
+
+socket.on("networkObjectUpdatesFromServer", updatedObjs => {
+    let updatedObjKeys = Object.keys(updatedObjs);
+    for (let i = 0; i < updatedObjKeys.length; i++) {
+        if (!objs[updatedObjKeys[i]]) {
+            // Create New Object
+        } else {
+            // Update Existing Object
+            // objs[updatedObjKeys[i]].updateFromServer();
+
+            // TODO: Create updateFromServer function for the NetworkObject class
+        }
+    }
 });
