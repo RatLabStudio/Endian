@@ -2,6 +2,7 @@ import { io } from "socket.io-client";
 import * as THREE from 'three';
 import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
+import { NetworkObject } from "./classes/NetworkObject.js";
 
 //const socket = io("http://10.226.241.85:3000");
 const socket = io("http://localhost:3000");
@@ -16,7 +17,7 @@ export let objs = [];
 
 socket.on("connect", () => {
     console.log(`Connected with ID: ${socket.id}`);
-    localPlayer.networkObject.networkId = socket.id;
+    localPlayer.networkId = socket.id;
     connected = true;
 });
 
@@ -33,7 +34,7 @@ export function initialize(playerObj) {
 export function sendInfoToServer(player) {
     if (!connected)
         return;
-    socket.emit("playerUpdate", player.networkObject.infoToSend);
+    socket.emit("playerUpdate", player.infoToSend);
 }
 
 // Spawns new player object for a new payer
@@ -115,14 +116,21 @@ socket.on("removePlayer", playerNetId => {
 
 socket.on("networkObjectUpdatesFromServer", updatedObjs => {
     let updatedObjKeys = Object.keys(updatedObjs);
+    debug();
     for (let i = 0; i < updatedObjKeys.length; i++) {
-        if (!objs[updatedObjKeys[i]]) {
+        let obj = objs[updatedObjKeys[i]];
+        if (!obj) {
             // Create New Object
+            obj = new NetworkObject(updatedObjs[updatedObjKeys[i]].id, updatedObjs[updatedObjKeys[i]].resourceId);
         } else {
             // Update Existing Object
-            // objs[updatedObjKeys[i]].updateFromServer();
+            obj.updateFromServer();
 
             // TODO: Create updateFromServer function for the NetworkObject class
         }
     }
 });
+
+function debug() {
+    console.log("debug");
+}

@@ -24,7 +24,6 @@ io.on("connection", socket => {
     });
 
     socket.on("recieveUpdatesFromSimulation", (objs) => {
-        console.log(objs);
         socket.emit("networkObjectUpdatesFromServer", objs);
     });
 

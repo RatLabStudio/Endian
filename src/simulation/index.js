@@ -22,16 +22,14 @@ let objs = {};
 let test = new NetworkObject("testBox", "box");
 objs[test.id] = test;
 
-NetworkManager.sendInfoToServer(objs);
-
 let previousTime = performance.now();
 setInterval(function () {
   let currentTime = performance.now();
   let dt = (currentTime - previousTime) / 1000; // Delta Time
 
   world.fixedStep(); // Update the physics world
-
-  //NetworkManager.sendInfoToServer(player);
+  
+  NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
 }, 1);

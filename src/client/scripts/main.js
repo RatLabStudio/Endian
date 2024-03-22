@@ -182,7 +182,7 @@ function animate() {
   NetworkManager.sendInfoToServer(player);
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
-  document.getElementById("netId").innerHTML = `${player.networkObject.networkId}`;
+  document.getElementById("netId").innerHTML = `${player.networkId}`;
 
   Lighting.updateGuiLights(player);
 

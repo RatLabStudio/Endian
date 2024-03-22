@@ -40,9 +40,9 @@ export class Player {
         //this.game.scene.add(this.cameraHelper);
 
         // Network Setup
-        this.networkObject = new NetworkObject();
-        this.networkObject.infoToSend = {
-            networkId: this.networkObject.networkId,
+        //this.networkObject = new NetworkObject(0, null);
+        this.infoToSend = {
+            networkId: this.networkId,
             position: this.camera.position,
             rotation: this.camera.quaternion
         }
@@ -175,8 +175,8 @@ export class Player {
         }
 
         // Update for networking
-        this.networkObject.infoToSend = {
-            networkId: this.networkObject.networkId,
+        this.infoToSend = {
+            networkId: this.networkId,
             position: this.camera.position,
             rotation: this.camera.quaternion
         }
