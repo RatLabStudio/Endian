@@ -85,6 +85,6 @@ document.addEventListener('mousemove', function (event) {
     let disp = Math.abs(mouseDisplacement.x + mouseDisplacement.y);
     if (disp > 0)
         blurAmount += disp * 100;
-    document.getElementById("game").style.filter = `blur(${blurAmount}px)`;
-    document.getElementById("css3d").style.filter = `blur(${blurAmount}px)`;
+    //document.getElementById("game").style.filter = `blur(${blurAmount}px)`;
+    //document.getElementById("css3d").style.filter = `blur(${blurAmount}px)`;
 });

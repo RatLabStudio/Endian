@@ -1,12 +1,9 @@
 import { io } from "socket.io-client";
-import * as THREE from "three";
-import * as CANNON from "cannon-es";
 
 import * as Resources from './Resources.js';
-import { GameObject } from "./GameObject.js";
 
 //const socket = io("http://10.226.241.85:3000");
-const socket = io("http://localhost:3000");
+const socket = io("http://192.168.1.254:3000");
 //export let socket = io("http://192.168.1.254:3000");
 
 let game = null;
@@ -19,7 +16,11 @@ let playerObjs = {};
 
 socket.on("connect", () => {
     console.log(`Simulation ID: ${socket.id}`);
-    document.getElementById("netId").innerHTML = socket.id;
+    try {
+        document.getElementById("netId").innerHTML = socket.id;
+    } catch {
+        // Headless Mode
+    }
 });
 
 export function requestPlayerUpdates() {
@@ -65,7 +66,11 @@ socket.on("playerSimulationUpdate", newPlayers => {
     let playerCount = Object.keys(players).length;
 
     // Update visual player count
-    document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
+    try {
+        document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
+    } catch {
+        // Headless Mode
+    }
 });
 
 export function sendInfoToServer(objs) {
@@ -76,4 +81,8 @@ export function sendInfoToServer(objs) {
         compressedObjs[objKeys[i]] = objs[objKeys[i]].compress();
 
     socket.emit("simulationUpdate", compressedObjs);
+}
+
+export function createCpu(id) {
+    socket.emit("createCpu", id);
 }

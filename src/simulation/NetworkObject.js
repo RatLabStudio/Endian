@@ -1,5 +1,4 @@
 import * as Resources from "./Resources.js";
-import { GameObject } from "./GameObject.js";
 
 export class NetworkObject {
     constructor(id, resourceId) {

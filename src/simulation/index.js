@@ -6,12 +6,19 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import * as NetworkManager from './NetworkManager.js';
-import { GameObject } from "./GameObject.js";
 import { NetworkObject } from "./NetworkObject.js";
 
+// Headless mode is for when you want to run the simulation in the terminal without a display window
+let headless = false;
+
 // FPS Counter Creation
-const stats = new Stats();
-document.body.append(stats.dom);
+let stats
+try {
+  stats = new Stats();
+  document.body.append(stats.dom);
+} catch {
+  headless = true;
+}
 
 let scene = new THREE.Scene();
 
@@ -28,27 +35,30 @@ NetworkManager.initializeGame(game);
 
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-let renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+let controls, renderer, camera;
+if (!headless) {
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-const controls = new OrbitControls( camera, renderer.domElement );
+  controls = new OrbitControls(camera, renderer.domElement);
 
-camera.position.set( -25, 5, -25 );
-camera.lookAt(0, 0, 0)
-controls.update();
+  camera.position.set(-25, 5, -25);
+  camera.lookAt(0, 0, 0)
+  controls.update();
 
-window.addEventListener('resize', function () {
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-  renderer.setSize(width, height);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-});
+  window.addEventListener('resize', function () {
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  });
 
-let sun = new THREE.AmbientLight(0xFFFFFF, 1);
-scene.add(sun);
+  let sun = new THREE.AmbientLight(0xFFFFFF, 1);
+  scene.add(sun);
+}
 
 let objs = {};
 
@@ -61,17 +71,22 @@ objs[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
 
-let cpu = new NetworkObject("cpu1", "computer");
+let cpu = new NetworkObject("cpu0", "computer");
 objs[cpu.id] = cpu;
 cpu.object.position.set(0, 0, -20);
 cpu.object.addToGame(game);
+NetworkManager.createCpu(0);
+
+/*let cpu2 = new NetworkObject("cpu1", "computer");
+objs[cpu2.id] = cpu2;
+cpu2.object.position.set(0, -4, -20);
+cpu2.object.addToGame(game);
+NetworkManager.createCpu(1);*/
 
 let previousTime = performance.now();
-function animate() {
-  requestAnimationFrame(animate);
+setInterval(function () {
   let currentTime = performance.now();
   let dt = (currentTime - previousTime) / 1000; // Delta Time
-  stats.update(); // FPS Counter
 
   world.fixedStep(); // Update the physics world
 
@@ -83,11 +98,13 @@ function animate() {
 
   NetworkManager.requestPlayerUpdates();
 
-  controls.update();
-  renderer.render(scene, camera);
+  if (!headless) {
+    stats.update(); // FPS Counter
+    controls.update();
+    renderer.render(scene, camera);
+  }
 
   NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
-}
-animate();
+}, 1)

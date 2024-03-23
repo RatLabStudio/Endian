@@ -3,9 +3,10 @@ import * as THREE from 'three';
 import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
 import { NetworkObject } from "./classes/NetworkObject.js";
+import { Computer } from "./classes/ComputerDisplay.js";
 
 //const socket = io("http://10.226.241.85:3000");
-const socket = io("http://localhost:3000");
+const socket = io("http://192.168.1.254:3000");
 //export let socket = io("http://192.168.1.254:3000");
 let connected = false;
 
@@ -14,6 +15,8 @@ export let playerList = {}; // List of players shared from the server
 let playerObjs = {}; // List of physical player objects
 
 export let objs = [];
+
+export let cpuDisplays = {};
 
 socket.on("connect", () => {
     console.log(`Connected with ID: ${socket.id}`);
@@ -134,3 +137,54 @@ socket.on("objectUpdates", updatedObjs => {
 export function requestSimulationUpdate() {
     socket.emit("requestSimulationUpdate");
 }
+
+
+// CPU Functions:
+let cpus = {};
+
+export function requestAllCpuUpdates() {
+    socket.emit("requestAllCpuData");
+}
+
+socket.on("cpuUpdateAll", cpuData => {
+    cpus = cpuData;
+    let cpuKeys = Object.keys(cpus);
+    for (let i = 0; i < cpuKeys.length; i++) {
+        if (!cpuDisplays[cpuKeys[i]]) {
+            cpuDisplays[cpuKeys[i]] = new Computer(localPlayer.game, localPlayer.game.cssScene);
+            let obj = objs[`cpu${cpuKeys[i]}`].object;
+            setTimeout(function () {
+                cpuDisplays[cpuKeys[i]].setPosition(obj.position.x, obj.position.y, obj.position.z + 0.3);
+                cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
+            }, 100);
+        } else {
+            cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
+        }
+    }
+});
+
+export function getAllCpuData() {
+    return cpus;
+}
+
+export function requestCpuUpdate(cpuId) {
+    socket.emit("requestCpuData", cpuId);
+}
+
+socket.on("cpuUpdate", cpuData => {
+    cpus[cpuData.id] = cpuData;
+});
+
+export function getCpuData(cpuId) {
+    return cpus[cpuId];
+}
+
+export function sendInputToCpu(cpuId, inputChar) {
+    socket.emit("cpuInput", cpuId, inputChar);
+}
+
+document.addEventListener("keydown", function (e) {
+    let k = e.key;
+    if (localPlayer.typing)
+        sendInputToCpu("0", k.toLowerCase());
+});

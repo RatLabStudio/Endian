@@ -19,7 +19,7 @@ import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
-import { Computer } from './classes/Computer.js';
+import { Computer } from './classes/ComputerDisplay.js';
 import * as Lighting from './classes/Lighting.js';
 
 const world = new CANNON.World({
@@ -48,6 +48,7 @@ const game = {
   scene: scene,
   guiScene: guiScene,
   guiCamera: guiCamera,
+  cssScene: cssScene,
   world: world
 };
 
@@ -91,20 +92,8 @@ const cannonDebugger = new CannonDebugger(scene, world, {});
 
 let sun = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.3));
 
-let computer = new Computer(game, cssScene);
-computer.setPosition(Math.floor(player.position.x), -1, Math.floor(player.position.z - 10));
-//computer.displayTestMessage();
-
-computer.nextLine();
-computer.printString('  Endian CPU');
-computer.nextLine();
-computer.printString('  Copyright Rat Lab Studio');
-computer.nextLine();
-computer.nextLine();
-computer.nextLine();
-computer.printString('  Error: No Bootable device');
-computer.nextLine();
-computer.printString('  found!');
+//let computer = new Computer(game, cssScene);
+//computer.setPosition(Math.floor(player.position.x), -0.5, Math.floor(player.position.z - 10));
 
 // -------------------------
 
@@ -159,7 +148,6 @@ let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
   let dt = (currentTime - previousTime) / 1000; // Delta Time
-
   requestAnimationFrame(animate);
 
   world.fixedStep(); // Update the physics world
@@ -169,15 +157,20 @@ function animate() {
 
   stats.update(); // FPS Counter
 
+  // Network Updates:
   NetworkManager.requestSimulationUpdate();
-
   NetworkManager.sendInfoToServer(player);
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
   document.getElementById("netId").innerHTML = `${player.networkId}`;
 
+  // Update the GUI Lighting space to reflect game lighting space
   Lighting.updateGuiLights(player);
 
+  // Get CPU Updates
+  NetworkManager.requestAllCpuUpdates();
+
+  // Renderers
   cssRenderer.render(cssScene, player.camera);
   renderer.render(scene, player.camera);
   guiRenderer.render(guiScene, guiCamera);

@@ -32,6 +32,7 @@ export class Player {
         sprint: 16,   // Shift
         jump: 32,     // Space
         zoom: 67,     // C
+        type: 13,     // Enter
     };
 
     constructor(game) {
@@ -89,6 +90,8 @@ export class Player {
         this.normalFov = Settings.settings.fov; // FOV of the camera
         this.sprintFov = this.normalFov + 6; // FOV to use while sprinting
         this.zoomFov = this.normalFov - 50;
+
+        this.typing = false;
     }
 
     update(dt) {
@@ -224,7 +227,12 @@ export class Player {
 
     onKeyDown(event) {
         this.lockControls();
-        this.keys[event.keyCode] = true;
+
+        if (event.keyCode == this.controlKeys.type)
+            this.typing = !this.typing;
+
+        if (!this.typing)
+            this.keys[event.keyCode] = true;
     }
 
     onKeyUp(event) {
