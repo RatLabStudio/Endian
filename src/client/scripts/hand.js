@@ -32,7 +32,8 @@ export function loadHand(scene, player) {
 }
 
 let previousTime = performance.now();
-setInterval(function () {
+function animate() {
+    requestAnimationFrame(animate);
     let currentTime = performance.now();
     let dt = currentTime - previousTime;
 
@@ -53,8 +54,15 @@ setInterval(function () {
     hand.object.position.z += (defaultPos.z - hand.object.position.z) * 0.03 * dt;
 
     previousTime = performance.now();
-}, 1);
 
+    // For motion blur
+    blurAmount -= 1000;
+    if (blurAmount < 0)
+        blurAmount = 0;
+}
+animate();
+
+let blurAmount = 0;
 // Apply hand movement
 document.addEventListener('mousemove', function (event) {
     if (hand.player == null || !hand.player.controls.isLocked)
@@ -72,4 +80,11 @@ document.addEventListener('mousemove', function (event) {
         hand.object.position.y + (Math.abs(mouseDisplacement.y) <= max ? mouseDisplacement.y : max),
         hand.object.position.z
     );
+
+    // Motion Blur for fun:
+    let disp = Math.abs(mouseDisplacement.x + mouseDisplacement.y);
+    if (disp > 0)
+        blurAmount += disp * 100;
+    document.getElementById("game").style.filter = `blur(${blurAmount}px)`;
+    document.getElementById("css3d").style.filter = `blur(${blurAmount}px)`;
 });

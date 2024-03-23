@@ -104,7 +104,7 @@ socket.on("playerClientUpdate", players => {
         let p = players[playersArr[i]];
         if (p.networkId == socket.id) // Skip local player
             continue; // NOTE: Local Player is NOT stored in the player list
-        playerList[playersArr[i]] = p; // Update player with neew info from server
+        playerList[playersArr[i]] = p; // Update player with new info from server
     }
     updatePlayerObjs(); // Update the physical objects to reflect info
 });
@@ -114,23 +114,23 @@ socket.on("removePlayer", playerNetId => {
     removePlayerObj(playerToRemove);
 });
 
-socket.on("networkObjectUpdatesFromServer", updatedObjs => {
+socket.on("objectUpdates", updatedObjs => {
     let updatedObjKeys = Object.keys(updatedObjs);
-    debug();
     for (let i = 0; i < updatedObjKeys.length; i++) {
         let obj = objs[updatedObjKeys[i]];
         if (!obj) {
             // Create New Object
-            obj = new NetworkObject(updatedObjs[updatedObjKeys[i]].id, updatedObjs[updatedObjKeys[i]].resourceId);
+            objs[updatedObjKeys[i]] = new NetworkObject(updatedObjs[updatedObjKeys[i]].id, updatedObjs[updatedObjKeys[i]].resourceId);
+            // Add object to client game
+            localPlayer.game.scene.add(objs[updatedObjKeys[i]].object.mesh);
+            localPlayer.game.world.addBody(objs[updatedObjKeys[i]].object.body);
         } else {
             // Update Existing Object
-            obj.updateFromServer();
-
-            // TODO: Create updateFromServer function for the NetworkObject class
+            objs[updatedObjKeys[i]].updateFromServer(updatedObjs[updatedObjKeys[i]]);
         }
     }
 });
 
-function debug() {
-    console.log("debug");
+export function requestSimulationUpdate() {
+    socket.emit("requestSimulationUpdate");
 }

@@ -66,7 +66,7 @@ export class Computer {
         this.group.add(this.object);
 
         // Create GL plane
-        this.material = new THREE.MeshLambertMaterial({ color: 0x000000 });
+        this.material = new THREE.MeshLambertMaterial({ color: 0x0000FF });
         this.material.side = THREE.DoubleSide;
         this.material.opacity = 0;
         this.material.transparent = true;

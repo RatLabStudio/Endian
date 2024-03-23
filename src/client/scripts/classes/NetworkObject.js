@@ -7,13 +7,17 @@ export class NetworkObject {
     constructor(id, resourceId) {
         this.id = id;
         this.resourceId = resourceId;
-        this.object = Resources.objects[resourceId];
+        this.object = Resources.createObject(resourceId);
     }
 
     updateFromServer(obj) {
-        console.log("updating")
-        this.object.position = obj.position;
-        this.object.quaternion = obj.quaternion;
+        // Update Position
+        this.object.mesh.position.set(obj.position.x, obj.position.y, obj.position.z);
+        this.object.mesh.quaternion.set(obj.quaternion.x, obj.quaternion.y, obj.quaternion.z, obj.quaternion.w);
+
+        // Update Physics Body
+        this.object.body.position.set(obj.position.x, obj.position.y, obj.position.z);
+        this.object.body.quaternion.set(obj.quaternion.x, obj.quaternion.y, obj.quaternion.z, obj.quaternion.w);
     }
 
     compress() {

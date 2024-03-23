@@ -55,7 +55,7 @@ const game = {
 const player = new Player(game);
 player.setPosition(
   Math.round(Math.random() * 20 - 10),
-  2,
+  4,
   Math.round(Math.random() * 20 - 10)
 );
 
@@ -87,11 +87,6 @@ if (!isMultiplayer)
 
 // DEBUG ASSETS ------------
 
-let ground = new Voxel({ x: 60, y: 5, z: 60 }, 0, new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }), game);
-ground.setPosition(0, -5, 0);
-
-let test = new Voxel({ x: 1, y: 1, z: 1 }, 1, new THREE.MeshLambertMaterial({ color: 0x00FFFF }), game);
-test.setPosition(0, 2, -10);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
 let sun = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.3));
@@ -167,17 +162,14 @@ function animate() {
 
   requestAnimationFrame(animate);
 
-  /*if (currentTime - previousTime < 1000 / 60)
-    return;*/
-
   world.fixedStep(); // Update the physics world
   //cannonDebugger.update(); // Display the physics world
-
-  test.update(); // This will later be done to all objects
 
   player.update(dt);
 
   stats.update(); // FPS Counter
+
+  NetworkManager.requestSimulationUpdate();
 
   NetworkManager.sendInfoToServer(player);
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;

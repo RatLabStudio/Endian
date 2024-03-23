@@ -10,15 +10,16 @@ export class GameObject {
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
 
-        this.game.scene.add(this.mesh);
-
         this.body = body;
 
         this.body.allowSleep = true;
         this.body.sleepSpeedLimit = 1.0;
         this.body.sleepTimeLimit = 0.5;
 
-        this.game.world.addBody(this.body);
+        if (this.game) {
+            this.game.world.addBody(this.body);
+            this.game.scene.add(this.mesh);
+        }
     }
 
     physicsUpdate() {

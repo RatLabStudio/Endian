@@ -225,6 +225,6 @@ button:active {
   background-image: url('./public/assets/textures/ScreenOverlay.png');
   background-repeat: repeat;
   background-size: 30%;
-  opacity: 50%;
+  opacity: 100%;
   filter: "blur('100px');";
 }

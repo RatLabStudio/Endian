@@ -15,7 +15,10 @@ io.on("connection", socket => {
     socket.on("playerUpdate", player => {
         players[socket.id] = player;
         socket.emit("playerClientUpdate", players);
-        // TODO: Send new player information to server
+    });
+
+    socket.on("requestPlayerUpdates", () => {
+        socket.emit("playerSimulationUpdate", players);
     });
 
     socket.on("disconnect", () => {
@@ -23,12 +26,12 @@ io.on("connection", socket => {
         console.log(`${socket.id} disconnected`);
     });
 
-    socket.on("recieveUpdatesFromSimulation", (objs) => {
-        socket.emit("networkObjectUpdatesFromServer", objs);
+    socket.on("simulationUpdate", (objs) => {
+        objects = objs;
+        socket.emit("objectUpdates", objs);
     });
 
-    // Recieves new object from client
-    socket.on("createObject", (newObject) => {
-        objects.push(newObject);
+    socket.on("requestSimulationUpdate", () => {
+        socket.emit("objectUpdates", objects);
     });
 });

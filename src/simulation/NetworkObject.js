@@ -5,7 +5,7 @@ export class NetworkObject {
     constructor(id, resourceId) {
         this.id = id;
         this.resourceId = resourceId;
-        this.object = Resources.objects[resourceId];
+        this.object = Resources.createObject(resourceId);
     }
 
     compress() {
