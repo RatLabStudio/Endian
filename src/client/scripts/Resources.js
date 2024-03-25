@@ -12,6 +12,14 @@ export let objects = {
             shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
         })
     ),
+    ball: new GameObject(
+        new THREE.SphereGeometry(0.75, 16, 16),
+        new THREE.MeshLambertMaterial({ color: 0xFF0000 }),
+        new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Sphere(0.75)
+        })
+    ),
     floor: new GameObject(
         new THREE.BoxGeometry(60, 5, 60),
         new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }),

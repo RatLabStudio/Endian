@@ -8,7 +8,7 @@ import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 
 //const socket = io("http://10.226.241.85:3000");
-const socket = io("http://localhost:3000");
+const socket = io("http://10.226.5.132:3000");
 //export let socket = io("http://192.168.1.254:3000");
 let connected = false;
 
@@ -48,7 +48,7 @@ export function sendInfoToServer(player) {
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
     if (!justJoined)
-        Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
+        //Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
 
     playerObjs[newPlayer.networkId] = new ModelObject(
         'assets/model/player.gltf',
@@ -63,7 +63,7 @@ function createPlayerObj(newPlayer) {
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
-    Chat.log(`${playerNetId} left the game`, "yellow");
+    //Chat.log(`${playerNetId} left the game`, "yellow");
     let player = playerObjs[playerNetId]; // Player to be removed
     player.game.scene.remove(player.mesh); // Remove player model
     player.material.dispose(); // Dispose of model texture

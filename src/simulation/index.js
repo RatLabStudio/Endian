@@ -71,6 +71,11 @@ objs[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
 
+let ball = new NetworkObject("ball", "ball");
+objs[ball.id] = ball;
+ball.object.position.set(0, 10, 0);
+ball.object.addToGame(game);
+
 let cpu = new NetworkObject("cpu0", "computer");
 objs[cpu.id] = cpu;
 cpu.object.position.set(0, -1, -20);
