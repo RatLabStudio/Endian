@@ -14,11 +14,13 @@ let cpus = {};
 io.on("connection", socket => {
     console.log(socket.id + " connected");
 
+    // Receive updates from player
     socket.on("playerUpdate", player => {
         players[socket.id] = player;
         socket.emit("playerClientUpdate", players);
     });
 
+    // Request player updates from server
     socket.on("requestPlayerUpdates", () => {
         socket.emit("playerSimulationUpdate", players);
     });

@@ -89,14 +89,14 @@ if (!isMultiplayer)
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
 let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.3));
-let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+/*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
 sun.castShadow = true;
 sun.position.set(-50, 50, -50);
 sun.target.position.set(20, -20, 20);
 scene.add(sun);
 
 let help = new THREE.DirectionalLightHelper(sun, 0.5);
-scene.add(help);
+scene.add(help);*/
 
 guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.3));
 
@@ -207,7 +207,7 @@ setInterval(function () {
     if (distance < 16)
       cpu.updateNextRow();
   }
-}, 1);
+}, 50);
 
 // Adjusts cameras when the window is resized
 window.addEventListener('resize', () => {

@@ -2,9 +2,8 @@ import { io } from "socket.io-client";
 
 import * as Resources from './Resources.js';
 
-//const socket = io("http://10.226.241.85:3000");
-const socket = io("http://10.226.5.132:3000");
-//export let socket = io("http://192.168.1.254:3000");
+let ip = "localhost";
+const socket = io(`http://${ip}:3000`);
 
 let game = null;
 export function initializeGame(newGame) {

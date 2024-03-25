@@ -7,9 +7,8 @@ import { Computer } from "./classes/ComputerDisplay.js";
 import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 
-//const socket = io("http://10.226.241.85:3000");
-const socket = io("http://10.226.5.132:3000");
-//export let socket = io("http://192.168.1.254:3000");
+let ip = "localhost";
+const socket = io(`http://${ip}:3000`);
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
@@ -48,22 +47,23 @@ export function sendInfoToServer(player) {
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
     if (!justJoined)
-        //Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
+        Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
 
-    playerObjs[newPlayer.networkId] = new ModelObject(
-        'assets/model/player.gltf',
-        new CANNON.Body({
-            mass: 0,
-            shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
-        }),
-        localPlayer.game
-    );
+        playerObjs[newPlayer.networkId] = new ModelObject(
+            'assets/model/player.gltf',
+            new CANNON.Body({
+                mass: 0,
+                shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
+            }),
+            localPlayer.game
+        );
     playerObjs[newPlayer.networkId].bodyOffset.y = -0.25;
 }
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
-    //Chat.log(`${playerNetId} left the game`, "yellow");
+    Chat.log(`${playerNetId} left the game`, "yellow");
+    
     let player = playerObjs[playerNetId]; // Player to be removed
     player.game.scene.remove(player.mesh); // Remove player model
     player.material.dispose(); // Dispose of model texture
@@ -123,6 +123,7 @@ socket.on("removePlayer", playerNetId => {
     removePlayerObj(playerToRemove);
 });
 
+// When the server sends NetworkObject updates
 socket.on("objectUpdates", updatedObjs => {
     let updatedObjKeys = Object.keys(updatedObjs);
     for (let i = 0; i < updatedObjKeys.length; i++) {
@@ -140,10 +141,10 @@ socket.on("objectUpdates", updatedObjs => {
     }
 });
 
+// Request updates from the simulation
 export function requestSimulationUpdate() {
     socket.emit("requestSimulationUpdate");
 }
-
 
 // CPU Functions:
 let cpus = {};
@@ -155,36 +156,45 @@ export function requestAllCpuUpdates() {
 socket.on("cpuUpdateAll", cpuData => {
     cpus = cpuData;
     let cpuKeys = Object.keys(cpus);
+
     for (let i = 0; i < cpuKeys.length; i++) {
+        // If the CpuDisplay doesn't exist, create it, then update it
         if (!cpuDisplays[cpuKeys[i]]) {
             cpuDisplays[cpuKeys[i]] = new Computer(localPlayer.game, localPlayer.game.cssScene);
             let obj = objs[`cpu${cpuKeys[i]}`].object;
+
+            // Position the CpuDisplay after is has been loaded
             setTimeout(function () {
                 cpuDisplays[cpuKeys[i]].setPosition(obj.position.x, obj.position.y, obj.position.z + 0.3);
-                cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
-            }, 100);
-        } else {
-            cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
+            }, 500);
         }
+
+        // Update the display
+        cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
     }
 });
 
-export function getAllCpuData() {
-    return cpus;
-}
-
-export function requestCpuUpdate(cpuId) {
-    socket.emit("requestCpuData", cpuId);
-}
-
-socket.on("cpuUpdate", cpuData => {
-    cpus[cpuData.id] = cpuData;
-});
-
+// Get the data for a specific CPU
 export function getCpuData(cpuId) {
     return cpus[cpuId];
 }
 
+// Get the data for all CPUs
+export function getAllCpuData() {
+    return cpus;
+}
+
+// Request the data for every CPU from the server
+export function requestCpuUpdate(cpuId) {
+    socket.emit("requestCpuData", cpuId);
+}
+
+// When the server sends a CPU update
+socket.on("cpuUpdate", cpuData => {
+    cpus[cpuData.id] = cpuData;
+});
+
+// Sends CPU input to the server for processing
 export function sendInputToCpu(cpuId, inputChar) {
     socket.emit("cpuInput", cpuId, inputChar);
 }

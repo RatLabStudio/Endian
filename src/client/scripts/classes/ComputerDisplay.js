@@ -11,8 +11,6 @@ import * as CSS3DRenderer from 'three/examples/jsm/renderers/CSS3DRenderer';
 import * as CANNON from 'cannon-es';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-import { font } from '../font.js';
-
 import * as Lighting from './Lighting.js';
 
 const loader = new GLTFLoader();
@@ -33,11 +31,6 @@ export class Computer {
         this.height = 96; // Y Resolution
 
         this.scale = 3; // Scale of the entire computer
-
-        this.textPos = { // FOR TEXT DEBUGGING
-            x: 0,
-            y: 0
-        };
 
         this.group = new THREE.Group();
 
@@ -113,6 +106,7 @@ export class Computer {
         this.setPosition(0, 0, 0); // Sets a default position for the computer at 0, 0, 0
 
         this.currentRow = 0;
+        this.lastRowSet = performance.now();
         this.newPixels = [];
     }
 
@@ -161,54 +155,74 @@ export class Computer {
         }
     }
 
-    // Moves the cursor to the start of the next line
-    nextLine() {
-        this.textPos.x = 0;
-        this.textPos.y += 7;
+    checkForNewPixels(array1, array2) {
+        // Check if the arrays have the same dimensions.
+        if (array1.length !== array2.length || array1[0].length !== array2[0].length)
+            return 0;
+        // Iterate over the arrays and compare each element.
+        for (let i = 0; i < array1.length; i++) {
+            for (let j = 0; j < array1[0].length; j++) {
+                if (array1[i][j] !== array2[i][j])
+                    return i;
+            }
+        }
+        // If all elements are equal, return false.
+        return false;
     }
 
+    // Sets the display array for the monitor to begin updating to
     setDisplayFrom2DArray(arr) {
-        //this.clear();
-        if (!arr)
+        let newRow = this.checkForNewPixels(arr, this.newPixels);
+        if (!arr || newRow === false)
             return;
-        /*for (let i = 0; i < arr.length; i++) {
-            for (let j = 0; j < arr[i].length; j++)
-                this.setPixel(j, i, arr[i][j]);
-        }*/
-        this.newPixels = arr
+        this.newPixels = arr;
+        //if (performance.now() - this.lastRowSet > 1000) {
+        this.currentRow = newRow;
+        this.lastRowSet = performance.now();
+        //}
     }
 
-    clearCurrentRow() {
-        this.ctx.clearRect(0, this.currentRow * this.scale, this.canvas.width, this.scale);
+    // Clears a given row
+    clearRow(row) {
+        this.ctx.clearRect(0, row * this.scale, this.canvas.width, this.scale);
     }
 
+    // Prints the scan line
+    printScanLine() {
+        this.ctx.fillStyle = "rgba(255,255,255,0.1)";
+        this.ctx.fillRect(0, this.currentRow * this.scale, this.canvas.width, this.scale);
+    }
+
+    // Updates a given row to reflect that of this.newPixels
+    updateRow(row) {
+        if (this.newPixels.length <= 0)
+            return;
+        this.clearRow(row);
+        for (let i = 0; i < this.width; i++)
+            this.setPixel(i, row, this.newPixels[row][i]);
+    }
+
+    // Updates the next row and advances the scan line
     updateNextRow() {
         if (this.newPixels.length <= 0)
             return;
-        this.clearCurrentRow();
-        for (let i = 0; i < this.width; i++)
-            this.setPixel(i, this.currentRow, this.newPixels[this.currentRow][i]);
+
+        this.updateRow(this.currentRow);
 
         if (this.currentRow < this.height - 1)
             this.currentRow++;
         else
             this.currentRow = 0;
+        //this.printScanLine();
     }
 
+    // Updates the PointLight to reflect the contents of the screen
     updateLight() {
         let avg = {
             red: 0,
             green: 0,
             blue: 0
         };
-        /*for (let i = 0; i < this.width; i++) {
-            for (let j = 0; j < this.height; j++) {
-                let imgData = this.ctx.getImageData(i, j, 1, 1).data;
-                avg.red = imgData[0];
-                avg.green = imgData[1];
-                avg.blue = imgData[2];
-            }
-        }*/
 
         let imgData = this.ctx.getImageData(0, 0, this.width, this.height).data;
         avg.red = imgData[0];
