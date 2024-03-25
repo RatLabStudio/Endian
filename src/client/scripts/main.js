@@ -10,7 +10,6 @@ import * as THREE from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 
 // Importing Supporting Game Classes
@@ -19,7 +18,6 @@ import * as NetworkManager from './NetworkManager.js';
 import { Voxel } from './classes/Voxel.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
-import { Computer } from './classes/ComputerDisplay.js';
 import * as Lighting from './classes/Lighting.js';
 
 const world = new CANNON.World({
@@ -90,10 +88,17 @@ if (!isMultiplayer)
 
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
-let sun = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.3));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.1));
+/*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+sun.castShadow = true;
+sun.position.set(-50, 50, -50);
+sun.target.position.set(20, -20, 20);
+scene.add(sun);
 
-//let computer = new Computer(game, cssScene);
-//computer.setPosition(Math.floor(player.position.x), -0.5, Math.floor(player.position.z - 10));
+let help = new THREE.DirectionalLightHelper(sun, 0.5);
+scene.add(help);*/
+
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.3));
 
 // -------------------------
 
@@ -178,6 +183,31 @@ function animate() {
   previousTime = currentTime;
 }
 animate();
+
+// Update CPU lighting
+setInterval(function () {
+  let cpuDisplays = NetworkManager.cpuDisplays;
+  for (let i = 0; i < Object.keys(cpuDisplays).length; i++)
+    cpuDisplays[Object.keys(cpuDisplays)[i]].updateLight();
+}, 500);
+
+// Update CPU displays
+setInterval(function () {
+  let cpuDisplays = NetworkManager.cpuDisplays;
+  for (let i = 0; i < Object.keys(cpuDisplays).length; i++) {
+    let cpu = cpuDisplays[Object.keys(cpuDisplays)[i]];
+
+    // Determine how far away the monitor is
+    let distance = Math.floor(Math.abs(
+      cpu.position.x - player.position.x +
+      cpu.position.y - player.position.y +
+      cpu.position.z - player.position.z
+    ));
+    // Only nearby monitors are rendered
+    if (distance < 16)
+      cpu.updateNextRow();
+  }
+}, 1);
 
 // Adjusts cameras when the window is resized
 window.addEventListener('resize', () => {

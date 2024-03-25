@@ -213,7 +213,6 @@ button:active {
 .displayCanvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  background-color: blue;
   padding: 2px;
 }
 
@@ -227,4 +226,49 @@ button:active {
   background-size: 30%;
   opacity: 100%;
   filter: "blur('100px');";
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 0%;
+  }
+}
+
+.fadeOut {
+  animation: fadeOut 1s forwards;
+}
+
+.console {
+  width: 40%;
+  height: fit-content;
+  max-height: 50%;
+  position: absolute;
+  bottom: 10%;
+  left: 0;
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+
+.console::-webkit-scrollbar {
+  display: none;
+}
+
+.console .message {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  font-family: sans-serif;
+  color: white;
+  font-size: 3vh;
+  padding: 1vh 0 1vh 0;
+  margin: 1vh 0 1vh 0;
+}
+
+.console .message p {
+  padding: 0;
+  margin: 0 0 0 2vh;
 }

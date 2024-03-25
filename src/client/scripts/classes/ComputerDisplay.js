@@ -9,10 +9,13 @@
 import * as THREE from 'three';
 import * as CSS3DRenderer from 'three/examples/jsm/renderers/CSS3DRenderer';
 import * as CANNON from 'cannon-es';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 import { font } from '../font.js';
 
 import * as Lighting from './Lighting.js';
+
+const loader = new GLTFLoader();
 
 export class Computer {
     constructor(game, cssScene) {
@@ -50,7 +53,7 @@ export class Computer {
         this.canvas.width = this.width * this.scale;
         this.canvas.height = this.height * this.scale;
         this.div.appendChild(this.canvas);
-        this.ctx = this.canvas.getContext("2d");
+        this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
         this.ctx.imageSmoothingEnabled = false;
 
         // Create Screen Overlay
@@ -66,7 +69,7 @@ export class Computer {
         this.group.add(this.object);
 
         // Create GL plane
-        this.material = new THREE.MeshLambertMaterial({ color: 0x0000FF });
+        this.material = new THREE.MeshLambertMaterial({ color: 0x000000 });
         this.material.side = THREE.DoubleSide;
         this.material.opacity = 0;
         this.material.transparent = true;
@@ -82,40 +85,35 @@ export class Computer {
         this.scene.add(this.meshBlend);
         this.cssScene.add(this.group);
 
-        this.computerObject = new THREE.Group(); // Group of computer model components
-        let computerMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+        this.model = null;
 
-        // All the parts of the computer
-        this.computerParts = {
-            body: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.006 * this.scale, this.height * 0.006 * this.scale, 0.05 * this.scale), computerMaterial),
-            bezelTop: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.006 * this.scale, this.height * 0.0005 * this.scale, 0.05 * this.scale), computerMaterial),
-            bezelBottom: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.006 * this.scale, this.height * 0.0005 * this.scale, 0.05 * this.scale), computerMaterial),
-            bezelLeft: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.0005 * this.scale, this.height * 0.006 * this.scale, 0.05 * this.scale), computerMaterial),
-            bezelRight: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.0005 * this.scale, this.height * 0.006 * this.scale, 0.05 * this.scale), computerMaterial),
-            back: new THREE.Mesh(new THREE.BoxGeometry(this.width * 0.004 * this.scale, this.height * 0.004 * this.scale, 0.05 * this.scale), computerMaterial),
-        }
+        loader.load('assets/model/monitor.gltf', (gltfScene) => {
 
-        // Add all parts to the group
-        let cKeys = Object.keys(this.computerParts);
-        for (let i = 0; i < cKeys.length; i++)
-            this.computerObject.add(this.computerParts[cKeys[i]]);
+            this.model = gltfScene.scene;
 
-        this.computerObject.position.set(this.position.x, this.position.y, this.position.z - 0.2505);
-        this.computerObject.castShadow = true;
-        this.scene.add(this.computerObject);
+            this.model.receiveShadow = true;
+            this.model.castShadow = true;
 
-        // Add physics box to computer
-        this.physicsBody = new CANNON.Body({
-            mass: 0,
-            shape: new CANNON.Box(new CANNON.Vec3(this.width * 0.01, this.height * 0.01, 0.2))
+            this.model.position.set(
+                this.object.position.x,
+                this.object.position.y - 0.95,
+                this.object.position.z - 0.69,
+            );
+            this.model.scale.set(2.75, 2.75, 2.75)
+            this.model.rotation.y = Math.PI;
+
+            this.scene.add(this.model);
+
+        }, undefined, function (error) {
+            console.error(error);
         });
-        this.physicsBody.position.set(this.position.x, this.position.y, this.position.z);
 
-        this.game.world.addBody(this.physicsBody);
-
-        this.light = new Lighting.Light(new THREE.PointLight(0x0000FF, 10, 8, 2));
+        this.light = new Lighting.Light(new THREE.PointLight(0xFFFFFF, 10, 8, 2));
 
         this.setPosition(0, 0, 0); // Sets a default position for the computer at 0, 0, 0
+
+        this.currentRow = 0;
+        this.newPixels = [];
     }
 
     // Move the computer and all its components to a specified location
@@ -129,42 +127,15 @@ export class Computer {
         this.object.position.set(this.position.x, this.position.y, this.position.z);
         this.meshBlend.position.copy(this.object.position);
 
-        this.computerParts.body.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z + 0.175
-        );
-        this.computerParts.bezelTop.position.set(
-            this.position.x,
-            this.position.y + (this.height * 0.0275) - 1.85,
-            this.position.z + 0.25
-        );
-        this.computerParts.bezelBottom.position.set(
-            this.position.x,
-            this.position.y - this.height * 0.0275 + 1.85,
-            this.position.z + 0.25
-        );
-        this.computerParts.bezelLeft.position.set(
-            this.position.x - this.width * 0.0275 + 2.45,
-            this.position.y,
-            this.position.z + 0.25
-        );
-        this.computerParts.bezelRight.position.set(
-            this.position.x + this.width * 0.0275 - 2.45,
-            this.position.y,
-            this.position.z + 0.25
-        );
-        this.computerParts.back.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z
-        );
-
-        this.physicsBody.position.set(
-            this.position.x,
-            this.position.y,
-            this.position.z - 0.1
-        );
+        if (this.model) {
+            this.model.position.set(
+                this.object.position.x,
+                this.object.position.y - 0.95,
+                this.object.position.z - 0.69,
+            );
+            this.model.scale.set(2.75, 2.75, 2.75)
+            this.model.rotation.y = Math.PI;
+        }
 
         this.light.setPosition(
             this.position.x,
@@ -190,30 +161,6 @@ export class Computer {
         }
     }
 
-    // Prints a character to the screen
-    printCharacter(char) {
-        char = font[char.toLowerCase()];
-        for (let i = 0; i < char.length; i++) {
-            for (let j = 0; j < char[i].length; j++) {
-                if (char[i][j] === 1)
-                    this.setPixel(j + this.textPos.x, i + this.textPos.y, true);
-            }
-        }
-        this.textPos.x += char[0].length + 1;
-    }
-
-    // Prints a string of characters to the screen
-    printString(str) {
-        str = str.toLowerCase();
-        for (let i = 0; i < str.length; i++) {
-            let char = str[i];
-            if (char == ' ') char = 'space';
-            else if (char == ':') char = 'colon';
-            else if (char == '!') char = 'exclamation';
-            this.printCharacter(char);
-        }
-    }
-
     // Moves the cursor to the start of the next line
     nextLine() {
         this.textPos.x = 0;
@@ -221,12 +168,53 @@ export class Computer {
     }
 
     setDisplayFrom2DArray(arr) {
-        this.clear();
+        //this.clear();
         if (!arr)
             return;
-        for (let i = 0; i < arr.length; i++) {
+        /*for (let i = 0; i < arr.length; i++) {
             for (let j = 0; j < arr[i].length; j++)
                 this.setPixel(j, i, arr[i][j]);
-        }
+        }*/
+        this.newPixels = arr
+    }
+
+    clearCurrentRow() {
+        this.ctx.clearRect(0, this.currentRow * this.scale, this.canvas.width, this.scale);
+    }
+
+    updateNextRow() {
+        if (this.newPixels.length <= 0)
+            return;
+        this.clearCurrentRow();
+        for (let i = 0; i < this.width; i++)
+            this.setPixel(i, this.currentRow, this.newPixels[this.currentRow][i]);
+
+        if (this.currentRow < this.height - 1)
+            this.currentRow++;
+        else
+            this.currentRow = 0;
+    }
+
+    updateLight() {
+        let avg = {
+            red: 0,
+            green: 0,
+            blue: 0
+        };
+        /*for (let i = 0; i < this.width; i++) {
+            for (let j = 0; j < this.height; j++) {
+                let imgData = this.ctx.getImageData(i, j, 1, 1).data;
+                avg.red = imgData[0];
+                avg.green = imgData[1];
+                avg.blue = imgData[2];
+            }
+        }*/
+
+        let imgData = this.ctx.getImageData(0, 0, this.width, this.height).data;
+        avg.red = imgData[0];
+        avg.green = imgData[1];
+        avg.blue = imgData[2];
+
+        this.light.setColor(avg.red / 255 + 0.05, avg.green / 255 + 0.05, avg.blue / 255 + 0.05);
     }
 }

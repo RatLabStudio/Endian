@@ -50,7 +50,7 @@ class Graphics {
         for (let i = 0; i < char.length; i++) {
             for (let j = 0; j < char[i].length; j++) {
                 if (char[i][j] === 1)
-                    this.setPixel(j + this.textPos.x, i + this.textPos.y, 1);
+                    this.setPixel(j + this.textPos.x, i + this.textPos.y, "lime");
             }
         }
 

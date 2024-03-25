@@ -4,9 +4,11 @@ import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
 import { NetworkObject } from "./classes/NetworkObject.js";
 import { Computer } from "./classes/ComputerDisplay.js";
+import * as Chat from "./chat.js";
+import { ModelObject } from './classes/ModelObject.js';
 
 //const socket = io("http://10.226.241.85:3000");
-const socket = io("http://192.168.1.254:3000");
+const socket = io("http://localhost:3000");
 //export let socket = io("http://192.168.1.254:3000");
 let connected = false;
 
@@ -17,6 +19,9 @@ let playerObjs = {}; // List of physical player objects
 export let objs = [];
 
 export let cpuDisplays = {};
+
+let justJoined = true;
+setTimeout(function () { justJoined = false; }, 1000);
 
 socket.on("connect", () => {
     console.log(`Connected with ID: ${socket.id}`);
@@ -42,26 +47,23 @@ export function sendInfoToServer(player) {
 
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
-    playerObjs[newPlayer.networkId] = new GameObject(
-        new THREE.BoxGeometry(1.25, 1.25, 1.25),
-        new THREE.MeshLambertMaterial({ color: 0x00FFFF }),
+    if (!justJoined)
+        Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
+
+    playerObjs[newPlayer.networkId] = new ModelObject(
+        'assets/model/player.gltf',
         new CANNON.Body({
             mass: 0,
-            shape: new CANNON.Box(
-                new CANNON.Vec3(0.75, 0.75, 0.75)
-            )
+            shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
         }),
         localPlayer.game
     );
-    playerObjs[newPlayer.networkId].mesh.position.set(
-        newPlayer.position.x,
-        newPlayer.position.y,
-        newPlayer.position.z
-    );
+    playerObjs[newPlayer.networkId].bodyOffset.y = -0.25;
 }
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
+    Chat.log(`${playerNetId} left the game`, "yellow");
     let player = playerObjs[playerNetId]; // Player to be removed
     player.game.scene.remove(player.mesh); // Remove player model
     player.material.dispose(); // Dispose of model texture
@@ -88,8 +90,12 @@ function updatePlayerObjs() {
             p.position.y,
             p.position.z
         );
-        // Update Rotation
-        obj.setRotationFromQuaternion(p.rotation);
+
+        obj.setRotation(
+            0,
+            p.rotation._y - Math.PI / 2,
+            0
+        );
 
         updated[playersArr[i]] = true;
     }

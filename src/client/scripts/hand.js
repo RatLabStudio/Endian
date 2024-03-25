@@ -82,9 +82,11 @@ document.addEventListener('mousemove', function (event) {
     );
 
     // Motion Blur for fun:
-    let disp = Math.abs(mouseDisplacement.x + mouseDisplacement.y);
-    if (disp > 0)
-        blurAmount += disp * 100;
-    //document.getElementById("game").style.filter = `blur(${blurAmount}px)`;
-    //document.getElementById("css3d").style.filter = `blur(${blurAmount}px)`;
+    if (hand.player.controls.isLocked) {
+        let disp = Math.abs(mouseDisplacement.x + mouseDisplacement.y);
+        if (disp > 0)
+            blurAmount += disp * 100;
+    }
+    document.getElementById("game").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
+    document.getElementById("css3d").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
 });

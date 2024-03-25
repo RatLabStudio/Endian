@@ -39,8 +39,14 @@ io.on("connection", socket => {
 
     socket.on("createCpu", (id) => {
         cpus[id] = new CPU(id);
-        
+
         let computer = cpus[id].gpu;
+
+        /*for (let i = 0; i < 127; i++) {
+            for (let j = 0; j < 95; j++)
+                computer.setPixel(i, j, "blue");
+        }*/
+
         computer.nextLine();
         computer.printString('  Endian CPU');
         computer.nextLine();

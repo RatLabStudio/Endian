@@ -1,11 +1,12 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { GameObject } from "./classes/GameObject.js";
+import { ModelObject } from "./classes/ModelObject.js";
 
 export let objects = {
     box: new GameObject(
         new THREE.BoxGeometry(1, 1, 1),
-        new THREE.MeshNormalMaterial(),
+        new THREE.MeshLambertMaterial({ color: 0x00CCCC }),
         new CANNON.Body({
             mass: 1,
             shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
@@ -19,20 +20,19 @@ export let objects = {
             shape: new CANNON.Box(new CANNON.Vec3(30, 2.5, 30))
         })
     ),
-    player: new GameObject(
-        new THREE.CylinderGeometry(0.45, 0.45, 2.5, 8, 1, false),
-        new THREE.MeshNormalMaterial(),
+    player: new ModelObject(
+        'assets/model/player.gltf',
         new CANNON.Body({
             mass: 0,
-            shape: new CANNON.Cylinder(0.45, 0.45, 2.5, 8),
+            shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
         })
     ),
     computer: new GameObject(
-        new THREE.BoxGeometry(3, 2, 0.2),
+        new THREE.BoxGeometry(0, 0, 0),
         new THREE.MeshLambertMaterial({ color: 0x808080 }),
         new CANNON.Body({
             mass: 0,
-            shape: new CANNON.Box(new CANNON.Vec3(1.5, 1, 0.1))
+            shape: new CANNON.Box(new CANNON.Vec3(1.25, 1, 0.75))
         })
     )
 }
@@ -47,5 +47,17 @@ export function createObject(objectId) {
             mass: resource.body.mass,
             shape: resource.body.shapes[0]
         })
+    );
+}
+
+export function createModelObject(objectId, game) {
+    let resource = objects[objectId];
+    return new ModelObject(
+        resource.gltfPath,
+        new CANNON.Body({
+            mass: resource.body.mass,
+            shape: resource.body.shapes[0]
+        }),
+        game
     );
 }

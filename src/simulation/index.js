@@ -73,7 +73,7 @@ floor.object.addToGame(game);
 
 let cpu = new NetworkObject("cpu0", "computer");
 objs[cpu.id] = cpu;
-cpu.object.position.set(0, 0, -20);
+cpu.object.position.set(0, -1, -20);
 cpu.object.addToGame(game);
 NetworkManager.createCpu(0);
 

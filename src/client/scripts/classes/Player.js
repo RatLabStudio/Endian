@@ -40,12 +40,15 @@ export class Player {
         this.game.scene.add(this.camera);
         //this.game.scene.add(this.cameraHelper);
 
+        this.light = new THREE.PointLight(0xFFFF99, 0.5);
+        this.game.scene.add(this.light);
+
         // Network Setup
         //this.networkObject = new NetworkObject(0, null);
         this.infoToSend = {
             networkId: this.networkId,
             position: this.camera.position,
-            rotation: this.camera.quaternion
+            rotation: this.camera.rotation
         }
 
         // Physics Object for Collisions
@@ -177,11 +180,13 @@ export class Player {
             `;
         }
 
+        this.light.position.copy(this.position);
+
         // Update for networking
         this.infoToSend = {
             networkId: this.networkId,
             position: this.camera.position,
-            rotation: this.camera.quaternion
+            rotation: this.camera.rotation
         }
     }
 

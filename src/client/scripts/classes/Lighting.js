@@ -25,6 +25,11 @@ export class Light {
         this.light.position.set(x, y, z);
         this.guiLight.position.set(x, y, z);
     }
+
+    setColor(r, g, b) {
+        this.light.color.set(r, g, b);
+        this.guiLight.color.set(r, g, b);
+    }
 }
 
 export function updateGuiLights(player) {
