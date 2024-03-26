@@ -19,6 +19,9 @@ import { Voxel } from './classes/Voxel.js';
 import * as GUI from './hand.js';
 import * as Settings from './settings.js';
 import * as Lighting from './classes/Lighting.js';
+import * as State from './state.js';
+
+State.setState("loading");
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -148,6 +151,7 @@ function applySettings() {
 window.applySettings = applySettings;
 setTimeout(applySettings(), 100);
 
+State.setState("loading_simulation");
 // Game Loop
 let previousTime = performance.now();
 function animate() {
@@ -155,7 +159,8 @@ function animate() {
   let dt = (currentTime - previousTime) / 1000; // Delta Time
   requestAnimationFrame(animate);
 
-  world.fixedStep(); // Update the physics world
+  if (State.currentState >= State.getStateId("ready"))
+    world.fixedStep(); // Update the physics world
   //cannonDebugger.update(); // Display the physics world
 
   player.update(dt);
@@ -168,17 +173,17 @@ function animate() {
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
   document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
   document.getElementById("netId").innerHTML = `${player.networkId}`;
+  NetworkManager.requestAllCpuUpdates(); // Get CPU Updates
 
   // Update the GUI Lighting space to reflect game lighting space
   Lighting.updateGuiLights(player);
 
-  // Get CPU Updates
-  NetworkManager.requestAllCpuUpdates();
-
   // Renderers
-  cssRenderer.render(cssScene, player.camera);
-  renderer.render(scene, player.camera);
-  guiRenderer.render(guiScene, guiCamera);
+  if (State.currentState >= State.getStateId("ready")) {
+    cssRenderer.render(cssScene, player.camera);
+    renderer.render(scene, player.camera);
+    guiRenderer.render(guiScene, guiCamera);
+  }
 
   previousTime = currentTime;
 }

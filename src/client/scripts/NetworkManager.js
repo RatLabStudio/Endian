@@ -6,6 +6,7 @@ import { NetworkObject } from "./classes/NetworkObject.js";
 import { Computer } from "./classes/ComputerDisplay.js";
 import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
+import * as State from './state.js';
 
 let ip = "localhost";
 const socket = io(`http://${ip}:3000`);
@@ -49,24 +50,24 @@ function createPlayerObj(newPlayer) {
     if (!justJoined)
         Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
 
-        playerObjs[newPlayer.networkId] = new ModelObject(
-            'assets/model/player.gltf',
-            new CANNON.Body({
-                mass: 0,
-                shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
-            }),
-            localPlayer.game
-        );
+    playerObjs[newPlayer.networkId] = new ModelObject(
+        'assets/model/player.gltf',
+        new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
+        }),
+        localPlayer.game
+    );
     playerObjs[newPlayer.networkId].bodyOffset.y = -0.25;
 }
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
     Chat.log(`${playerNetId} left the game`, "yellow");
-    
+
     let player = playerObjs[playerNetId]; // Player to be removed
-    player.game.scene.remove(player.mesh); // Remove player model
-    player.material.dispose(); // Dispose of model texture
+    player.game.scene.remove(player.model); // Remove player model
+    //player.material.dispose(); // Dispose of model texture
     player.game.world.removeBody(player.body); // Remove physics body
     delete playerObjs[playerNetId]; // Delete JS object
 }
@@ -139,6 +140,8 @@ socket.on("objectUpdates", updatedObjs => {
             objs[updatedObjKeys[i]].updateFromServer(updatedObjs[updatedObjKeys[i]]);
         }
     }
+    if (State.currentState <= State.getStateId("loading_simulation"))
+        State.setState("ready");
 });
 
 // Request updates from the simulation
