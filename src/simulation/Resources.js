@@ -7,7 +7,7 @@ export let objects = {
         new THREE.BoxGeometry(1, 1, 1),
         new THREE.MeshLambertMaterial({ color: 0x00CCCC }),
         new CANNON.Body({
-            mass: 100,
+            mass: 1000,
             shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
         })
     ),

@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "nodemon": "^3.0.3",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "xmlhttprequest": "^1.8.0"
   }
 }

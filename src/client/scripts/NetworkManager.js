@@ -8,7 +8,7 @@ import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
 
-let ip = "localhost";
+let ip = "10.226.5.132";
 const socket = io(`http://${ip}:3000`);
 let connected = false;
 
