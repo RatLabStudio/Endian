@@ -11,6 +11,7 @@ import Stats from 'three/examples/jsm/libs/stats.module.js';
 import * as CANNON from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
+import WebGPURenderer from 'three/addons/renderers/webgpu/WebGPURenderer.js';
 
 // Importing Supporting Game Classes
 import { Player } from './classes/Player.js';
@@ -61,7 +62,7 @@ player.setPosition(
   Math.round(Math.random() * 20 - 10)
 );
 
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+const renderer = new WebGPURenderer({ alpha: true, antialias: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -181,9 +182,9 @@ function animate() {
   // Renderers
   if (State.currentState >= State.getStateId("ready")) {
     cssRenderer.render(cssScene, player.camera);
-    renderer.render(scene, player.camera);
-    guiRenderer.render(guiScene, guiCamera);
+    renderer.renderAsync(scene, player.camera);
   }
+  guiRenderer.render(guiScene, guiCamera);
 
   previousTime = currentTime;
 }
@@ -212,7 +213,7 @@ setInterval(function () {
     if (distance < 16)
       cpu.updateNextRow();
   }
-}, 1);
+}, 10);
 
 // Adjusts cameras when the window is resized
 window.addEventListener('resize', () => {

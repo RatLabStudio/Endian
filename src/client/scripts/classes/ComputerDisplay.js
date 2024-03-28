@@ -195,7 +195,7 @@ export class Computer {
 
     // Updates a given row to reflect that of this.newPixels
     updateRow(row) {
-        if (this.newPixels.length <= 0)
+        if (!this.newPixels[row] || this.newPixels.length[row] <= 0)
             return;
         this.clearRow(row);
         for (let i = 0; i < this.width; i++)

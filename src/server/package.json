@@ -11,8 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "fs": "^0.0.1-security",
     "nodemon": "^3.0.3",
     "socket.io": "^4.7.5",
-    "xmlhttprequest": "^1.8.0"
+    "xhr2": "^0.2.1"
   }
 }
