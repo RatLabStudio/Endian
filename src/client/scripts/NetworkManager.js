@@ -1,7 +1,6 @@
 import { io } from "socket.io-client";
-import * as THREE from 'three';
-import { GameObject } from './classes/GameObject.js';
 import * as CANNON from 'cannon-es';
+
 import { NetworkObject } from "./classes/NetworkObject.js";
 import { Computer } from "./classes/ComputerDisplay.js";
 import * as Chat from "./chat.js";
@@ -11,6 +10,11 @@ import * as State from './state.js';
 //let ip = "10.226.5.132"; // Tencza
 let ip = "localhost";
 let socket = io(`http://${ip}:3000`);
+
+// Make sure the client waits for player initialization to connect
+State.setState("connecting_to_server");
+socket.disconnect();
+setTimeout(() => {socket.connect()}, 1000);
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
@@ -24,6 +28,11 @@ export let cpuDisplays = {};
 let justJoined = true;
 setTimeout(function () { justJoined = false; }, 1000);
 
+// Set the local player
+export function initialize(playerObj) {
+    localPlayer = playerObj;
+}
+
 socket.on("connect", () => {
     console.log(`Connected with ID: ${socket.id}`);
     localPlayer.networkId = socket.id;
@@ -32,11 +41,6 @@ socket.on("connect", () => {
 
 export function setOffline() {
     socket = io('http://localhost:3000');
-}
-
-// Set the local player
-export function initialize(playerObj) {
-    localPlayer = playerObj;
 }
 
 // Sends only current player's info to the server
@@ -142,7 +146,7 @@ socket.on("objectUpdates", updatedObjs => {
         }
     }
     if (State.currentState <= State.getStateId("loading_simulation"))
-        setTimeout(function() { State.setState("ready") }, 1500);;
+        setTimeout(function () { State.setState("ready") }, 1500);
 });
 
 // Request updates from the simulation

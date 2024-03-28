@@ -38,6 +38,7 @@ export class Player {
     constructor(game) {
         this.game = game;
         this.game.scene.add(this.camera);
+        this.networkId = 0;
         //this.game.scene.add(this.cameraHelper);
 
         this.light = new THREE.PointLight(0xFFFF99, 0.5);

@@ -16,13 +16,15 @@ import WebGPURenderer from 'three/addons/renderers/webgpu/WebGPURenderer.js';
 // Importing Supporting Game Classes
 import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
-import { Voxel } from './classes/Voxel.js';
-import * as GUI from './hand.js';
 import * as Settings from './settings.js';
 import * as Lighting from './classes/Lighting.js';
 import * as State from './state.js';
+import * as GUI from './hand.js';
 
 State.setState("loading");
+
+
+/////////////// Engine Setup ///////////////
 
 const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
@@ -32,7 +34,7 @@ world.allowSleep = true;
 // GUI Scene
 const guiScene = new THREE.Scene();
 const guiCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
-const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+const guiRenderer = new WebGPURenderer({ alpha: true, antialias: true });
 guiRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("gui").appendChild(guiRenderer.domElement);
 
@@ -54,19 +56,20 @@ const game = {
   world: world
 };
 
+const cannonDebugger = new CannonDebugger(scene, world, {});
+
 // Camera and Player
 const player = new Player(game);
-player.setPosition(
-  Math.round(Math.random() * 20 - 10),
-  4,
-  Math.round(Math.random() * 20 - 10)
-);
+NetworkManager.initialize(player);
 
-const renderer = new WebGPURenderer({ alpha: true, antialias: false });
+const renderer = new WebGPURenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 document.getElementById("game").appendChild(renderer.domElement);
+
+////////////////////////////////////////////////////////////
+
 
 // FPS Counter Creation
 const stats = new Stats();
@@ -82,31 +85,14 @@ const textureCube = loader.load([
 ]);
 scene.background = textureCube;
 
-Lighting.initializeLighting(game);
+
+/////////////// Settings and GUI ///////////////
 
 let isMultiplayer = document.URL.substring(document.URL.indexOf("?") + 1) != 'offline';
 if (!isMultiplayer)
   NetworkManager.setOffline();
 
-// DEBUG ASSETS ------------
-
-const cannonDebugger = new CannonDebugger(scene, world, {});
-
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.5));
-/*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
-sun.castShadow = true;
-sun.position.set(-50, 50, -50);
-sun.target.position.set(20, -20, 20);
-scene.add(sun);
-
-let help = new THREE.DirectionalLightHelper(sun, 0.5);
-scene.add(help);*/
-
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.3));
-
-// -------------------------
-
-document.addEventListener("keydown", function (e) {
+/*document.addEventListener("keydown", function (e) {
   let k = e.key;
   if (k == "Escape") {
     e.preventDefault();
@@ -115,7 +101,7 @@ document.addEventListener("keydown", function (e) {
     document.getElementById("pauseMenu").style.visibility = "hidden";
     //setPause(false);
   }
-});
+});*/
 
 // Detect when the user leaves pointerLock
 document.addEventListener("pointerlockchange", function (e) {
@@ -134,8 +120,6 @@ function setPause(state) {
 }
 window.setPause = setPause;
 
-GUI.loadHand(guiScene, player);
-
 function applySettings() {
   Settings.loadAllSettings();
 
@@ -152,8 +136,12 @@ function applySettings() {
 window.applySettings = applySettings;
 setTimeout(applySettings(), 100);
 
+////////////////////////////////////////////////////////////
+
+
+/////////////// Game Loop ///////////////
+
 State.setState("loading_simulation");
-// Game Loop
 let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
@@ -184,11 +172,16 @@ function animate() {
     cssRenderer.render(cssScene, player.camera);
     renderer.renderAsync(scene, player.camera);
   }
-  guiRenderer.render(guiScene, guiCamera);
+  guiRenderer.renderAsync(guiScene, guiCamera);
 
   previousTime = currentTime;
 }
 animate();
+
+////////////////////////////////////////////////////////////
+
+
+/////////////// CPU Updating ///////////////
 
 // Update CPU lighting
 setInterval(function () {
@@ -215,14 +208,20 @@ setInterval(function () {
   }
 }, 10);
 
+////////////////////////////////////////////////////////////
+
+
+/////////////// Cameras and Renderer Updating ///////////////
+
 // Adjusts cameras when the window is resized
 window.addEventListener('resize', () => {
   player.camera.aspect = window.innerWidth / window.innerHeight;
   player.camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
 
   guiCamera.aspect = window.innerWidth / window.innerHeight;
-  //guiCamera.updateProjectionMatrix();
+  guiCamera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
   guiRenderer.setSize(window.innerWidth, window.innerHeight);
   cssRenderer.setSize(window.innerWidth, window.innerHeight);
 });
@@ -230,4 +229,26 @@ window.addEventListener('resize', () => {
 renderer.setPixelRatio(Settings.settings.resolution);
 guiRenderer.setPixelRatio(Settings.settings.resolution);
 
-NetworkManager.initialize(player);
+////////////////////////////////////////////////////////////
+
+
+/////////////// Start of Program ///////////////
+
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.5));
+/*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+sun.castShadow = true;
+sun.position.set(-50, 50, -50);
+sun.target.position.set(20, -20, 20);
+scene.add(sun);
+
+let help = new THREE.DirectionalLightHelper(sun, 0.5);
+scene.add(help);*/
+
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.3));
+
+GUI.loadHand(guiScene, player);
+Lighting.initializeLighting(game);
+
+player.setPosition(Math.round(Math.random() * 20 - 10), 4, Math.round(Math.random() * 20 - 10));
+
+////////////////////////////////////////////////////////////
