@@ -11,14 +11,37 @@ body {
 }
 
 .loadingScreen {
-  background-color: black;
-  background: radial-gradient(rgb(50, 50, 50), rgb(15, 15, 15));
-  z-index: 100;
+  z-index: 11;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+@keyframes panLoadingScreen {
+  0% {
+    background-position-x: -20px;
+    background-position-y: 50px;
+  }
+
+  100% {
+    background-position-x: 100px;
+    background-position-y: 0px;
+  }
+}
+
+#loadingScreenBackground {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130%;
+  height: 130%;
+  background-image: url('./assets/textures/gui/titleBackground.png');
+  background-size: 100%;
+  filter: blur(15px);
+  animation: panLoadingScreen 10s alternate infinite;
 }
 
 .loadingScreen h1 {
@@ -124,15 +147,17 @@ a:hover {
 }
 
 button {
-  padding: 1vh;
-  min-width: 40vh;
-  margin: 1vh;
-  background-color: rgba(255, 255, 255, 0.25);
+  padding: 2vh;
+  min-width: 70vh;
+  margin: 2vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(100px);
+  -webkit-backdrop-filter: blur(100px);
   border: solid 1px aqua;
-  border-radius: 2px;
+  border-radius: 1vh;
   color: white;
-  font-size: 2vh;
-  transition: background-color 0.2s ease;
+  font-size: 4vh;
+  transition: background-color 0.3s ease;
   cursor: pointer;
   z-index: 2;
 }
@@ -146,7 +171,7 @@ button:disabled:hover {
 }
 
 button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(25, 25, 25, 0.75);
 }
 
 button:active {
@@ -162,7 +187,7 @@ button:active {
   background-color: rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  z-index: 10;
+  z-index: 12;
   text-align: center;
 }
 
@@ -180,14 +205,20 @@ button:active {
   transform: translate(-50%, -50%);
   width: 80%;
   height: 80%;
-  z-index: 10;
+  z-index: 13;
   border: solid 2px white;
   border-radius: 0vh;
-  background-color: rgb(50, 50, 50);
-  background: radial-gradient(rgb(50, 50, 50), rgb(15, 15, 15));
-  background-size: cover;
-  background-position: 0px 0px;
   box-shadow: 0, 0, 40px black;
+}
+
+.panelBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
 }
 
 .panel iframe {
@@ -255,6 +286,7 @@ button:active {
   0% {
     opacity: 100%;
   }
+
   100% {
     opacity: 0%;
   }

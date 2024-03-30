@@ -2,8 +2,9 @@ import { io } from "socket.io-client";
 
 import * as Resources from './Resources.js';
 
+let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
-let ip = "localhost";
+//let ip = "localhost";
 const socket = io(`http://${ip}:3000`);
 
 let game = null;
@@ -43,11 +44,33 @@ socket.on("playerSimulationUpdate", newPlayers => {
             game.world.addBody(playerObj.body);
         } else {
             // Update existing Player
-            playerObjs[players[newPlayerKeys[i]].networkId].setPosition(
+            /*playerObjs[players[newPlayerKeys[i]].networkId].setPosition(
                 newPlayers[newPlayerKeys[i]].position.x,
                 newPlayers[newPlayerKeys[i]].position.y - 1,
                 newPlayers[newPlayerKeys[i]].position.z
-            );
+            );*/
+
+            let oldPlayer = playerObjs[players[newPlayerKeys[i]].networkId];
+            let newPlayer = newPlayers[newPlayerKeys[i]];
+            let difference = {
+                x: newPlayer.position.x - oldPlayer.position.x,
+                y: newPlayer.position.y - oldPlayer.position.y + 0.25,
+                z: newPlayer.position.z - oldPlayer.position.z,
+            };
+
+            oldPlayer.body.wakeUp();
+
+            let acc = 50; // The rate that the player moves toward it's new location at
+            oldPlayer.body.velocity.x = difference.x * acc;
+            oldPlayer.body.velocity.y = difference.y * acc;
+            oldPlayer.body.velocity.z = difference.z * acc;
+
+            // Keep player from falling over
+            oldPlayer.body.quaternion.x = 0;
+            oldPlayer.body.quaternion.y = 0;
+            oldPlayer.body.quaternion.z = 0;
+
+            oldPlayer.update();
         }
     }
 

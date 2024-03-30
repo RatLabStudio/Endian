@@ -13,6 +13,18 @@ import CannonDebugger from 'cannon-es-debugger';
 import { CSS3DRenderer } from 'three/addons/renderers/CSS3DRenderer.js';
 import WebGPURenderer from 'three/addons/renderers/webgpu/WebGPURenderer.js';
 
+// Post-Processing
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
+import { FilmPass } from "three/examples/jsm/postprocessing/FilmPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { BloomPass } from "three/examples/jsm/postprocessing/BloomPass.js";
+import { RenderPixelatedPass } from 'three/examples/jsm/postprocessing/RenderPixelatedPass.js';
+
 // Importing Supporting Game Classes
 import { Player } from './classes/Player.js';
 import * as NetworkManager from './NetworkManager.js';
@@ -20,9 +32,11 @@ import * as Settings from './settings.js';
 import * as Lighting from './classes/Lighting.js';
 import * as State from './state.js';
 import * as GUI from './hand.js';
+import * as Physics from './physics.js';
 
 State.setState("loading");
 
+Settings.loadAllSettings();
 
 /////////////// Engine Setup ///////////////
 
@@ -30,11 +44,12 @@ const world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0)
 });
 world.allowSleep = true;
+Physics.initialize(world);
 
 // GUI Scene
 const guiScene = new THREE.Scene();
 const guiCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
-const guiRenderer = new WebGPURenderer({ alpha: true, antialias: true });
+const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 guiRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("gui").appendChild(guiRenderer.domElement);
 
@@ -62,11 +77,46 @@ const cannonDebugger = new CannonDebugger(scene, world, {});
 const player = new Player(game);
 NetworkManager.initialize(player);
 
-const renderer = new WebGPURenderer({ alpha: true, antialias: true });
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 document.getElementById("game").appendChild(renderer.domElement);
+
+
+////////// Post-Processing //////////
+
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, player.camera);
+composer.addPass(renderPass);
+
+const guiComposer = new EffectComposer(guiRenderer);
+const guiRenderPass = new RenderPass(guiScene, guiCamera);
+guiComposer.addPass(guiRenderPass);
+
+if (Settings.settings['post-processing'] > 0) {
+  const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.2, 0.1);
+  composer.addPass(unrealBloomPass);
+  //guiComposer.addPass(unrealBloomPass);
+
+  const pixelatedPass = new RenderPixelatedPass(2.5, scene, player.camera);
+  composer.addPass(pixelatedPass);
+  guiComposer.addPass(new RenderPixelatedPass(2.5, guiScene, guiCamera));
+
+  const filmPass = new FilmPass(1.5, false);
+  composer.addPass(filmPass);
+  guiComposer.addPass(filmPass);
+
+  const bloomPass = new BloomPass(1, 5, 0.5);
+  composer.addPass(bloomPass);
+  guiComposer.addPass(bloomPass);
+
+  const outputPass = new OutputPass();
+  composer.addPass(outputPass);
+  guiComposer.addPass(outputPass);
+}
+
+////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 
@@ -169,10 +219,12 @@ function animate() {
 
   // Renderers
   if (State.currentState >= State.getStateId("ready")) {
+    //renderer.renderAsync(scene, player.camera);
+    composer.render();
     cssRenderer.render(cssScene, player.camera);
-    renderer.renderAsync(scene, player.camera);
   }
-  guiRenderer.renderAsync(guiScene, guiCamera);
+  //guiRenderer.render(guiScene, guiCamera);
+  guiComposer.render();
 
   previousTime = currentTime;
 }
@@ -229,12 +281,16 @@ window.addEventListener('resize', () => {
 renderer.setPixelRatio(Settings.settings.resolution);
 guiRenderer.setPixelRatio(Settings.settings.resolution);
 
+window.addEventListener('click', function () {
+  player.gameObject.body.wakeUp();
+})
+
 ////////////////////////////////////////////////////////////
 
 
 /////////////// Start of Program ///////////////
 
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.5));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.05));
 /*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
 sun.castShadow = true;
 sun.position.set(-50, 50, -50);
@@ -244,7 +300,7 @@ scene.add(sun);
 let help = new THREE.DirectionalLightHelper(sun, 0.5);
 scene.add(help);*/
 
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.3));
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.2));
 
 GUI.loadHand(guiScene, player);
 Lighting.initializeLighting(game);

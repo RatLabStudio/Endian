@@ -2,12 +2,13 @@
 // Rat Lab Studio 2024
 
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { NetworkObject } from './NetworkObject';
 import { GameObject } from './GameObject';
 import * as Settings from '../settings.js';
-
-import * as CANNON from 'cannon-es';
+import * as Physics from '../physics.js';
+import * as Resources from '../Resources.js';
 
 export class Player {
     maxSpeed = 10;
@@ -53,18 +54,12 @@ export class Player {
         }
 
         // Physics Object for Collisions
-        this.gameObject = new GameObject(
-            new THREE.CylinderGeometry(2, 2, 0, 16, 1, false),
-            new THREE.MeshBasicMaterial(),
-            new CANNON.Body({
-                mass: 1000,
-                shape: new CANNON.Cylinder(0.45, 0.45, 2.5, 8),
-            }),
-            this.game
-        );
-        // Remove the visual object from the local client because you cannot see it
-        this.game.scene.remove(this.gameObject.mesh);
-        this.gameObject.material.dispose();
+        this.gameObject = Resources.createObject('player');
+        this.game.world.addBody(this.gameObject.body);
+
+        this.gameObject.body.allowSleep = true;
+        this.gameObject.body.sleepSpeedLimit = 5.0;
+        this.gameObject.body.sleepTimeLimit = 0.25;
 
         let temp = this;
         document.addEventListener('click', function (e) {
@@ -92,7 +87,7 @@ export class Player {
         }.bind(this));
 
         this.normalFov = Settings.settings.fov; // FOV of the camera
-        this.sprintFov = this.normalFov + 6; // FOV to use while sprinting
+        this.sprintFov = this.normalFov + 7; // FOV to use while sprinting
         this.zoomFov = this.normalFov - 50;
 
         this.typing = false;
@@ -101,11 +96,10 @@ export class Player {
     update(dt) {
         this.physicsUpdate();
         this.applyInputs(dt);
+        this.cameraUpdate();
     }
 
     physicsUpdate() {
-        // Sync Camera to Physics Body
-        this.position.set(this.gameObject.position.x, this.gameObject.position.y + 1, this.gameObject.position.z);
         // Keep Player Upright
         this.gameObject.body.quaternion.x = 0;
         this.gameObject.body.quaternion.z = 0;
@@ -131,17 +125,19 @@ export class Player {
         if (this.keys[this.controlKeys.zoom]) {
             // Slowly bring FOV down
             if (this.camera.fov > this.zoomFov)
-                this.camera.fov -= 2;
+                this.camera.fov -= 4;
             this.camera.updateProjectionMatrix();
+            this.controls.pointerSpeed = 0.25;
         } else {
             // Slowly bring FOV back up
             if (this.camera.fov < this.normalFov)
-                this.camera.fov += 2;
+                this.camera.fov += 4;
             this.camera.updateProjectionMatrix();
+            this.controls.pointerSpeed = 0.75;
         }
 
         if (this.keys[this.controlKeys.jump] && this.canJump) {
-            this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 17500, 0));
+            this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 3000, 0));
             this.canJump = false;
         }
 
@@ -170,14 +166,13 @@ export class Player {
             this.velocity.z = this.input.z;
 
             // Move Player
-            this.moveRight(this.velocity.x * dt);
-            this.moveForward(this.velocity.z * dt);
+            this.move(this.velocity.z, this.velocity.x);
 
             // Coordinates Display
             document.getElementById("playerPosition").innerHTML = `
-                ${this.position.x.toFixed(1)}, 
-                ${this.position.y.toFixed(1)}, 
-                ${this.position.z.toFixed(1)}
+                ${this.position.x.toFixed(2)}, 
+                ${this.position.y.toFixed(2)}, 
+                ${this.position.z.toFixed(2)}
             `;
         }
 
@@ -186,25 +181,69 @@ export class Player {
         // Update for networking
         this.infoToSend = {
             networkId: this.networkId,
-            position: this.camera.position,
+            position: this.position,
             rotation: this.camera.rotation
         }
     }
 
-    // Moves the entire player object forward based on where it's camera is facing (negative to go back)
+    // Moves the player forward and to the right relative to the camera
+    move(distanceForward, distanceRight) {
+        if (distanceForward != 0 || distanceRight != 0)
+            this.gameObject.body.wakeUp();
+
+        let moveVector = new CANNON.Vec3(); // Store movement
+
+        // Forward Movement
+        let multiplier = 1;
+        moveVector.x += -Math.sin(this.camera.rotation.y) * distanceForward * multiplier;
+        moveVector.z += -Math.cos(this.camera.rotation.y) * distanceForward * multiplier;
+
+        // Right Movement
+        moveVector.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
+        moveVector.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
+
+        // Apply Movement
+        //console.log(moveVector.x);
+        this.gameObject.body.velocity.x = moveVector.x;
+        this.gameObject.body.velocity.z = moveVector.z;
+    }
+
+    // OLD: Moves the entire player object forward based on where it's camera is facing (negative to go back)
     moveForward(distance) {
         if (distance != 0)
             this.gameObject.body.wakeUp();
-        this.gameObject.body.position.x -= Math.sin(this.camera.rotation.y) * distance;
-        this.gameObject.body.position.z -= Math.cos(this.camera.rotation.y) * distance;
+
+        this.gameObject.body.velocity.x = -Math.sin(this.camera.rotation.y) * distance * 300;
+        this.gameObject.body.velocity.z = -Math.cos(this.camera.rotation.y) * distance * 300;
     }
 
-    // Moves the entire player object to the right based on where it's camera is facing (negative to go left)
+    // OLD: Moves the entire player object to the right based on where it's camera is facing (negative to go left)
     moveRight(distance) {
         if (distance != 0)
             this.gameObject.body.wakeUp();
-        this.gameObject.body.position.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distance;
-        this.gameObject.body.position.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distance;
+
+        this.gameObject.body.velocity.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distance * 300;
+        this.gameObject.body.velocity.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distance * 300;
+    }
+
+    // Moves the camera towards the physics body smoothly
+    cameraUpdate() {
+        // Distance between camera and body
+        let difference = {
+            x: this.camera.position.x - this.gameObject.body.position.x,
+            y: this.camera.position.y - this.gameObject.body.position.y - 1,
+            z: this.camera.position.z - this.gameObject.body.position.z,
+        };
+
+        // Snaps camera to body if it gets too far away
+        if (Math.abs(difference.x) > 3 || Math.abs(difference.y) > 3 || Math.abs(difference.z) > 3)
+            this.camera.position.copy(this.gameObject.body.position);
+
+        let acc = 0.3; // How fast the camera moves toward to body
+        // Move the camera towards the body:
+        this.camera.position.x -= difference.x * acc;
+        this.camera.position.y -= difference.y * acc;
+        this.camera.position.z -= difference.z * acc;
     }
 
     // Locks the mouse to the screen for gameplay
@@ -215,7 +254,7 @@ export class Player {
     }
 
     get position() {
-        return this.camera.position;
+        return this.gameObject.body.position;
     }
 
     get rotation() {

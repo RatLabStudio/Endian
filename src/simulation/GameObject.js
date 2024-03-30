@@ -14,7 +14,7 @@ export class GameObject {
         this.body = body;
 
         this.body.allowSleep = true;
-        this.body.sleepSpeedLimit = 1.0;
+        this.body.sleepSpeedLimit = 2.0;
         this.body.sleepTimeLimit = 0.5;
     }
 
@@ -44,6 +44,12 @@ export class GameObject {
     setPosition(x, y, z) {
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
+    }
+
+    setVelocity(x, y, z) {
+        this.body.velocity.x = x;
+        this.body.velocity.y = y;
+        this.body.velocity.z = z;
     }
 
     setRotationFromQuaternion(q) {

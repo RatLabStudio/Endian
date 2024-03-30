@@ -50,12 +50,12 @@ io.on("connection", socket => {
         }*/
 
         computer.nextLine();
-        computer.printString('  Endian CPU');
+        computer.printString('Endian CPU');
         computer.nextLine();
-        computer.printString('  Simulation Running...');
+        computer.printString('Simulation Running...');
         computer.nextLine();
         computer.nextLine();
-        computer.printString("  ");
+        computer.printString("");
     });
 
     socket.on("requestAllCpuData", () => {

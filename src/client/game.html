@@ -11,47 +11,51 @@
 
 <body>
   <div class="loadingScreen" id="loadingScreen" style="visibility: unset;">
-    <h1><span id="loadingState"></span>...</h1>
+    <div class="loadingScreenBackground" id="loadingScreenBackground"></div>
+    <h1 class="megrim"><span id="loadingState"></span>...</h1>
   </div>
 
-  <div class="hud versionInfo">
-    <h1 id="versionInfo">Endian Alpha 5.0.0</h1>
-    <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
-    <p id="playerCount">0 Players Connected</p>
-    <p id="netId" style="font-size: 10px;">NetID: </p>
-  </div>
+  <div>
+    <div class="hud versionInfo">
+      <h1 id="versionInfo">Endian Alpha 5.0.0</h1>
+      <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
+      <p id="playerCount">0 Players Connected</p>
+      <p id="netId" style="font-size: 10px;">NetID: </p>
+    </div>
 
-  <img class="hud crosshair" src="assets/textures/gui/crosshair.png">
-  <!--<div class="hud crosshair">
+    <img class="hud crosshair" src="assets/textures/gui/crosshair.png">
+    <!--<div class="hud crosshair">
     <div class="crosshairVertical"></div>
     <div class="crosshairHorizontal"></div>
   </div>-->
 
-  <p class="hud" id="playerPosition"></p>
+    <p class="hud" id="playerPosition"></p>
 
-  <div class="hud console" id="console"></div>
+    <div class="hud console" id="console"></div>
 
-  <div class="pauseMenu" id="pauseMenu" style="visibility: hidden;">
-    <div class="menu">
-      <button onclick="setPause(false)">Back to Game</button>
-      <br>
-      <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">Settings</button>
-      <br>
-      <button onclick="window.open('index.html', '_self')">Return to Title Screen</button>
+    <div class="pauseMenu" id="pauseMenu" style="visibility: hidden;">
+      <div class="menu">
+        <button onclick="setPause(false)">Back to Game</button>
+        <br>
+        <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">Settings</button>
+        <br>
+        <button onclick="window.open('index.html', '_self')">Return to Title Screen</button>
+      </div>
     </div>
-  </div>
 
-  <div class="panel" id="settingsPanel" style="visibility: hidden;">
-    <button class="closePanel"
-      onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
-    <button id="applySettings" onclick="applySettings()">Apply Settings</button>
-    <iframe src="settings.html"></iframe>
-  </div>
+    <div class="panel" id="settingsPanel" style="visibility: hidden;">
+      <div class="panelBackground"></div>
+      <button class="closePanel"
+        onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
+      <button id="applySettings" onclick="applySettings(); window.location.reload();">Apply Settings</button>
+      <iframe src="settings.html"></iframe>
+    </div>
 
-  <div id="container">
-    <div id="gui" style="position: absolute; z-index: 2;"></div>
-    <div class="renderer" id="css3d" style="position: absolute; z-index: 0;"></div>
-    <div class="renderer" id="game" style="position: absolute; z-index: 0; filter: blur(0px);"></div>
+    <div id="container">
+      <div id="gui" style="position: absolute; z-index: 2;"></div>
+      <div class="renderer" id="css3d" style="position: absolute; z-index: 0;"></div>
+      <div class="renderer" id="game" style="position: absolute; z-index: 0; filter: blur(0px);"></div>
+    </div>
   </div>
 
   <script type="module" src="scripts/main.js"></script>

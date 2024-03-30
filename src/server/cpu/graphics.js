@@ -56,7 +56,7 @@ class Graphics {
 
         this.textPos.x += char[0].length + 1;
 
-        if (this.textPos.x >= this.resolutionX - 3)
+        if (this.textPos.x >= this.resolutionX - 12)
             this.nextLine();
 
         for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
@@ -84,7 +84,7 @@ class Graphics {
             for (let j = this.textPos.y; j < this.textPos.y + 5; j++)
                 this.setPixel(i, j, false);
         }
-        this.textPos.x = 0;
+        this.textPos.x = 9;
         this.textPos.y += 7;
     }
 }

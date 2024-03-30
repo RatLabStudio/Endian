@@ -1,21 +1,31 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { GameObject } from "./GameObject.js";
+import { InstancedObject } from "./InstancedObject.js";
 
 export let objects = {
     box: new GameObject(
-        new THREE.BoxGeometry(1, 1, 1),
+        new THREE.BoxGeometry(2, 2, 2),
         new THREE.MeshLambertMaterial({ color: 0x00CCCC }),
         new CANNON.Body({
-            mass: 1000,
-            shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+            mass: 50,
+            shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
         })
+    ),
+    iBox: new InstancedObject(
+        new THREE.BoxGeometry(2, 2, 2),
+        new THREE.MeshLambertMaterial({ color: 0x00CCCC }),
+        new CANNON.Body({
+            mass: 50,
+            shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1))
+        }),
+        1000
     ),
     ball: new GameObject(
         new THREE.SphereGeometry(0.75, 16, 16),
         new THREE.MeshLambertMaterial({ color: 0xFF0000 }),
         new CANNON.Body({
-            mass: 1,
+            mass: 50,
             shape: new CANNON.Sphere(0.75)
         })
     ),
@@ -24,15 +34,17 @@ export let objects = {
         new THREE.MeshLambertMaterial({ color: 0xB6B6B6 }),
         new CANNON.Body({
             mass: 0,
-            shape: new CANNON.Box(new CANNON.Vec3(30, 2.5, 30))
+            shape: new CANNON.Box(new CANNON.Vec3(30, 2.5, 30)),
+            material: new CANNON.Material({ friction: 0 })
         })
     ),
     player: new GameObject(
-        new THREE.CylinderGeometry(0.6, 0.6, 1.5, 8, 1, false),
+        new THREE.CylinderGeometry(0.45, 0.45, 2.5, 8, 1, false),
         new THREE.MeshNormalMaterial(),
         new CANNON.Body({
-            mass: 0,
-            shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8)
+            mass: 150,
+            shape: new CANNON.Cylinder(0.6, 0.6, 2.5, 8),
+            material: new CANNON.Material({ friction: 10 })
         })
     ),
     computer: new GameObject(

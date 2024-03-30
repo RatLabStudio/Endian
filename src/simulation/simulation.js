@@ -1,3 +1,8 @@
+// Endian Simulation
+// Rat Lab Studio 2024
+
+// IMPORTANT: If you are in view mode, you must have the tab open for the simulation to tick properly!!!
+
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import CannonDebugger from 'cannon-es-debugger';
@@ -7,6 +12,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import * as NetworkManager from './NetworkManager.js';
 import { NetworkObject } from "./NetworkObject.js";
+
+import * as Resources from './Resources.js';
 
 // Headless mode is for when you want to run the simulation in the terminal without a display window
 let headless = false;
@@ -65,6 +72,20 @@ let objs = {};
 let test = new NetworkObject("testBox", "box");
 objs[test.id] = test;
 test.object.addToGame(game);
+
+// Instancing Test
+/*let box = new NetworkObject(`iBox`, "iBox");
+objs[box.id] = box;
+box.object = Resources.objects.iBox;
+box.object.addToGame(game);
+for (let i = 0; i < 5; i++) {
+  for (let j = 0; j < 5; j++) {
+    for (let k = 0; k < 5; k++) {
+      box.object.createObject(game.world);
+      box.object.objs[box.object.index - 1].position.set(i * 3 - 15, j * 3, k * 3 - 15);
+    }
+  }
+}*/
 
 let floor = new NetworkObject("floor", "floor");
 objs[floor.id] = floor;

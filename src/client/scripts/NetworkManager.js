@@ -7,8 +7,9 @@ import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
 
+let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
-let ip = "localhost";
+//let ip = "localhost";
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -26,7 +27,7 @@ export let objs = [];
 export let cpuDisplays = {};
 
 let justJoined = true;
-setTimeout(function () { justJoined = false; }, 1000);
+setTimeout(function () { justJoined = false; }, 2000);
 
 // Set the local player
 export function initialize(playerObj) {
@@ -93,7 +94,7 @@ function updatePlayerObjs() {
         // Update Position
         obj.setPosition(
             p.position.x,
-            p.position.y,
+            p.position.y + 1,
             p.position.z
         );
 

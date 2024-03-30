@@ -224,10 +224,31 @@ export class Computer {
             blue: 0
         };
 
-        let imgData = this.ctx.getImageData(0, 0, this.width, this.height).data;
-        avg.red = imgData[0];
-        avg.green = imgData[1];
-        avg.blue = imgData[2];
+        const canvas = this.canvas;
+        const ctx = this.ctx;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Get all pixel data at once
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+
+        let redSum = 0;
+        let greenSum = 0;
+        let blueSum = 0;
+
+        // Iterate through the pixel data directly
+        for (let i = 0; i < data.length; i += 4) {
+            redSum += data[i];
+            greenSum += data[i + 1];
+            blueSum += data[i + 2];
+        }
+
+        const totalPixels = width * height;
+
+        avg.red = redSum / totalPixels;
+        avg.green = greenSum / totalPixels;
+        avg.blue = blueSum / totalPixels;
 
         this.light.setColor(avg.red / 255 + 0.05, avg.green / 255 + 0.05, avg.blue / 255 + 0.05);
     }
