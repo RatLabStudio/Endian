@@ -13,7 +13,8 @@ export function initializeGame(newGame) {
 }
 
 let players = {};
-let playerObjs = {};
+export let playerObjs = {};
+export let rays = [];
 
 socket.on("connect", () => {
     console.log(`Simulation ID: ${socket.id}`);
@@ -26,6 +27,8 @@ socket.on("connect", () => {
 
 export function requestPlayerUpdates() {
     socket.emit("requestPlayerUpdates");
+    socket.emit("requestMovedNetworkObjects");
+    socket.emit("requestRays");
 }
 
 socket.on("playerSimulationUpdate", newPlayers => {
@@ -36,6 +39,7 @@ socket.on("playerSimulationUpdate", newPlayers => {
             players[newPlayerKeys[i]] = newPlayers[newPlayerKeys[i]];
             playerObjs[players[newPlayerKeys[i]].networkId] = Resources.createObject("player");
             let playerObj = playerObjs[players[newPlayerKeys[i]].networkId];
+            playerObj.mesh.name = "player" + newPlayerKeys[i];
 
             let playerData = players[newPlayerKeys[i]];
             playerObj.body.position.set(playerData.position.x, playerData.position.y, playerData.position.z);
@@ -96,12 +100,22 @@ socket.on("playerSimulationUpdate", newPlayers => {
     }
 });
 
-export function sendInfoToServer(objs) {
+socket.on("movedNetworkObjects", movedObjects => {
+    for (let i = 0; i < movedObjects.length; i++) {
+        if (objs[movedObjects[i].id] && objs[movedObjects[i].id].playerMovable) {
+            objs[movedObjects[i].id].receiveMovementFromServer(movedObjects[i]);
+        }
+    }
+});
+
+let objs;
+export function sendInfoToServer(newObjs) {
     // Data Compression:
-    let objKeys = Object.keys(objs);
+    objs = newObjs;
+    let objKeys = Object.keys(newObjs);
     let compressedObjs = {};
     for (let i = 0; i < objKeys.length; i++)
-        compressedObjs[objKeys[i]] = objs[objKeys[i]].compress();
+        compressedObjs[objKeys[i]] = newObjs[objKeys[i]].compress();
 
     socket.emit("simulationUpdate", compressedObjs);
 }
@@ -109,3 +123,7 @@ export function sendInfoToServer(objs) {
 export function createCpu(id) {
     socket.emit("createCpu", id);
 }
+
+socket.on("sendRays", newRays => {
+    rays = newRays;
+});

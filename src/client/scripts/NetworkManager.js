@@ -15,11 +15,12 @@ let socket = io(`http://${ip}:3000`);
 // Make sure the client waits for player initialization to connect
 State.setState("connecting_to_server");
 socket.disconnect();
-setTimeout(() => {socket.connect()}, 1000);
+setTimeout(() => { socket.connect() }, 1000);
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
 export let playerList = {}; // List of players shared from the server
+let lastPlayerList = {};
 let playerObjs = {}; // List of physical player objects
 
 export let objs = [];
@@ -54,7 +55,7 @@ export function sendInfoToServer(player) {
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
     if (!justJoined)
-        Chat.log(`${newPlayer.networkId} joined the game`, "yellow");
+        Chat.log(`${newPlayer.username} joined the game`, "yellow");
 
     playerObjs[newPlayer.networkId] = new ModelObject(
         'assets/model/player.gltf',
@@ -69,7 +70,7 @@ function createPlayerObj(newPlayer) {
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
-    Chat.log(`${playerNetId} left the game`, "yellow");
+    //Chat.log(`${playerObjs[playerNetId].username} left the game`, "yellow");
 
     let player = playerObjs[playerNetId]; // Player to be removed
     player.game.scene.remove(player.model); // Remove player model
@@ -107,13 +108,16 @@ function updatePlayerObjs() {
         updated[playersArr[i]] = true;
     }
     for (let i = 0; i < playerObjsArr.length; i++) {
-        if (!updated[playerObjsArr[i]])
+        if (!updated[playerObjsArr[i]]) {
             removePlayerObj(playerObjsArr[i]);
+            Chat.log(`${lastPlayerList[playerObjsArr[i]].username} left the game`, "yellow");
+        }
     }
 }
 
 // Receive information from the server about players
 socket.on("playerClientUpdate", players => {
+    lastPlayerList = playerList;
     playerList = {}; // Reset player list to delete old players
     let playersArr = Object.keys(players);
     for (let i = 0; i < playersArr.length; i++) {
@@ -149,6 +153,10 @@ socket.on("objectUpdates", updatedObjs => {
     if (State.currentState <= State.getStateId("loading_simulation"))
         setTimeout(function () { State.setState("ready") }, 1500);
 });
+
+export function moveNetworkObject(id, position) {
+    socket.emit("moveNetworkObject", { id, position });
+}
 
 // Request updates from the simulation
 export function requestSimulationUpdate() {
@@ -213,3 +221,11 @@ document.addEventListener("keydown", function (e) {
     if (localPlayer.typing)
         sendInputToCpu("0", k.toLowerCase());
 });
+
+export function shootRay(raycaster) {
+    let ray = {
+        sender: socket.id,
+        raycaster: raycaster
+    };
+    socket.emit("shootRay", ray);
+}

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import { GameObject } from './GameObject';
+import { GameObject } from './GameObject.js';
 const matrix = new THREE.Matrix4();
 
 export class InstancedObject extends GameObject {

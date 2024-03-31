@@ -2,6 +2,21 @@
   --blue: aqua;
 }
 
+@font-face {
+  font-family: "airstream";
+  src: url('./assets/fonts/airstream.woff2');
+}
+
+@font-face {
+  font-family: "neonlight";
+  src: url('./assets/fonts/neonlight.otf');
+}
+
+@font-face {
+  font-family: "pixel";
+  src: url('./assets/fonts/pixel.woff2');
+}
+
 html,
 body {
   background-color: black;
@@ -17,6 +32,11 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
+  font-family: airstream;
+}
+
+.loadingScreen h1 {
+  font-family: airstream;
 }
 
 @keyframes panLoadingScreen {
@@ -79,7 +99,7 @@ a:hover {
   top: 2vh;
   right: 2vh;
   font-size: 2.5vh;
-  font-family: sans-serif;
+  font-family: pixel;
   color: rgb(43, 238, 245);
   margin: 0;
   text-align: right;
@@ -142,13 +162,28 @@ a:hover {
   left: 1.5vh;
   margin: 0;
   color: rgba(255, 255, 255, 0.5);
-  font-family: sans-serif;
+  font-family: pixel;
   font-size: 2.5vh;
 }
 
+.gameInfo {
+  margin: 0;
+  position: absolute;
+  left: 2vh;
+  top: 2vh;
+  font-family: pixel;
+  color: white;
+  width: fit-content;
+  height: fit-content;
+}
+
+.gameInfo p {
+  margin: 0 0 1vh 0;
+  font-size: 2vh;
+}
+
 button {
-  padding: 2vh;
-  min-width: 70vh;
+  padding: 2.25vh 2.5vh 1.5vh 2.5vh;
   margin: 2vh;
   background-color: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(100px);
@@ -157,6 +192,7 @@ button {
   border-radius: 1vh;
   color: white;
   font-size: 4vh;
+  font-family: "pixel";
   transition: background-color 0.3s ease;
   cursor: pointer;
   z-index: 2;
@@ -195,7 +231,12 @@ button:active {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-60%, -50%);
+  width: 30%;
+}
+
+.pauseMenu .menu button {
+  width: 100%;
 }
 
 .panel {

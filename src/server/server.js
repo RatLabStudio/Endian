@@ -9,6 +9,8 @@ const io = require("socket.io")(3000, {
 let objects = [];
 let players = {};
 let cpus = {};
+let movingObjects = [];
+let rays = [];
 
 // Called when the socket connection is created
 io.on("connection", socket => {
@@ -37,6 +39,16 @@ io.on("connection", socket => {
 
     socket.on("requestSimulationUpdate", () => {
         socket.emit("objectUpdates", objects);
+    });
+
+    socket.on("moveNetworkObject", data => {
+        movingObjects.push(data);
+        //socket.emit("movedNetworkObject", data);
+    });
+
+    socket.on("requestMovedNetworkObjects", () => {
+        socket.emit("movedNetworkObjects", movingObjects);
+        movingObjects = [];
     });
 
     socket.on("createCpu", (id) => {
@@ -74,5 +86,14 @@ io.on("connection", socket => {
     socket.on("cpuInput", (cpuId, inputChar) => {
         if (cpus[cpuId])
             cpus[cpuId].gpu.printCharacter(inputChar);
+    });
+
+    socket.on("shootRay", raycaster => {
+        rays.push(raycaster);
+    });
+
+    socket.on("requestRays", () => {
+        socket.emit("sendRays", rays);
+        rays = [];
     });
 });

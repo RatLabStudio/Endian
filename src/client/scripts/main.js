@@ -33,6 +33,8 @@ import * as Lighting from './classes/Lighting.js';
 import * as State from './state.js';
 import * as GUI from './hand.js';
 import * as Physics from './physics.js';
+import { GameObject } from './classes/GameObject.js';
+import * as UI from './ui.js';
 
 State.setState("loading");
 
@@ -123,7 +125,7 @@ if (Settings.settings['post-processing'] > 0) {
 
 // FPS Counter Creation
 const stats = new Stats();
-document.body.append(stats.dom);
+//document.body.append(stats.dom);
 
 // Setting up the sky:
 const loader = new THREE.CubeTextureLoader();
@@ -162,8 +164,10 @@ document.addEventListener("pointerlockchange", function (e) {
 // Displays pause menu and handles pointerlock
 function setPause(state) {
   if (state) {
+    player.paused = true;
     document.getElementById("pauseMenu").style.visibility = "unset";
   } else {
+    player.paused = false;
     player.lockControls();
     document.getElementById("pauseMenu").style.visibility = "hidden";
   }
@@ -192,9 +196,11 @@ setTimeout(applySettings(), 100);
 /////////////// Game Loop ///////////////
 
 State.setState("loading_simulation");
+let fps = 0;
 let previousTime = performance.now();
 function animate() {
   let currentTime = performance.now();
+  fps = Math.round((1000 / (currentTime - previousTime)));
   let dt = (currentTime - previousTime) / 1000; // Delta Time
   requestAnimationFrame(animate);
 
@@ -204,7 +210,7 @@ function animate() {
 
   player.update(dt);
 
-  stats.update(); // FPS Counter
+  //stats.update(); // FPS Counter
 
   // Network Updates:
   NetworkManager.requestSimulationUpdate();
@@ -259,6 +265,9 @@ setInterval(function () {
       cpu.updateNextRow();
   }
 }, 10);
+
+// Update the framerate
+setInterval(function () { UI.setElement('fps', fps); }, 2000);
 
 ////////////////////////////////////////////////////////////
 

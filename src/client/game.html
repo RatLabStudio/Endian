@@ -10,12 +10,12 @@
 </head>
 
 <body>
-  <div class="loadingScreen" id="loadingScreen" style="visibility: unset;">
+  <div class="loadingScreen" id="loadingScreen" style="visibility: hidden;">
     <div class="loadingScreenBackground" id="loadingScreenBackground"></div>
-    <h1 class="megrim"><span id="loadingState"></span>...</h1>
+    <h1 style="font-family: pixel;"><span id="loadingState"></span>...</h1>
   </div>
 
-  <div>
+  <div class="gameContent">
     <div class="hud versionInfo">
       <h1 id="versionInfo">Endian Alpha 5.0.0</h1>
       <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
@@ -25,15 +25,21 @@
 
     <img class="hud crosshair" src="assets/textures/gui/crosshair.png">
     <!--<div class="hud crosshair">
-    <div class="crosshairVertical"></div>
-    <div class="crosshairHorizontal"></div>
-  </div>-->
+      <div class="crosshairVertical"></div>
+      <div class="crosshairHorizontal"></div>
+    </div>-->
 
     <p class="hud" id="playerPosition"></p>
 
+    <div class="hud gameInfo">
+      <p class="hud" id="health" style="color: lime;">SUIT INTEGRITY: 100%</p>
+      <p class="hud" id="toolPower" style="color: lime;">TOOL POWER: 100%</p>
+      <p class="hud" id="fps" style="color: lime;">SIM PERF: 0</p>
+    </div>
+
     <div class="hud console" id="console"></div>
 
-    <div class="pauseMenu" id="pauseMenu" style="visibility: hidden;">
+    <div class="pauseMenu buttonContainer" id="pauseMenu" style="visibility: hidden;">
       <div class="menu">
         <button onclick="setPause(false)">Back to Game</button>
         <br>

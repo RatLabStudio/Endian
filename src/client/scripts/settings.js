@@ -1,7 +1,8 @@
 export let settings = {
     "fov": 70,
     "resolution": 1,
-    "post-processing": 1
+    "post-processing": 1,
+    "username": "User"
 };
 export let settingsKeys = Object.keys(settings);
 

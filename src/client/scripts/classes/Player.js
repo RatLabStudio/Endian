@@ -9,6 +9,7 @@ import { GameObject } from './GameObject';
 import * as Settings from '../settings.js';
 import * as Physics from '../physics.js';
 import * as Resources from '../Resources.js';
+import * as NetworkManager from '../NetworkManager.js';
 
 export class Player {
     maxSpeed = 10;
@@ -23,6 +24,7 @@ export class Player {
     cameraHelper = new THREE.CameraHelper(this.camera); // Allows you to see where the camera is
 
     keys = []; // Stores which keys are currently pressed
+    mouseButtons = [];
 
     // Player controls
     controlKeys = {
@@ -34,6 +36,11 @@ export class Player {
         jump: 32,     // Space
         zoom: 67,     // C
         type: 13,     // Enter
+    };
+
+    controlMouseButtons = {
+        shoot: 0,
+        hold: 2
     };
 
     constructor(game) {
@@ -48,6 +55,7 @@ export class Player {
         // Network Setup
         //this.networkObject = new NetworkObject(0, null);
         this.infoToSend = {
+            username: Settings.settings.username,
             networkId: this.networkId,
             position: this.camera.position,
             rotation: this.camera.rotation
@@ -68,6 +76,9 @@ export class Player {
         });
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
+        document.addEventListener('mousedown', this.onMouseDown.bind(this));
+        document.addEventListener('mouseup', this.onMouseUp.bind(this));
+        document.addEventListener('wheel', this.onScroll.bind(this));
 
         this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
 
@@ -91,12 +102,25 @@ export class Player {
         this.zoomFov = this.normalFov - 50;
 
         this.typing = false;
+
+        this.raycaster = new THREE.Raycaster();
+        this.heldItem = null;
+        this.holdDistance = 5;
+
+        this.lastShot = performance.now();
+
+        this.paused = false;
     }
 
     update(dt) {
         this.physicsUpdate();
-        this.applyInputs(dt);
         this.cameraUpdate();
+
+        if (!this.paused) {
+            this.applyInputs(dt);
+            this.updateHeldObject();
+            this.updateShooting();
+        }
     }
 
     physicsUpdate() {
@@ -180,6 +204,7 @@ export class Player {
 
         // Update for networking
         this.infoToSend = {
+            username: Settings.settings.username,
             networkId: this.networkId,
             position: this.position,
             rotation: this.camera.rotation
@@ -246,6 +271,38 @@ export class Player {
         this.camera.position.z -= difference.z * acc;
     }
 
+    updateShooting() {
+        let currentTime = performance.now();
+        let timeSinceLastShot = currentTime - this.lastShot;
+
+        if (this.mouseButtons[this.controlMouseButtons.shoot]) {
+            if (timeSinceLastShot > 200) {
+                let raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+                NetworkManager.shootRay(raycaster);
+                this.lastShot = currentTime;
+            }
+        }
+    }
+
+    updateHeldObject() {
+        this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+        const intersects = this.raycaster.intersectObjects(this.game.scene.children);
+
+        if (intersects.length > 0 && this.mouseButtons[this.controlMouseButtons.hold]) {
+            this.heldItem = intersects[0].object;
+            //this.holdDistance = 5;
+        } else if (!this.mouseButtons[this.controlMouseButtons.hold]) {
+            this.heldItem = null;
+        }
+
+        if (this.heldItem) {
+            let newPos = new THREE.Vector3();
+            this.raycaster.ray.at(this.holdDistance, newPos);
+            NetworkManager.moveNetworkObject(this.heldItem.name, newPos);
+        }
+    }
+
     // Locks the mouse to the screen for gameplay
     lockControls() {
         if (!this.controls.isLocked) {
@@ -282,5 +339,21 @@ export class Player {
 
     onKeyUp(event) {
         this.keys[event.keyCode] = false;
+    }
+
+    onMouseDown(event) {
+        this.mouseButtons[event.button] = true;
+    }
+
+    onMouseUp(event) {
+        this.mouseButtons[event.button] = false;
+    }
+
+    onScroll(event) {
+        this.holdDistance += event.deltaY * -0.005;
+        if (this.holdDistance < 2)
+            this.holdDistance = 2;
+        else if (this.holdDistance > 20)
+            this.holdDistance = 20;
     }
 }

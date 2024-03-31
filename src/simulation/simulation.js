@@ -71,6 +71,7 @@ let objs = {};
 
 let test = new NetworkObject("testBox", "box");
 objs[test.id] = test;
+test.playerMovable = true;
 test.object.addToGame(game);
 
 // Instancing Test
@@ -95,6 +96,7 @@ floor.object.addToGame(game);
 let ball = new NetworkObject("ball", "ball");
 objs[ball.id] = ball;
 ball.object.position.set(0, 10, 0);
+ball.playerMovable = true;
 ball.object.addToGame(game);
 
 let cpu = new NetworkObject("cpu0", "computer");
@@ -108,6 +110,25 @@ objs[cpu2.id] = cpu2;
 cpu2.object.position.set(0, -4, -20);
 cpu2.object.addToGame(game);
 NetworkManager.createCpu(1);*/
+
+function manageRays() {
+  for (let i = 0; i < NetworkManager.rays.length; i++) {
+    let raycaster = new THREE.Raycaster();
+    if (!NetworkManager.playerObjs[NetworkManager.rays[i].sender])
+      return;
+    NetworkManager.rays[i].raycaster.ray.origin = NetworkManager.playerObjs[NetworkManager.rays[i].sender].mesh.position;
+
+    raycaster.ray.origin = NetworkManager.rays[i].raycaster.ray.origin;
+    raycaster.ray.direction = NetworkManager.rays[i].raycaster.ray.direction;
+
+    let intersections = raycaster.intersectObjects(scene.children);
+    if (intersections.length > 0) {
+      let hitObject = intersections[0].object;
+      if (hitObject.name.includes("player"))
+        console.log("HIT " + hitObject.name.replace("player"));
+    }
+  }
+}
 
 let previousTime = performance.now();
 setInterval(function () {
@@ -124,6 +145,8 @@ setInterval(function () {
 
   NetworkManager.requestPlayerUpdates();
 
+  manageRays();
+
   if (!headless) {
     stats.update(); // FPS Counter
     controls.update();
@@ -133,4 +156,4 @@ setInterval(function () {
   NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
-}, 1)
+}, 1);
