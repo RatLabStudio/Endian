@@ -12,8 +12,9 @@ export function initializeGame(newGame) {
     game = newGame;
 }
 
-let players = {};
+export let players = {};
 export let playerObjs = {};
+export let playerInfo = {};
 export let rays = [];
 
 socket.on("connect", () => {
@@ -40,12 +41,17 @@ socket.on("playerSimulationUpdate", newPlayers => {
             playerObjs[players[newPlayerKeys[i]].networkId] = Resources.createObject("player");
             let playerObj = playerObjs[players[newPlayerKeys[i]].networkId];
             playerObj.mesh.name = "player" + newPlayerKeys[i];
+            sendChatMessage(`${players[newPlayerKeys[i]].username} joined the game`, "yellow");
 
             let playerData = players[newPlayerKeys[i]];
             playerObj.body.position.set(playerData.position.x, playerData.position.y, playerData.position.z);
             //playerObj.body.quaternion.set(playerData.quaternion.x, playerData.quaternion.y, playerData.quaternion.z, playerData.quaternion.w);
             game.scene.add(playerObj.mesh);
             game.world.addBody(playerObj.body);
+
+            playerInfo[newPlayerKeys[i]] = {
+                health: 100,
+            };
         } else {
             // Update existing Player
             /*playerObjs[players[newPlayerKeys[i]].networkId].setPosition(
@@ -82,12 +88,14 @@ socket.on("playerSimulationUpdate", newPlayers => {
     let playerKeys = Object.keys(players);
     for (let i = 0; i < playerKeys.length; i++) {
         if (!newPlayers[playerKeys[i]]) {
+            sendChatMessage(`${players[playerKeys[i]].username} left the game`, "yellow")
             delete players[playerKeys[i]];
             let player = playerObjs[playerKeys[i]];
             game.scene.remove(player.mesh); // Remove player model
             player.material.dispose(); // Dispose of model texture
             game.world.removeBody(player.body); // Remove physics body
             delete playerObjs[playerKeys[i]]; // Delete JS object
+            delete playerInfo[playerKeys[i]];
         }
     }
     let playerCount = Object.keys(players).length;
@@ -118,6 +126,7 @@ export function sendInfoToServer(newObjs) {
         compressedObjs[objKeys[i]] = newObjs[objKeys[i]].compress();
 
     socket.emit("simulationUpdate", compressedObjs);
+    socket.emit("sendPlayerInfo", playerInfo);
 }
 
 export function createCpu(id) {
@@ -127,3 +136,30 @@ export function createCpu(id) {
 socket.on("sendRays", newRays => {
     rays = newRays;
 });
+
+export function sendRayDisplayInfo(raysToSend) {
+    let rayKeys = Object.keys(raysToSend);
+    let rayData = {};
+    
+    for (let i = 0; i < rayKeys.length; i++) {
+        let currentRay = raysToSend[rayKeys[i]];
+        rayData[rayKeys[i]] = {
+            id: currentRay.id,
+            sender: currentRay.sender,
+            ray: {
+                origin: currentRay.raycaster.ray.origin,
+                direction: currentRay.raycaster.ray.direction
+            },
+            position: currentRay.position
+        };
+    }
+    socket.emit("sendRayDisplayInfo", rayData);
+}
+
+export function sendChatMessage(message, color) {
+    let messageData = {
+        message: message,
+        color: color
+    };
+    socket.emit("sendChatMessage", messageData);
+}

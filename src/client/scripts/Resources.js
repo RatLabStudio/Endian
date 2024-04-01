@@ -59,6 +59,14 @@ export let objects = {
             shape: new CANNON.Box(new CANNON.Vec3(1.25, 1, 0.75)),
             material: Physics.groundMaterial
         })
+    ),
+    bullet: new GameObject(
+        new THREE.BoxGeometry(0.25, 0.25, 0.25),
+        new THREE.MeshNormalMaterial(),
+        new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(new CANNON.Vec3(0, 0, 0))
+        })
     )
 }
 

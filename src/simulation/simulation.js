@@ -69,35 +69,21 @@ if (!headless) {
 
 let objs = {};
 
-let test = new NetworkObject("testBox", "box");
+/*let test = new NetworkObject("testBox", "box");
 objs[test.id] = test;
 test.playerMovable = true;
-test.object.addToGame(game);
-
-// Instancing Test
-/*let box = new NetworkObject(`iBox`, "iBox");
-objs[box.id] = box;
-box.object = Resources.objects.iBox;
-box.object.addToGame(game);
-for (let i = 0; i < 5; i++) {
-  for (let j = 0; j < 5; j++) {
-    for (let k = 0; k < 5; k++) {
-      box.object.createObject(game.world);
-      box.object.objs[box.object.index - 1].position.set(i * 3 - 15, j * 3, k * 3 - 15);
-    }
-  }
-}*/
+test.object.addToGame(game);*/
 
 let floor = new NetworkObject("floor", "floor");
 objs[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
 
-let ball = new NetworkObject("ball", "ball");
+/*let ball = new NetworkObject("ball", "ball");
 objs[ball.id] = ball;
 ball.object.position.set(0, 10, 0);
 ball.playerMovable = true;
-ball.object.addToGame(game);
+ball.object.addToGame(game);*/
 
 let cpu = new NetworkObject("cpu0", "computer");
 objs[cpu.id] = cpu;
@@ -105,29 +91,89 @@ cpu.object.position.set(0, -1, -20);
 cpu.object.addToGame(game);
 NetworkManager.createCpu(0);
 
-/*let cpu2 = new NetworkObject("cpu1", "computer");
-objs[cpu2.id] = cpu2;
-cpu2.object.position.set(0, -4, -20);
-cpu2.object.addToGame(game);
-NetworkManager.createCpu(1);*/
+for (let i = 0; i < 10; i++) {
+  let box = new NetworkObject("box" + i, "box");
+  objs[box.id] = box;
+  box.playerMovable = true;
+  box.object.position.y = i * 10;
+  box.object.addToGame(game);
+}
+
+let rays = {};
+let raySpeed = 0.5;
+let hitBoxOffset = 0.5;
+let maxRayDistance = 100;
 
 function manageRays() {
   for (let i = 0; i < NetworkManager.rays.length; i++) {
-    let raycaster = new THREE.Raycaster();
     if (!NetworkManager.playerObjs[NetworkManager.rays[i].sender])
       return;
-    NetworkManager.rays[i].raycaster.ray.origin = NetworkManager.playerObjs[NetworkManager.rays[i].sender].mesh.position;
 
-    raycaster.ray.origin = NetworkManager.rays[i].raycaster.ray.origin;
-    raycaster.ray.direction = NetworkManager.rays[i].raycaster.ray.direction;
+    if (!rays[NetworkManager.rays[i].id]) {
+      // Store the ray for updating
+      rays[NetworkManager.rays[i].id] = NetworkManager.rays[i];
+      rays[NetworkManager.rays[i].id].position = 0;
 
-    let intersections = raycaster.intersectObjects(scene.children);
-    if (intersections.length > 0) {
-      let hitObject = intersections[0].object;
-      if (hitObject.name.includes("player"))
-        console.log("HIT " + hitObject.name.replace("player"));
+      // Reconstruct the ray with the provided data
+      let reconstructedRaycaster = new THREE.Raycaster(
+        new THREE.Vector3(
+          rays[NetworkManager.rays[i].id].ray.origin.x,
+          rays[NetworkManager.rays[i].id].ray.origin.y,
+          rays[NetworkManager.rays[i].id].ray.origin.z
+        ),
+        new THREE.Vector3(
+          rays[NetworkManager.rays[i].id].ray.direction.x,
+          rays[NetworkManager.rays[i].id].ray.direction.y,
+          rays[NetworkManager.rays[i].id].ray.direction.z
+        )
+      );
+
+      //reconstructedRaycaster.ray.origin.y += 1; // Account for camera offset
+      rays[NetworkManager.rays[i].id].raycaster = reconstructedRaycaster;
+
+      //scene.add(new THREE.ArrowHelper(rays[NetworkManager.rays[i].id].raycaster.ray.direction, rays[NetworkManager.rays[i].id].raycaster.ray.origin, 300, 0xFF0000));
     }
   }
+}
+
+function updateRays() {
+  let rayKeys = Object.keys(rays);
+  for (let i = 0; i < rayKeys.length; i++) {
+    rays[rayKeys[i]].position += raySpeed;
+
+    // Kill the ray if it gets too far away
+    if (rays[rayKeys[i]].position > maxRayDistance) {
+      delete rays[rayKeys[i]];
+      NetworkManager.sendRayDisplayInfo(rays);
+      return;
+    }
+
+    // Check if ray hits an object at it's current position
+    let intersections = rays[rayKeys[i]].raycaster.intersectObjects(scene.children);
+    //console.log(intersections);
+    for (let i = 0; i < intersections.length; i++) {
+      // See if the ray at its distance is within the bounds of the intersected object
+      if (rays[rayKeys[i]] && intersections[i].distance < rays[rayKeys[i]].position + hitBoxOffset && intersections[i].distance > rays[rayKeys[i]].position - hitBoxOffset) {
+        if (intersections[i].object.name == '')
+          continue; // Continue to next intersection
+
+        let shotPlayer = NetworkManager.players[intersections[i].object.name.replace("player", "")];
+        if (shotPlayer) {
+          NetworkManager.playerInfo[shotPlayer.networkId].health -= 5;
+          if (NetworkManager.playerInfo[shotPlayer.networkId].health <= 0)
+            NetworkManager.sendChatMessage(`${shotPlayer.username} was killed by ${NetworkManager.players[rays[rayKeys[i]].sender].username}`, "white");
+          //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} shot ${shotPlayer.username}`)
+        } else {
+          //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} HIT ${intersections[i].object.name}`);
+        }
+
+        delete rays[rayKeys[i]];
+        break;
+      }
+    }
+  }
+
+  NetworkManager.sendRayDisplayInfo(rays);
 }
 
 let previousTime = performance.now();
@@ -146,6 +192,7 @@ setInterval(function () {
   NetworkManager.requestPlayerUpdates();
 
   manageRays();
+  updateRays();
 
   if (!headless) {
     stats.update(); // FPS Counter

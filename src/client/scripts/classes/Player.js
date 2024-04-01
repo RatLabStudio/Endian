@@ -10,6 +10,8 @@ import * as Settings from '../settings.js';
 import * as Physics from '../physics.js';
 import * as Resources from '../Resources.js';
 import * as NetworkManager from '../NetworkManager.js';
+import * as UI from '../ui.js';
+import * as Hand from '../hand.js';
 
 export class Player {
     maxSpeed = 10;
@@ -108,6 +110,7 @@ export class Player {
         this.holdDistance = 5;
 
         this.lastShot = performance.now();
+        this.toolPower = 100;
 
         this.paused = false;
     }
@@ -275,23 +278,31 @@ export class Player {
         let currentTime = performance.now();
         let timeSinceLastShot = currentTime - this.lastShot;
 
+        if (this.toolPower < 100 && timeSinceLastShot > 1000)
+            this.toolPower += 1;
+
         if (this.mouseButtons[this.controlMouseButtons.shoot]) {
-            if (timeSinceLastShot > 200) {
+            if (timeSinceLastShot > 200 && this.toolPower >= 5) {
                 let raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
                 NetworkManager.shootRay(raycaster);
                 this.lastShot = currentTime;
+                this.toolPower -= 5;
+                //this.camera.fov += 3;
+                Hand.shootingAnimation();
             }
         }
+
+        UI.setElement("toolPower", this.toolPower);
     }
 
     updateHeldObject() {
         this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
         const intersects = this.raycaster.intersectObjects(this.game.scene.children);
 
-        if (intersects.length > 0 && this.mouseButtons[this.controlMouseButtons.hold]) {
+        if (intersects.length > 0 && this.mouseButtons[this.controlMouseButtons.hold] && !this.heldItem) {
             this.heldItem = intersects[0].object;
-            //this.holdDistance = 5;
+            this.holdDistance = intersects[0].distance + 0.5;
         } else if (!this.mouseButtons[this.controlMouseButtons.hold]) {
             this.heldItem = null;
         }

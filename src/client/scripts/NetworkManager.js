@@ -1,11 +1,13 @@
 import { io } from "socket.io-client";
 import * as CANNON from 'cannon-es';
+import * as THREE from 'three';
 
 import { NetworkObject } from "./classes/NetworkObject.js";
 import { Computer } from "./classes/ComputerDisplay.js";
 import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
+import * as UI from './ui.js';
 
 let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
@@ -54,8 +56,8 @@ export function sendInfoToServer(player) {
 
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
-    if (!justJoined)
-        Chat.log(`${newPlayer.username} joined the game`, "yellow");
+    /*if (!justJoined)
+        Chat.log(`${newPlayer.username} joined the game`, "yellow");*/
 
     playerObjs[newPlayer.networkId] = new ModelObject(
         'assets/model/player.gltf',
@@ -110,7 +112,7 @@ function updatePlayerObjs() {
     for (let i = 0; i < playerObjsArr.length; i++) {
         if (!updated[playerObjsArr[i]]) {
             removePlayerObj(playerObjsArr[i]);
-            Chat.log(`${lastPlayerList[playerObjsArr[i]].username} left the game`, "yellow");
+            //Chat.log(`${lastPlayerList[playerObjsArr[i]].username} left the game`, "yellow");
         }
     }
 }
@@ -161,6 +163,9 @@ export function moveNetworkObject(id, position) {
 // Request updates from the simulation
 export function requestSimulationUpdate() {
     socket.emit("requestSimulationUpdate");
+    socket.emit("requestRayDisplayInfo");
+    socket.emit("requestPlayerInfo", socket.id);
+    socket.emit("requestNewChatMessages");
 }
 
 // CPU Functions:
@@ -224,8 +229,61 @@ document.addEventListener("keydown", function (e) {
 
 export function shootRay(raycaster) {
     let ray = {
+        id: socket.id + "time" + performance.now().toFixed(3).replace(".", ""),
         sender: socket.id,
-        raycaster: raycaster
+        raycaster: raycaster,
+        ray: {
+            origin: raycaster.ray.origin,
+            direction: raycaster.ray.direction
+        }
     };
     socket.emit("shootRay", ray);
 }
+
+let displayRays = {};
+socket.on("sendRayDisplayInfoToPlayers", newDisplayRays => {
+    let newDisplayRayKeys = Object.keys(newDisplayRays);
+
+    for (let i = 0; i < newDisplayRayKeys.length; i++) {
+        if (!displayRays[newDisplayRayKeys[i]]) { // If the ray didn't already exist
+            // Manage creating a new ray display here
+            displayRays[newDisplayRayKeys[i]] = new NetworkObject(newDisplayRays[newDisplayRayKeys[i]].id, "bullet");
+            displayRays[newDisplayRayKeys[i]].object.mesh.position.set(0, -1000, 0);
+            localPlayer.game.scene.add(displayRays[newDisplayRayKeys[i]].object.mesh);
+        } else {
+            let ray = new THREE.Ray(
+                newDisplayRays[newDisplayRayKeys[i]].ray.origin,
+                newDisplayRays[newDisplayRayKeys[i]].ray.direction,
+            );
+
+            let newPos = new THREE.Vector3();
+            ray.at(newDisplayRays[newDisplayRayKeys[i]].position, newPos)
+            displayRays[newDisplayRayKeys[i]].object.mesh.position.copy(newPos);
+        }
+    }
+
+    let displayRayKeys = Object.keys(displayRays);
+    for (let i = 0; i < displayRayKeys.length; i++) {
+        if (!newDisplayRays[displayRayKeys[i]]) {
+            localPlayer.game.scene.remove(displayRays[displayRayKeys[i]].object.mesh);
+            delete displayRays[displayRayKeys[i]];
+        }
+    }
+});
+
+socket.on("playerInfoUpdate", playerInfo => {
+    UI.setElement("health", playerInfo.health);
+    if (playerInfo.health <= 0) {
+        window.location.reload();
+    }
+});
+
+let hasSentMessages = false;
+socket.on("sendNewChatMessages", messages => {
+    if (!hasSentMessages) {
+        hasSentMessages = true;
+        return;
+    }
+    for (let i = 0; i < messages.length; i++)
+        Chat.log(messages[i].message, messages[i].color);
+});

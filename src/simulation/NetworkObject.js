@@ -10,6 +10,7 @@ export class NetworkObject {
         this.storedMass = 0;
 
         this.object = Resources.createObject(resourceId);
+        this.object.mesh.name = id;
     }
 
     compress() {

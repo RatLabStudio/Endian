@@ -1,6 +1,6 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-let hand = {
+export let hand = {
     object: null,
     player: null
 };
@@ -10,6 +10,12 @@ let defaultPos = {
     x: 1,
     y: -1.25,
     z: -1.1
+};
+
+let defaultRot = {
+    x: 0.1,
+    y: -0.25,
+    z: 0.1
 };
 
 const loader = new GLTFLoader();
@@ -53,6 +59,11 @@ function animate() {
     hand.object.position.y += (defaultPos.y - hand.object.position.y) * 0.03 * dt;
     hand.object.position.z += (defaultPos.z - hand.object.position.z) * 0.03 * dt;
 
+    // Returns the hand to the default rotation over time
+    hand.object.rotation.x += (defaultRot.x - hand.object.rotation.x) * 0.03 * dt;
+    hand.object.rotation.y += (defaultRot.y - hand.object.rotation.y) * 0.03 * dt;
+    hand.object.rotation.z += (defaultRot.z - hand.object.rotation.z) * 0.03 * dt;
+
     previousTime = performance.now();
 
     // For motion blur
@@ -87,6 +98,18 @@ document.addEventListener('mousemove', function (event) {
         if (disp > 0)
             blurAmount += disp * 100;
     }
-    //document.getElementById("game").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
-    //document.getElementById("css3d").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
+    document.getElementById("game").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
+    document.getElementById("css3d").style.filter = `blur(${blurAmount / (window.innerWidth * 0.003)}px)`;
 });
+
+export function shootingAnimation() {
+    let storedPos = defaultPos.z;
+    defaultPos.z += 0.5;
+    let storedRot = defaultRot.x;
+    defaultRot.x += 0.3;
+
+    setTimeout(function () {
+        defaultPos.z = storedPos;
+        defaultRot.x = storedRot;
+    }, 50);
+}

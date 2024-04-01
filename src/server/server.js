@@ -11,6 +11,9 @@ let players = {};
 let cpus = {};
 let movingObjects = [];
 let rays = [];
+let displayRays = {};
+let playerInfo = {};
+let newChatMessages = [];
 
 // Called when the socket connection is created
 io.on("connection", socket => {
@@ -95,5 +98,35 @@ io.on("connection", socket => {
     socket.on("requestRays", () => {
         socket.emit("sendRays", rays);
         rays = [];
+    });
+
+    socket.on("sendRayDisplayInfo", rays => {
+        displayRays = rays;
+    });
+
+    socket.on("requestRayDisplayInfo", () => {
+        socket.emit("sendRayDisplayInfoToPlayers", displayRays);
+    });
+
+    socket.on("sendPlayerInfo", newPlayerInfo => {
+        playerInfo = newPlayerInfo;
+    });
+
+    socket.on("requestPlayerInfo", networkId => {
+        if (playerInfo[networkId])
+            socket.emit("playerInfoUpdate", playerInfo[networkId]);
+    });
+
+    socket.on("sendChatMessage", messageData => {
+        newChatMessages.push(messageData);
+    });
+
+    socket.on("clearNewChatMessages", () => {
+        newChatMessages = [];
+    });
+
+    socket.on("requestNewChatMessages", () => {
+        socket.emit("sendNewChatMessages", newChatMessages);
+        newChatMessages = [];
     });
 });
