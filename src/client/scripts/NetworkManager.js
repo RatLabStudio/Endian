@@ -11,7 +11,7 @@ import * as UI from './ui.js';
 
 //let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
-let ip = "localhost";
+let ip = "10.226.5.203";
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -166,14 +166,11 @@ export function requestSimulationUpdate() {
     socket.emit("requestRayDisplayInfo");
     socket.emit("requestPlayerInfo", socket.id);
     socket.emit("requestNewChatMessages");
+    socket.emit("requestAllCpuData");
 }
 
 // CPU Functions:
 let cpus = {};
-
-export function requestAllCpuUpdates() {
-    socket.emit("requestAllCpuData");
-}
 
 socket.on("cpuUpdateAll", cpuData => {
     cpus = cpuData;

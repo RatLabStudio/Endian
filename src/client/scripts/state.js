@@ -24,7 +24,7 @@ export function setState(state) {
         return;
 
     currentState = states[state];
-    document.getElementById("loadingState").innerHTML = capitalize(state.replace("_", " "));
+    document.getElementById("loadingState").innerHTML = capitalize(state);
 
     if (getStateId(state) >= getStateId("ready")) {
         document.getElementById("loadingScreen").style.visibility = "hidden";
@@ -34,7 +34,8 @@ export function setState(state) {
 }
 
 function capitalize(string) {
-    let words = string.split(" ");
+    string = string.replace(" ", "_");
+    let words = string.split("_");
     let returnStr = "";
     for (let i = 0; i < words.length; i++)
         returnStr += words[i][0].toUpperCase() + words[i].substring(1) + " ";

@@ -80,11 +80,13 @@ const player = new Player(game);
 NetworkManager.initialize(player);
 
 let renderer;
-if (Settings.settings.usewebgpu == 0)
+if (Settings.settings.usewebgpu == 0) {
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  UI.setElement("renderer", "WebGL");
+}
 else {
   renderer = new WebGPURenderer({ alpha: true, antialias: true });
-  console.log("WebGPU")
+  UI.setElement("renderer", "WebGPU");
 }
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
@@ -124,8 +126,6 @@ if (Settings.settings['postprocessing'] > 0) {
   guiComposer.addPass(outputPass);
 }
 
-////////////////////////////////////
-
 ////////////////////////////////////////////////////////////
 
 
@@ -149,17 +149,6 @@ scene.background = textureCube;
 let isMultiplayer = document.URL.substring(document.URL.indexOf("?") + 1) != 'offline';
 if (!isMultiplayer)
   NetworkManager.setOffline();
-
-/*document.addEventListener("keydown", function (e) {
-  let k = e.key;
-  if (k == "Escape") {
-    e.preventDefault();
-    //console.log("Escape");
-    document.getElementById('settingsPanel').style.visibility = 'hidden';
-    document.getElementById("pauseMenu").style.visibility = "hidden";
-    //setPause(false);
-  }
-});*/
 
 // Detect when the user leaves pointerLock
 document.addEventListener("pointerlockchange", function (e) {
@@ -216,15 +205,14 @@ function animate() {
 
   player.update(dt);
 
-  //stats.update(); // FPS Counter
+  stats.update(); // FPS Counter
 
   // Network Updates:
   NetworkManager.requestSimulationUpdate();
   NetworkManager.sendInfoToServer(player);
   let playerCount = Object.keys(NetworkManager.playerList).length + 1;
-  document.getElementById("playerCount").innerHTML = `${playerCount} player${(playerCount == 1 ? "" : "s")} connected`;
-  document.getElementById("netId").innerHTML = `${player.networkId}`;
-  NetworkManager.requestAllCpuUpdates(); // Get CPU Updates
+  UI.setElement("playerCount", playerCount);
+  UI.setElement("netId", player.networkId);
 
   // Update the GUI Lighting space to reflect game lighting space
   Lighting.updateGuiLights(player);
@@ -272,7 +260,7 @@ setInterval(function () {
     if (distance < 16)
       cpu.updateNextRow();
   }
-}, 10);
+}, 100);
 
 // Update the framerate
 setInterval(function () { UI.setElement('fps', fps); }, 2000);
@@ -307,7 +295,7 @@ window.addEventListener('click', function () {
 
 /////////////// Start of Program ///////////////
 
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.05));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.5));
 /*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
 sun.castShadow = true;
 sun.position.set(-50, 50, -50);
@@ -317,7 +305,7 @@ scene.add(sun);
 let help = new THREE.DirectionalLightHelper(sun, 0.5);
 scene.add(help);*/
 
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.2));
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 1));
 
 GUI.loadHand(guiScene, player);
 Lighting.initializeLighting(game);

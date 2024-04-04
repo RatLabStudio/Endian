@@ -2,10 +2,11 @@ import * as THREE from "three";
 import * as NetworkManager from './NetworkManager.js';
 
 export let rays = {};
-export let raySpeed = 0.5;
+export let raySpeed = 1;
 export let hitBoxOffset = 0.5;
 export let maxRayDistance = 100;
 
+// Manages the creation and positioning of rays
 export function manageRays() {
     for (let i = 0; i < NetworkManager.rays.length; i++) {
         if (!NetworkManager.playerObjs[NetworkManager.rays[i].sender])
@@ -37,6 +38,7 @@ export function manageRays() {
     }
 }
 
+// Updates the calculations for each ray
 export function updateRays(scene) {
     let rayKeys = Object.keys(rays);
     for (let i = 0; i < rayKeys.length; i++) {
@@ -60,7 +62,7 @@ export function updateRays(scene) {
 
         // Check if ray hits an object at it's current position
         let intersections = rays[rayKeys[i]].raycaster.intersectObjects(scene.children);
-        //console.log(intersections);
+
         for (let i = 0; i < intersections.length; i++) {
             // See if the ray at its distance is within the bounds of the intersected object
             if (rays[rayKeys[i]] && intersections[i].distance < rays[rayKeys[i]].position + hitBoxOffset && intersections[i].distance > rays[rayKeys[i]].position - hitBoxOffset) {

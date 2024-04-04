@@ -23,7 +23,6 @@ export class NetworkObject {
     }
 
     receiveMovementFromServer(vector) {
-        //this.storedMass = this.object.body.mass;
         this.object.body.velocity.x = 0;
         this.object.body.velocity.y = 0;
         this.object.body.velocity.z = 0;

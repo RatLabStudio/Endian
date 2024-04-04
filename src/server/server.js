@@ -44,6 +44,9 @@ io.on("connection", socket => {
         socket.emit("objectUpdates", objects);
     });
 
+
+    /////////////// Networked Objects ///////////////
+
     socket.on("moveNetworkObject", data => {
         movingObjects.push(data);
         //socket.emit("movedNetworkObject", data);
@@ -53,6 +56,11 @@ io.on("connection", socket => {
         socket.emit("movedNetworkObjects", movingObjects);
         movingObjects = [];
     });
+
+    /////////////////////////////////////////////
+
+
+    /////////////// CPU Management ///////////////
 
     socket.on("createCpu", (id) => {
         cpus[id] = new CPU(id);
@@ -91,6 +99,11 @@ io.on("connection", socket => {
             cpus[cpuId].gpu.printCharacter(inputChar);
     });
 
+    /////////////////////////////////////////////
+
+
+    /////////////// Rays ///////////////
+
     socket.on("shootRay", raycaster => {
         rays.push(raycaster);
     });
@@ -108,6 +121,11 @@ io.on("connection", socket => {
         socket.emit("sendRayDisplayInfoToPlayers", displayRays);
     });
 
+    /////////////////////////////////////////////
+
+
+    /////////////// Player Info ///////////////
+
     socket.on("sendPlayerInfo", newPlayerInfo => {
         playerInfo = newPlayerInfo;
     });
@@ -116,6 +134,11 @@ io.on("connection", socket => {
         if (playerInfo[networkId])
             socket.emit("playerInfoUpdate", playerInfo[networkId]);
     });
+
+    /////////////////////////////////////////////
+
+
+    /////////////// Chat ///////////////
 
     socket.on("sendChatMessage", messageData => {
         newChatMessages.push(messageData);
@@ -129,4 +152,6 @@ io.on("connection", socket => {
         socket.emit("sendNewChatMessages", newChatMessages);
         newChatMessages = [];
     });
+
+    /////////////////////////////////////////////
 });
