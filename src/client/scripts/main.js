@@ -109,11 +109,11 @@ if (Settings.settings['postprocessing'] > 0) {
   composer.addPass(unrealBloomPass);
   //guiComposer.addPass(unrealBloomPass);
 
-  const pixelatedPass = new RenderPixelatedPass(2.5, scene, player.camera);
+  const pixelatedPass = new RenderPixelatedPass(window.innerWidth / 768, scene, player.camera);
   composer.addPass(pixelatedPass);
-  guiComposer.addPass(new RenderPixelatedPass(2.5, guiScene, guiCamera));
+  guiComposer.addPass(new RenderPixelatedPass(window.innerWidth / 768, guiScene, guiCamera));
 
-  const filmPass = new FilmPass(1.5, false);
+  const filmPass = new FilmPass(window.innerWidth / 3000, false);
   composer.addPass(filmPass);
   guiComposer.addPass(filmPass);
 
@@ -260,7 +260,7 @@ setInterval(function () {
     if (distance < 16)
       cpu.updateNextRow();
   }
-}, 100);
+}, 10);
 
 // Update the framerate
 setInterval(function () { UI.setElement('fps', fps); }, 2000);
@@ -295,7 +295,7 @@ window.addEventListener('click', function () {
 
 /////////////// Start of Program ///////////////
 
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.5));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.1));
 /*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
 sun.castShadow = true;
 sun.position.set(-50, 50, -50);
@@ -305,7 +305,7 @@ scene.add(sun);
 let help = new THREE.DirectionalLightHelper(sun, 0.5);
 scene.add(help);*/
 
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 1));
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
 
 GUI.loadHand(guiScene, player);
 Lighting.initializeLighting(game);

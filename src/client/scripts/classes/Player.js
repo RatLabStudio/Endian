@@ -136,13 +136,13 @@ export class Player {
     processInput() {
         // Temporary Sprinting
         if (this.keys[this.controlKeys.sprint]) {
-            this.maxSpeed = 15;
+            this.maxSpeed = 12;
             // Slowly bring FOV up
             if (this.camera.fov < this.sprintFov)
                 this.camera.fov += 0.5;
             this.camera.updateProjectionMatrix();
         } else {
-            this.maxSpeed = 10;
+            this.maxSpeed = 8;
             // Slowly bring FOV back down
             if (this.camera.fov > this.normalFov)
                 this.camera.fov -= 0.5;

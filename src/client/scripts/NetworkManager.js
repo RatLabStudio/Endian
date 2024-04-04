@@ -11,7 +11,7 @@ import * as UI from './ui.js';
 
 //let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
-let ip = "10.226.5.203";
+let ip = "localhost";
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -245,7 +245,7 @@ socket.on("sendRayDisplayInfoToPlayers", newDisplayRays => {
         if (!displayRays[newDisplayRayKeys[i]]) { // If the ray didn't already exist
             // Manage creating a new ray display here
             displayRays[newDisplayRayKeys[i]] = new NetworkObject(newDisplayRays[newDisplayRayKeys[i]].id, "bullet");
-            displayRays[newDisplayRayKeys[i]].object.mesh.position.set(0, -1000, 0);
+            //displayRays[newDisplayRayKeys[i]].object.mesh.position.set(0, -1000, 0);
             localPlayer.game.scene.add(displayRays[newDisplayRayKeys[i]].object.mesh);
         } else {
             let ray = new THREE.Ray(
@@ -254,8 +254,19 @@ socket.on("sendRayDisplayInfoToPlayers", newDisplayRays => {
             );
 
             let newPos = new THREE.Vector3();
+            let oldPos = displayRays[newDisplayRayKeys[i]].object.mesh.position;
             ray.at(newDisplayRays[newDisplayRayKeys[i]].position, newPos)
             displayRays[newDisplayRayKeys[i]].object.mesh.position.copy(newPos);
+
+            /*let difference = new THREE.Vector3(
+                newPos.x - oldPos.x,
+                newPos.y - oldPos.y,
+                newPos.z - oldPos.z
+            );
+
+            displayRays[newDisplayRayKeys[i]].object.mesh.position.x += difference.x * 0.1;
+            displayRays[newDisplayRayKeys[i]].object.mesh.position.y += difference.y * 0.1;
+            displayRays[newDisplayRayKeys[i]].object.mesh.position.z += difference.z * 0.1;*/
         }
     }
 
