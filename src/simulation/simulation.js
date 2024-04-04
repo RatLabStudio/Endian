@@ -15,6 +15,9 @@ import { NetworkObject } from "./NetworkObject.js";
 
 import * as Resources from './Resources.js';
 
+//import { gl } from "gl"; // FOR VIEW MODE
+import gl from "gl";     // FOR HEADLESS MODE
+
 // Headless mode is for when you want to run the simulation in the terminal without a display window
 let headless = false;
 
@@ -26,6 +29,8 @@ try {
 } catch {
   headless = true;
 }
+
+console.log(`Running in ${headless ? 'headless' : 'view'} mode`);
 
 let scene = new THREE.Scene();
 
@@ -42,7 +47,7 @@ NetworkManager.initializeGame(game);
 
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
-let controls, renderer, camera;
+let canvas, controls, renderer, camera;
 if (!headless) {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
@@ -65,6 +70,44 @@ if (!headless) {
 
   let sun = new THREE.AmbientLight(0xFFFFFF, 1);
   scene.add(sun);
+} else {
+  camera = new THREE.PerspectiveCamera(75, 1920 / 1080, 0.1, 1000);
+  function createRenderer({ height, width }) {
+    // THREE expects a canvas object to exist, but it doesn't actually have to work.
+    canvas = {
+      width,
+      height,
+      addEventListener: event => { },
+      removeEventListener: event => { },
+    };
+
+    renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: false,
+      powerPreference: "high-performance",
+      context: gl(width, height, {
+        preserveDrawingBuffer: true,
+      }),
+    });
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default PCFShadowMap
+
+    // This is important to enable shadow mapping. For more see:
+    // https://threejsfundamentals.org/threejs/lessons/threejs-rendertargets.html and
+    // https://threejsfundamentals.org/threejs/lessons/threejs-shadows.html
+    const renderTarget = new THREE.WebGLRenderTarget(width, height, {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+    });
+
+    renderer.setRenderTarget(renderTarget);
+    return renderer;
+  }
+
+  createRenderer({ width: 1920, height: 1080 });
 }
 
 let objs = {};
@@ -100,7 +143,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 let rays = {};
-let raySpeed = 0.5;
+let raySpeed = 0.05;
 let hitBoxOffset = 0.5;
 let maxRayDistance = 100;
 
@@ -139,7 +182,13 @@ function manageRays() {
 function updateRays() {
   let rayKeys = Object.keys(rays);
   for (let i = 0; i < rayKeys.length; i++) {
-    rays[rayKeys[i]].position += raySpeed;
+    try {
+      rays[rayKeys[i]].position += raySpeed;
+    }
+    catch {
+      console.error(`Unable to set position of ray ${rayKeys[i]}`);
+      return;
+    }
 
     // Kill the ray if it gets too far away
     if (rays[rayKeys[i]].position > maxRayDistance) {
@@ -194,9 +243,11 @@ setInterval(function () {
   manageRays();
   updateRays();
 
-  if (!headless) {
-    stats.update(); // FPS Counter
-    controls.update();
+  if (renderer) {
+    if (!headless) {
+      stats.update(); // FPS Counter
+      controls.update();
+    }
     renderer.render(scene, camera);
   }
 

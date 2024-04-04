@@ -242,6 +242,10 @@
                 window.open('game.html', '_self');
         }
         window.playMultiplayer = playMultiplayer;
+
+        document.addEventListener("click", () => {
+            document.documentElement.requestFullscreen();
+        });
     </script>
 </body>
 

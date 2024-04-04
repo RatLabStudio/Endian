@@ -1,8 +1,9 @@
 export let settings = {
     "fov": 70,
     "resolution": 1,
-    "post-processing": 1,
-    "username": "User"
+    "postprocessing": 1,
+    "username": "User",
+    "usewebgpu": 0
 };
 export let settingsKeys = Object.keys(settings);
 
@@ -11,6 +12,7 @@ export function saveAllSettings() {
         saveSetting(settingsKeys[i], settings[settingsKeys[i]]);
     }
 }
+window.saveAllSettings = saveAllSettings;
 
 export function loadAllSettings() {
     for (let i = 0; i < settingsKeys.length; i++) {

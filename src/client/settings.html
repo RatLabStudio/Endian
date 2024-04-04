@@ -101,14 +101,15 @@
 
         createSlider("FOV", 51, 100, 1, 70);
         createSlider("Resolution", 0.1, 2, 0.1, 1);
-        createSlider("Post-Processing", 0, 1, 1, Settings.settings['post-processing']);
+        createSlider("Post Processing", 0, 1, 1, Settings.settings['post-processing']);
+        createSlider("Use WebGPU", 0, 1, 1, Settings.settings.usewebgpu);
 
         // Slider Event Listeners
         for (let i = 0; i < sliders.length; i++) {
             sliders[i].addEventListener("input", function (event) {
                 let id = event.target.id;
                 document.getElementById(id + "-display").innerHTML = event.target.value;
-                Settings.settings[id.toLowerCase()] = event.target.value;
+                Settings.settings[id.toLowerCase().replace("-", "")] = event.target.value;
             });
 
             sliders[i].addEventListener("change", function (event) {
@@ -118,8 +119,8 @@
 
         // Load all settings to sliders:
         for (let i = 0; i < sliders.length; i++) {
-            sliders[i].value = Settings.settings[sliders[i].id.toLowerCase()];
-            document.getElementById(sliders[i].id + "-display").innerHTML = Settings.settings[sliders[i].id.toLowerCase()];
+            sliders[i].value = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
+            document.getElementById(sliders[i].id + "-display").innerHTML = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
         }
     </script>
 </body>

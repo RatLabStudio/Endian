@@ -1,0 +1,25 @@
+{
+  "name": "three.js",
+  "version": "0.1.3",
+  "description": "Three.js for Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:stefankutko/node-three.js.git"
+  },
+  "keywords": [
+    "three.js"
+  ],
+  "dependencies": {
+    "canvas": "*",
+    "jsdom": "*"
+  },
+  "author": "Seiya Konno <nulltask@gmail.com> (http://null.ly)",
+  "contributors": [
+    { "name": "Remo E" }
+  ],
+  "license": "MIT"
+}

@@ -61,8 +61,8 @@ export let objects = {
         })
     ),
     bullet: new GameObject(
-        new THREE.BoxGeometry(0.25, 0.25, 0.25),
-        new THREE.MeshNormalMaterial(),
+        new THREE.SphereGeometry(0.25),
+        new THREE.MeshLambertMaterial({ color: 0xFFFFFF }),
         new CANNON.Body({
             mass: 0,
             shape: new CANNON.Box(new CANNON.Vec3(0, 0, 0))

@@ -319,6 +319,7 @@ export class Player {
         if (!this.controls.isLocked) {
             this.controls.lock();
         }
+        document.documentElement.requestFullscreen();
     }
 
     get position() {

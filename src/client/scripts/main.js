@@ -79,7 +79,13 @@ const cannonDebugger = new CannonDebugger(scene, world, {});
 const player = new Player(game);
 NetworkManager.initialize(player);
 
-const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+let renderer;
+if (Settings.settings.usewebgpu == 0)
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+else {
+  renderer = new WebGPURenderer({ alpha: true, antialias: true });
+  console.log("WebGPU")
+}
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -96,7 +102,7 @@ const guiComposer = new EffectComposer(guiRenderer);
 const guiRenderPass = new RenderPass(guiScene, guiCamera);
 guiComposer.addPass(guiRenderPass);
 
-if (Settings.settings['post-processing'] > 0) {
+if (Settings.settings['postprocessing'] > 0) {
   const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.2, 0.1);
   composer.addPass(unrealBloomPass);
   //guiComposer.addPass(unrealBloomPass);
@@ -225,8 +231,10 @@ function animate() {
 
   // Renderers
   if (State.currentState >= State.getStateId("ready")) {
-    //renderer.renderAsync(scene, player.camera);
-    composer.render();
+    if (Settings.settings.usewebgpu == 1)
+      renderer.renderAsync(scene, player.camera);
+    else
+      composer.render();
     cssRenderer.render(cssScene, player.camera);
   }
   //guiRenderer.render(guiScene, guiCamera);

@@ -9,15 +9,15 @@ import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
 import * as UI from './ui.js';
 
-let ip = "192.168.1.254" // Home PC
+//let ip = "192.168.1.254" // Home PC
 //let ip = "10.226.5.132"; // Tencza
-//let ip = "localhost";
+let ip = "localhost";
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
 State.setState("connecting_to_server");
 socket.disconnect();
-setTimeout(() => { socket.connect() }, 1000);
+setTimeout(() => { socket.connect() }, 5000);
 let connected = false;
 
 let localPlayer = null; // The player on the local computer
