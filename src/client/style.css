@@ -316,7 +316,7 @@ button:active {
   top: 0;
   height: 100%;
   width: 100%;
-  background-image: url('./public/assets/textures/ScreenOverlay.png');
+  background-image: url('./assets/textures/ScreenOverlay.png');
   background-repeat: repeat;
   background-size: 30%;
   opacity: 100%;

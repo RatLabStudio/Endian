@@ -42,7 +42,7 @@ function animate() {
     requestAnimationFrame(animate);
     let currentTime = performance.now();
     let dt = currentTime - previousTime;
-    dt = 10; // I found out DeltaTime was causing the hand to bug out on lower-end devices
+    dt = 7; // I found out DeltaTime was causing the hand to bug out on lower-end devices
 
     if (hand.object == null)
         return;

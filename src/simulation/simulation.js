@@ -12,8 +12,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import * as NetworkManager from './NetworkManager.js';
 import { NetworkObject } from "./NetworkObject.js";
-
-import * as Resources from './Resources.js';
+import * as Rays from './rays.js';
 
 //import { gl } from "gl"; // FOR VIEW MODE
 import gl from "gl";     // FOR HEADLESS MODE
@@ -48,6 +47,8 @@ NetworkManager.initializeGame(game);
 const cannonDebugger = new CannonDebugger(scene, world, {});
 
 let canvas, controls, renderer, camera;
+
+/////////////// View Mode Config ///////////////
 if (!headless) {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
@@ -70,7 +71,10 @@ if (!headless) {
 
   let sun = new THREE.AmbientLight(0xFFFFFF, 1);
   scene.add(sun);
-} else {
+}
+
+/////////////// Headless Mode Config ///////////////
+else {
   camera = new THREE.PerspectiveCamera(75, 1920 / 1080, 0.1, 1000);
   function createRenderer({ height, width }) {
     // THREE expects a canvas object to exist, but it doesn't actually have to work.
@@ -110,23 +114,15 @@ if (!headless) {
   createRenderer({ width: 1920, height: 1080 });
 }
 
-let objs = {};
 
-/*let test = new NetworkObject("testBox", "box");
-objs[test.id] = test;
-test.playerMovable = true;
-test.object.addToGame(game);*/
+/////////////// Start of Program ///////////////
+
+let objs = {};
 
 let floor = new NetworkObject("floor", "floor");
 objs[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
-
-/*let ball = new NetworkObject("ball", "ball");
-objs[ball.id] = ball;
-ball.object.position.set(0, 10, 0);
-ball.playerMovable = true;
-ball.object.addToGame(game);*/
 
 let cpu = new NetworkObject("cpu0", "computer");
 objs[cpu.id] = cpu;
@@ -140,89 +136,6 @@ for (let i = 0; i < 10; i++) {
   box.playerMovable = true;
   box.object.position.y = i * 10;
   box.object.addToGame(game);
-}
-
-let rays = {};
-let raySpeed = 0.05;
-let hitBoxOffset = 0.5;
-let maxRayDistance = 100;
-
-function manageRays() {
-  for (let i = 0; i < NetworkManager.rays.length; i++) {
-    if (!NetworkManager.playerObjs[NetworkManager.rays[i].sender])
-      return;
-
-    if (!rays[NetworkManager.rays[i].id]) {
-      // Store the ray for updating
-      rays[NetworkManager.rays[i].id] = NetworkManager.rays[i];
-      rays[NetworkManager.rays[i].id].position = 0;
-
-      // Reconstruct the ray with the provided data
-      let reconstructedRaycaster = new THREE.Raycaster(
-        new THREE.Vector3(
-          rays[NetworkManager.rays[i].id].ray.origin.x,
-          rays[NetworkManager.rays[i].id].ray.origin.y,
-          rays[NetworkManager.rays[i].id].ray.origin.z
-        ),
-        new THREE.Vector3(
-          rays[NetworkManager.rays[i].id].ray.direction.x,
-          rays[NetworkManager.rays[i].id].ray.direction.y,
-          rays[NetworkManager.rays[i].id].ray.direction.z
-        )
-      );
-
-      //reconstructedRaycaster.ray.origin.y += 1; // Account for camera offset
-      rays[NetworkManager.rays[i].id].raycaster = reconstructedRaycaster;
-
-      //scene.add(new THREE.ArrowHelper(rays[NetworkManager.rays[i].id].raycaster.ray.direction, rays[NetworkManager.rays[i].id].raycaster.ray.origin, 300, 0xFF0000));
-    }
-  }
-}
-
-function updateRays() {
-  let rayKeys = Object.keys(rays);
-  for (let i = 0; i < rayKeys.length; i++) {
-    try {
-      rays[rayKeys[i]].position += raySpeed;
-    }
-    catch {
-      console.error(`Unable to set position of ray ${rayKeys[i]}`);
-      return;
-    }
-
-    // Kill the ray if it gets too far away
-    if (rays[rayKeys[i]].position > maxRayDistance) {
-      delete rays[rayKeys[i]];
-      NetworkManager.sendRayDisplayInfo(rays);
-      return;
-    }
-
-    // Check if ray hits an object at it's current position
-    let intersections = rays[rayKeys[i]].raycaster.intersectObjects(scene.children);
-    //console.log(intersections);
-    for (let i = 0; i < intersections.length; i++) {
-      // See if the ray at its distance is within the bounds of the intersected object
-      if (rays[rayKeys[i]] && intersections[i].distance < rays[rayKeys[i]].position + hitBoxOffset && intersections[i].distance > rays[rayKeys[i]].position - hitBoxOffset) {
-        if (intersections[i].object.name == '')
-          continue; // Continue to next intersection
-
-        let shotPlayer = NetworkManager.players[intersections[i].object.name.replace("player", "")];
-        if (shotPlayer) {
-          NetworkManager.playerInfo[shotPlayer.networkId].health -= 5;
-          if (NetworkManager.playerInfo[shotPlayer.networkId].health <= 0)
-            NetworkManager.sendChatMessage(`${shotPlayer.username} was killed by ${NetworkManager.players[rays[rayKeys[i]].sender].username}`, "white");
-          //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} shot ${shotPlayer.username}`)
-        } else {
-          //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} HIT ${intersections[i].object.name}`);
-        }
-
-        delete rays[rayKeys[i]];
-        break;
-      }
-    }
-  }
-
-  NetworkManager.sendRayDisplayInfo(rays);
 }
 
 let previousTime = performance.now();
@@ -240,8 +153,8 @@ setInterval(function () {
 
   NetworkManager.requestPlayerUpdates();
 
-  manageRays();
-  updateRays();
+  Rays.manageRays();
+  Rays.updateRays(scene);
 
   if (renderer) {
     if (!headless) {
