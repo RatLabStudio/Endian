@@ -90,7 +90,7 @@ else {
 }
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById("game").appendChild(renderer.domElement);
 
 
@@ -107,7 +107,7 @@ guiComposer.addPass(guiRenderPass);
 if (Settings.settings['postprocessing'] > 0) {
   const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.2, 0.1);
   composer.addPass(unrealBloomPass);
-  //guiComposer.addPass(unrealBloomPass);
+  guiComposer.addPass(unrealBloomPass);
 
   const pixelatedPass = new RenderPixelatedPass(window.innerWidth / 768, scene, player.camera);
   composer.addPass(pixelatedPass);
@@ -288,28 +288,20 @@ guiRenderer.setPixelRatio(Settings.settings.resolution);
 
 window.addEventListener('click', function () {
   player.gameObject.body.wakeUp();
-})
+});
 
 ////////////////////////////////////////////////////////////
 
 
 /////////////// Start of Program ///////////////
 
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.1));
-/*let sun = new THREE.DirectionalLight(0xFFFFFF, 0.5);
-sun.castShadow = true;
-sun.position.set(-50, 50, -50);
-sun.target.position.set(20, -20, 20);
-scene.add(sun);
-
-let help = new THREE.DirectionalLightHelper(sun, 0.5);
-scene.add(help);*/
-
-guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.05));
+guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.5)); // The hand should alway be a little brighter than the scene
 
 GUI.loadHand(guiScene, player);
 Lighting.initializeLighting(game);
 
+// Place the player in a random position
 player.setPosition(Math.round(Math.random() * 20 - 10), 4, Math.round(Math.random() * 20 - 10));
 
 ////////////////////////////////////////////////////////////

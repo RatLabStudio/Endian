@@ -5,9 +5,7 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { GameObject } from './GameObject';
 import * as Settings from '../settings.js';
-import * as Physics from '../physics.js';
 import * as Resources from '../Resources.js';
 import * as NetworkManager from '../NetworkManager.js';
 import * as UI from '../ui.js';
@@ -40,6 +38,7 @@ export class Player {
         type: 13,     // Enter
     };
 
+    // Player Mouse Controls
     controlMouseButtons = {
         shoot: 0,
         hold: 2
@@ -55,13 +54,12 @@ export class Player {
         this.game.scene.add(this.light);
 
         // Network Setup
-        //this.networkObject = new NetworkObject(0, null);
         this.infoToSend = {
             username: Settings.settings.username,
             networkId: this.networkId,
             position: this.camera.position,
             rotation: this.camera.rotation
-        }
+        };
 
         // Physics Object for Collisions
         this.gameObject = Resources.createObject('player');
@@ -71,6 +69,7 @@ export class Player {
         this.gameObject.body.sleepSpeedLimit = 5.0;
         this.gameObject.body.sleepTimeLimit = 0.25;
 
+        // Event Listeners:
         let temp = this;
         document.addEventListener('click', function (e) {
             if (e.target.tagName.toUpperCase() === "CANVAS")
@@ -84,6 +83,7 @@ export class Player {
 
         this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
 
+        // Jumping
         this.canJump = false;
         this.gameObject.body.addEventListener("collide", function (e) {
             let contactNormal = new CANNON.Vec3();
@@ -103,16 +103,28 @@ export class Player {
         this.sprintFov = this.normalFov + 7; // FOV to use while sprinting
         this.zoomFov = this.normalFov - 50;
 
-        this.typing = false;
+        this.typing = false; // Whether the player is typing into the CPU
 
         this.raycaster = new THREE.Raycaster();
-        this.heldItem = null;
-        this.holdDistance = 5;
+        this.heldItem = null; // The object you are currently holding
+        this.holdDistance = 5; // Stores how far away your currently held object is
 
-        this.lastShot = performance.now();
-        this.toolPower = 100;
+        this.lastShot = performance.now(); // Last time the blaster was fired
+        this.toolPower = 100; // Ammunition
 
-        this.paused = false;
+        this.paused = false; // Reflects whether the game is paused
+
+        this.sun = new THREE.DirectionalLight();
+        this.sun.intensity = 0.1;
+        this.sun.position.set(-10, 50, -10);
+        this.sun.castShadow = true;
+        this.sun.shadow.camera.left = -50;
+        this.sun.shadow.camera.right = 50;
+        this.sun.shadow.camera.bottom = -50;
+        this.sun.shadow.camera.top = 50;
+        this.sun.shadow.camera.near = 0.1;
+        this.sun.shadow.camera.far = 100;
+        this.game.scene.add(this.sun);
     }
 
     update(dt) {
@@ -211,7 +223,7 @@ export class Player {
             networkId: this.networkId,
             position: this.position,
             rotation: this.camera.rotation
-        }
+        };
     }
 
     // Moves the player forward and to the right relative to the camera
@@ -230,28 +242,9 @@ export class Player {
         moveVector.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
         moveVector.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
 
-        // Apply Movement
-        //console.log(moveVector.x);
+        // Apply Movements
         this.gameObject.body.velocity.x = moveVector.x;
         this.gameObject.body.velocity.z = moveVector.z;
-    }
-
-    // OLD: Moves the entire player object forward based on where it's camera is facing (negative to go back)
-    moveForward(distance) {
-        if (distance != 0)
-            this.gameObject.body.wakeUp();
-
-        this.gameObject.body.velocity.x = -Math.sin(this.camera.rotation.y) * distance * 300;
-        this.gameObject.body.velocity.z = -Math.cos(this.camera.rotation.y) * distance * 300;
-    }
-
-    // OLD: Moves the entire player object to the right based on where it's camera is facing (negative to go left)
-    moveRight(distance) {
-        if (distance != 0)
-            this.gameObject.body.wakeUp();
-
-        this.gameObject.body.velocity.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distance * 300;
-        this.gameObject.body.velocity.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distance * 300;
     }
 
     // Moves the camera towards the physics body smoothly
@@ -267,11 +260,14 @@ export class Player {
         if (Math.abs(difference.x) > 3 || Math.abs(difference.y) > 3 || Math.abs(difference.z) > 3)
             this.camera.position.copy(this.gameObject.body.position);
 
-        let acc = 0.3; // How fast the camera moves toward to body
+        let acc = 0.4; // How fast the camera moves toward to body
         // Move the camera towards the body:
         this.camera.position.x -= difference.x * acc;
         this.camera.position.y -= difference.y * acc;
         this.camera.position.z -= difference.z * acc;
+
+        // Move the sun with the player to simulate it being further away
+        this.sun.position.set(this.camera.position.x - 10, this.camera.position.y + 50, this.camera.position.z - 10);
     }
 
     updateShooting() {
@@ -286,9 +282,8 @@ export class Player {
                 let raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
                 NetworkManager.shootRay(raycaster);
-                this.lastShot = currentTime;
-                this.toolPower -= 5;
-                //this.camera.fov += 3;
+                this.lastShot = currentTime; // Store last shot time
+                this.toolPower -= 5; // Remove ammunition
                 Hand.shootingAnimation();
             }
         }
@@ -326,13 +321,13 @@ export class Player {
         return this.gameObject.body.position;
     }
 
-    get rotation() {
-        return this.camera.rotation;
-    }
-
     setPosition(x, y, z) {
         this.position.set(x, y, z);
         this.gameObject.setPosition(x, y, z);
+    }
+
+    get rotation() {
+        return this.camera.rotation;
     }
 
     setRotation(x, y, z) {
@@ -362,6 +357,7 @@ export class Player {
     }
 
     onScroll(event) {
+        // Changes the distance of the object you are holding
         this.holdDistance += event.deltaY * -0.005;
         if (this.holdDistance < 2)
             this.holdDistance = 2;

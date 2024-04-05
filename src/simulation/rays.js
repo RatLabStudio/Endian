@@ -2,9 +2,9 @@ import * as THREE from "three";
 import * as NetworkManager from './NetworkManager.js';
 
 export let rays = {};
-export let raySpeed = 1;
+export let raySpeed = 0.5;
 export let hitBoxOffset = 0.5;
-export let maxRayDistance = 100;
+export let maxRayDistance = 500;
 
 // Manages the creation and positioning of rays
 export function manageRays() {
@@ -71,9 +71,9 @@ export function updateRays(scene) {
 
                 let shotPlayer = NetworkManager.players[intersections[i].object.name.replace("player", "")];
                 if (shotPlayer) {
-                    NetworkManager.playerInfo[shotPlayer.networkId].health -= 5;
+                    NetworkManager.playerInfo[shotPlayer.networkId].health -= 15;
                     if (NetworkManager.playerInfo[shotPlayer.networkId].health <= 0)
-                        NetworkManager.sendChatMessage(`${shotPlayer.username} was killed by ${NetworkManager.players[rays[rayKeys[i]].sender].username}`, "white");
+                        NetworkManager.sendChatMessage(`${shotPlayer.username} was killed by ${NetworkManager.players[rays[rayKeys[i]].sender].username}`, "tomato");
                     //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} shot ${shotPlayer.username}`)
                 } else {
                     //console.log(`${NetworkManager.players[rays[rayKeys[i]].sender].username} HIT ${intersections[i].object.name}`);
