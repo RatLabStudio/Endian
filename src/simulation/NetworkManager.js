@@ -2,9 +2,8 @@ import { io } from "socket.io-client";
 
 import * as Resources from './Resources.js';
 
-//let ip = "192.168.1.254" // Home PC
-//let ip = "10.226.5.132"; // Tencza
-let ip = "localhost";
+//let ip = "localhost";
+let ip = "65.32.118.97"; // Public Server
 const socket = io(`http://${ip}:3000`);
 
 let game = null;
