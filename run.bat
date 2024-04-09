@@ -3,10 +3,10 @@
 echo Running dev server...
 
 cd src/client/
-start "EndianClient" "client.bat"
+start "" "client.bat"
 cd /d %~dp0
 cd src/server/
-start "EndianServer" "server.bat"
+start "" "server.bat"
 cd /d %~dp0
 cd src/simulation/
-start "EndianSimulation" "simulation.bat"
+start "" "simulation.bat"
