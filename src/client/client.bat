@@ -1,2 +1,2 @@
 cd src/client
-nohup npm run dev
+npm run dev

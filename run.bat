@@ -3,10 +3,10 @@
 echo Running dev server...
 
 cd src/client/
-start "" "client.bat"
+start /B "" "client.bat"
 cd /d %~dp0
 cd src/server/
-start "" "server.bat"
+start /B "" "server.bat"
 cd /d %~dp0
 cd src/simulation/
-start "" "simulation.bat"
+start /B "" "simulation.bat"
