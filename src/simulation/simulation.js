@@ -170,5 +170,4 @@ setInterval(function () {
   NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
-  console.log(tps)
 }, 1);

@@ -135,6 +135,8 @@ socket.on("removePlayer", playerNetId => {
     removePlayerObj(playerToRemove);
 });
 
+let tps = 0;
+let lastObjectUpdate = performance.now();
 // When the server sends NetworkObject updates
 socket.on("objectUpdates", updatedObjs => {
     let updatedObjKeys = Object.keys(updatedObjs);
@@ -153,6 +155,11 @@ socket.on("objectUpdates", updatedObjs => {
     }
     if (State.currentState <= State.getStateId("loading_simulation"))
         setTimeout(function () { State.setState("ready") }, 1500);
+
+    let currentTime = performance.now();
+    tps = Math.round((1000 / (currentTime - lastObjectUpdate)));
+    lastObjectUpdate = currentTime;
+    console.log(tps);
 });
 
 export function moveNetworkObject(id, position) {
