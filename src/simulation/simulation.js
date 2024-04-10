@@ -139,9 +139,11 @@ for (let i = 0; i < 10; i++) {
   box.object.addToGame(game);
 }
 
+let tps = 0;
 let previousTime = performance.now();
 setInterval(function () {
   let currentTime = performance.now();
+  tps = Math.round((1000 / (currentTime - previousTime)));
   let dt = (currentTime - previousTime) / 1000; // Delta Time
 
   world.fixedStep(); // Update the physics world
@@ -168,4 +170,5 @@ setInterval(function () {
   NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
+  console.log(tps)
 }, 1);
