@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import * as Resources from './Resources.js';
 
 let ip = "localhost";
-//slet ip = "65.32.118.97"; // Public Server
+//let ip = "65.32.118.97"; // Public Server
 const socket = io(`http://${ip}:3000`);
 
 let game = null;

@@ -281,7 +281,7 @@ export class Player {
             if (timeSinceLastShot > 200 && this.toolPower >= 5) {
                 let raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-                NetworkManager.shootRay(raycaster);
+                NetworkManager.shootRay(raycaster.ray);
                 this.lastShot = currentTime; // Store last shot time
                 this.toolPower -= 5; // Remove ammunition
                 Hand.shootingAnimation();

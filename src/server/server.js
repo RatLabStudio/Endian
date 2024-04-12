@@ -104,8 +104,8 @@ io.on("connection", socket => {
 
     /////////////// Rays ///////////////
 
-    socket.on("shootRay", raycaster => {
-        rays.push(raycaster);
+    socket.on("shootRay", ray => {
+        rays.push(ray);
     });
 
     socket.on("requestRays", () => {

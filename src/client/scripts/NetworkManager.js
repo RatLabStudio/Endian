@@ -159,7 +159,7 @@ socket.on("objectUpdates", updatedObjs => {
     let currentTime = performance.now();
     tps = Math.round((1000 / (currentTime - lastObjectUpdate)));
     lastObjectUpdate = currentTime;
-    console.log(tps);
+    //console.log(tps);
 });
 
 export function moveNetworkObject(id, position) {
@@ -230,17 +230,16 @@ document.addEventListener("keydown", function (e) {
         sendInputToCpu("0", k.toLowerCase());
 });
 
-export function shootRay(raycaster) {
-    let ray = {
+export function shootRay(ray) {
+    let rayToSend = {
         id: socket.id + "time" + performance.now().toFixed(3).replace(".", ""),
         sender: socket.id,
-        raycaster: raycaster,
         ray: {
-            origin: raycaster.ray.origin,
-            direction: raycaster.ray.direction
+            origin: ray.origin,
+            direction: ray.direction
         }
     };
-    socket.emit("shootRay", ray);
+    socket.emit("shootRay", rayToSend);
 }
 
 let displayRays = {};

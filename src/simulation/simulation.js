@@ -170,4 +170,4 @@ setInterval(function () {
   NetworkManager.sendInfoToServer(objs);
 
   previousTime = currentTime;
-}, 1);
+}, 0);
