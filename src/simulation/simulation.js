@@ -156,8 +156,8 @@ setInterval(async function () {
 
   NetworkManager.requestPlayerUpdates();
 
-  await Rays.manageRays();
-  await Rays.updateRays(scene);
+  //await Rays.manageRays();
+  //await Rays.updateRays(scene);
 
   /*if (renderer) {
     if (!headless) {
