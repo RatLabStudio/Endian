@@ -7,7 +7,7 @@ export let hitBoxOffset = 0.5;
 export let maxRayDistance = 500;
 
 // Manages the creation and positioning of rays
-export function manageRays() {
+export async function manageRays() {
     for (let i = 0; i < NetworkManager.rays.length; i++) {
         if (!NetworkManager.playerObjs[NetworkManager.rays[i].sender])
             return;
@@ -39,7 +39,7 @@ export function manageRays() {
 }
 
 // Updates the calculations for each ray
-export function updateRays(scene) {
+export async function updateRays(scene) {
     let rayKeys = Object.keys(rays);
     for (let i = 0; i < rayKeys.length; i++) {
         try {

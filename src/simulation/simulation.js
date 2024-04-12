@@ -141,7 +141,7 @@ for (let i = 0; i < 10; i++) {
 
 let tps = 0;
 let previousTime = performance.now();
-setInterval(function () {
+setInterval(async function () {
   let currentTime = performance.now();
   tps = Math.round((1000 / (currentTime - previousTime)));
   let dt = (currentTime - previousTime) / 1000; // Delta Time
@@ -156,8 +156,8 @@ setInterval(function () {
 
   NetworkManager.requestPlayerUpdates();
 
-  Rays.manageRays();
-  Rays.updateRays(scene);
+  await Rays.manageRays();
+  await Rays.updateRays(scene);
 
   if (renderer) {
     if (!headless) {
