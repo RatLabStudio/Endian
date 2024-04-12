@@ -9,8 +9,8 @@ import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
 import * as UI from './ui.js';
 
-//let ip = "localhost";
-let ip = "65.32.118.97"; // Public Server
+let ip = "localhost";
+//let ip = "65.32.118.97"; // Public Server
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
