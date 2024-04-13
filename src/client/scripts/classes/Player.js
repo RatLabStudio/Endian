@@ -28,14 +28,15 @@ export class Player {
 
     // Player controls
     controlKeys = {
-        forward: 87,  // W
-        backward: 83, // S
-        left: 65,     // A
-        right: 68,    // D
-        sprint: 16,   // Shift
-        jump: 32,     // Space
-        zoom: 67,     // C
-        type: 13,     // Enter
+        forward: 87,        // W
+        backward: 83,       // S
+        left: 65,           // A
+        right: 68,          // D
+        sprint: 16,         // Shift
+        jump: 32,           // Space
+        zoom: 67,           // C
+        type: 13,           // Enter
+        fullscreen: 122     // F11
     };
 
     // Player Mouse Controls
@@ -314,7 +315,7 @@ export class Player {
         if (!this.controls.isLocked) {
             this.controls.lock();
         }
-        document.documentElement.requestFullscreen();
+        //document.documentElement.requestFullscreen();
     }
 
     get position() {
@@ -342,6 +343,10 @@ export class Player {
 
         if (!this.typing)
             this.keys[event.keyCode] = true;
+
+        if (event.keyCode == this.controlKeys.fullscreen) {
+            console.log(electronWindow.mainWindow);
+        }
     }
 
     onKeyUp(event) {

@@ -16,7 +16,7 @@ import * as Rays from './rays.js';
 import { VoxelObject } from "./VoxelObject.js";
 
 //import { gl } from "gl"; // FOR VIEW MODE
-//import gl from "gl";     // FOR HEADLESS MODE
+import gl from "gl";     // FOR HEADLESS MODE
 
 // Headless mode is for when you want to run the simulation in the terminal without a display window
 let headless = false;
@@ -50,7 +50,7 @@ const cannonDebugger = new CannonDebugger(scene, world, {});
 let canvas, controls, renderer, camera;
 
 /////////////// View Mode Config ///////////////
-/*if (!headless) {
+if (!headless) {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -113,7 +113,7 @@ else {
   }
 
   createRenderer({ width: 1920, height: 1080 });
-}*/
+}
 
 
 /////////////// Start of Program ///////////////
@@ -156,16 +156,16 @@ setInterval(async function () {
 
   NetworkManager.requestPlayerUpdates();
 
-  //await Rays.manageRays();
-  //await Rays.updateRays(scene);
+  await Rays.manageRays();
+  await Rays.updateRays(scene);
 
-  /*if (renderer) {
+  if (renderer) {
     if (!headless) {
       stats.update(); // FPS Counter
       controls.update();
     }
     renderer.render(scene, camera);
-  }*/
+  }
 
   NetworkManager.sendInfoToServer(objs);
 

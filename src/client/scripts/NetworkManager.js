@@ -10,7 +10,8 @@ import * as State from './state.js';
 import * as UI from './ui.js';
 
 //let ip = "localhost";
-let ip = "65.32.118.97"; // Public Server
+let ip = "192.168.1.254"; // Home PC
+//let ip = "65.32.118.97"; // Public Server
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -169,9 +170,9 @@ export function moveNetworkObject(id, position) {
 // Request updates from the simulation
 export function requestSimulationUpdate() {
     socket.emit("requestSimulationUpdate"); // Updates networked objects
-    //socket.emit("requestRayDisplayInfo"); // Updates blaster rays
-    //socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
-    //socket.emit("requestNewChatMessages"); // Gets all new chat messages
+    socket.emit("requestRayDisplayInfo"); // Updates blaster rays
+    socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
+    socket.emit("requestNewChatMessages"); // Gets all new chat messages
     socket.emit("requestAllCpuData"); // Gets CPU Data
 }
 
@@ -242,7 +243,7 @@ export function shootRay(ray) {
     socket.emit("shootRay", rayToSend);
 }
 
-/*let displayRays = {};
+let displayRays = {};
 socket.on("sendRayDisplayInfoToPlayers", newDisplayRays => {
     let newDisplayRayKeys = Object.keys(newDisplayRays);
 
@@ -311,4 +312,4 @@ socket.on("sendNewChatMessages", messages => {
     }
     for (let i = 0; i < messages.length; i++)
         Chat.log(messages[i].message, messages[i].color);
-});*/
+});

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | Endian</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html,
+        body {
+            color: white;
+            margin: 0vh;
+            background-color : transparent;
+            height: 100%;
+        }
+
+        h1 {
+            margin: 4vh;
+            font-size: 6vh;
+            color: aqua;
+            font-family: pixel;
+        }
+
+        h2 {
+            font-family: pixel;
+        }
+
+        p {
+            font-size: 3vh;
+            margin: 4vh;
+            font-family: pixel;
+        }
+
+        .slidecontainer {
+            width: 50%;
+            margin-left: 4vh;
+        }
+
+        /* The slider itself */
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 10px;
+            background: #d3d3d37d;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border: solid 2px var(--blue);
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--blue);
+            cursor: pointer;
+            border: solid 2px white;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--blue);
+            cursor: pointer;
+            border: solid 2px white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Settings</h1>
+
+    <div id="settingsContainer"></div>
+
+    <script type="module">
+        import * as Settings from '../scripts/settings.js';
+        const settingsContainer = document.getElementById("settingsContainer");
+
+        Settings.loadAllSettings();
+
+        let sliders = [];
+
+        function createSlider(name, min, max, step, value) {
+            settingsContainer.innerHTML += `
+                <div class="slidecontainer">
+                    <h2>${name}: <span id="${name.replace(' ', '-')}-display">${value}</span></h2>
+                    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" class="slider" id="${name.replace(' ', '-')}">
+                    <br><br>
+                </div>
+            `;
+            sliders = document.getElementsByClassName("slider");
+        }
+
+        createSlider("FOV", 51, 100, 1, 70);
+        createSlider("Resolution", 0.1, 2, 0.1, 1);
+        createSlider("Post Processing", 0, 1, 1, Settings.settings['post-processing']);
+        createSlider("Use WebGPU", 0, 1, 1, Settings.settings.usewebgpu);
+
+        // Slider Event Listeners
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i].addEventListener("input", function (event) {
+                let id = event.target.id;
+                document.getElementById(id + "-display").innerHTML = event.target.value;
+                Settings.settings[id.toLowerCase().replace("-", "")] = event.target.value;
+            });
+
+            sliders[i].addEventListener("change", function (event) {
+                Settings.saveAllSettings();
+            });
+        }
+
+        // Load all settings to sliders:
+        for (let i = 0; i < sliders.length; i++) {
+            sliders[i].value = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
+            document.getElementById(sliders[i].id + "-display").innerHTML = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
+        }
+    </script>
+</body>
+
+</html>

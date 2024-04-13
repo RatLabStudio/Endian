@@ -7,7 +7,7 @@
 //          This code is not final!
 
 import * as THREE from 'three';
-import * as CSS3DRenderer from 'three/examples/jsm/renderers/CSS3DRenderer';
+import * as CSS3DRenderer from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 import * as CANNON from 'cannon-es';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 

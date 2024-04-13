@@ -27,8 +27,8 @@ socket.on("connect", () => {
 
 export function requestPlayerUpdates() {
     socket.emit("requestPlayerUpdates");
-    //socket.emit("requestMovedNetworkObjects");
-    //socket.emit("requestRays");
+    socket.emit("requestMovedNetworkObjects");
+    socket.emit("requestRays");
 }
 
 socket.on("playerSimulationUpdate", newPlayers => {
