@@ -174,6 +174,9 @@ export function requestSimulationUpdate() {
     socket.emit("requestRayDisplayInfo"); // Updates blaster rays
     socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
     socket.emit("requestNewChatMessages"); // Gets all new chat messages
+}
+
+export function requestAllCpuData() {
     socket.emit("requestAllCpuData"); // Gets CPU Data
 }
 

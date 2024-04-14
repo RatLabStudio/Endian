@@ -262,6 +262,10 @@ setInterval(function () {
   }
 }, 10);
 
+setInterval(function () {
+  NetworkManager.requestAllCpuData();
+}, 10000);
+
 // Update the framerate
 setInterval(function () { UI.setElement('fps', fps); }, 2000);
 
