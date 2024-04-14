@@ -16,7 +16,7 @@ import * as Rays from './rays.js';
 import { VoxelObject } from "./VoxelObject.js";
 
 //import { gl } from "gl"; // FOR VIEW MODE
-//import gl from "gl";     // FOR HEADLESS MODE
+import gl from "gl";     // FOR HEADLESS MODE
 
 // Headless mode is for when you want to run the simulation in the terminal without a display window
 let headless = false;
