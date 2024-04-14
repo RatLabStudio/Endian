@@ -11,8 +11,8 @@ import * as UI from './ui.js';
 
 //let ip = "localhost";
 //let ip = "192.168.1.254"; // Home PC
-let ip = "192.168.1.163"; // Local Server
-//let ip = "65.32.118.97"; // Public Server
+//let ip = "192.168.1.163"; // Local Server
+let ip = "65.32.118.97"; // Public Server
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
