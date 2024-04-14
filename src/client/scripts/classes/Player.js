@@ -343,10 +343,6 @@ export class Player {
 
         if (!this.typing)
             this.keys[event.keyCode] = true;
-
-        if (event.keyCode == this.controlKeys.fullscreen) {
-            console.log(electronWindow.mainWindow);
-        }
     }
 
     onKeyUp(event) {
