@@ -183,7 +183,7 @@ function applySettings() {
   player.camera.updateProjectionMatrix();
 }
 window.applySettings = applySettings;
-setTimeout(applySettings(), 100);
+applySettings();
 
 ////////////////////////////////////////////////////////////
 

@@ -87,12 +87,14 @@ socket.on("playerSimulationUpdate", newPlayers => {
     let playerKeys = Object.keys(players);
     for (let i = 0; i < playerKeys.length; i++) {
         if (!newPlayers[playerKeys[i]]) {
-            sendChatMessage(`${players[playerKeys[i]].username} left the game`, "yellow")
-            delete players[playerKeys[i]];
+            sendChatMessage(`${players[playerKeys[i]].username} left the game`, "yellow");
+            
             let player = playerObjs[playerKeys[i]];
             game.scene.remove(player.mesh); // Remove player model
             player.material.dispose(); // Dispose of model texture
             game.world.removeBody(player.body); // Remove physics body
+
+            delete players[playerKeys[i]];
             delete playerObjs[playerKeys[i]]; // Delete JS object
             delete playerInfo[playerKeys[i]];
         }
