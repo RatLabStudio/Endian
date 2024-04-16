@@ -1,4 +1,4 @@
-let font = {
+export let font = {
     space: [
         [0, 0, 0],
         [0, 0, 0], 
@@ -210,5 +210,3 @@ let font = {
         [0, 1, 0]
     ]
 }
-
-module.exports = font;

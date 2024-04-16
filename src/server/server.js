@@ -1,18 +1,22 @@
-const CPU = require("./cpu/cpu");
+import { CPU } from "./cpu/cpu.js";
+import { Server } from "socket.io";
 
-const io = require("socket.io")(3000, {
+import * as Simulation from "./simulation/simulation.js";
+import * as SimulationManager from "./simulation/SimManager.js";
+
+const io = new Server(3000, {
     cors: {
         origin: "*" // Allows connections from the same network
     }
 });
 
-let objects = [];
-let players = {};
-let cpus = {};
+export let objects = [];
+export let players = {};
+export let cpus = {};
 let movingObjects = [];
-let rays = [];
+export let rays = [];
 let displayRays = {};
-let playerInfo = {};
+export let playerInfo = {};
 let newChatMessages = [];
 
 // Called when the socket connection is created
@@ -23,11 +27,6 @@ io.on("connection", socket => {
     socket.on("playerUpdate", player => {
         players[socket.id] = player;
         socket.emit("playerClientUpdate", players);
-    });
-
-    // Request player updates from server
-    socket.on("requestPlayerUpdates", () => {
-        socket.emit("playerSimulationUpdate", players);
     });
 
     socket.on("disconnect", () => {
@@ -53,7 +52,7 @@ io.on("connection", socket => {
     });
 
     socket.on("requestMovedNetworkObjects", () => {
-        socket.emit("movedNetworkObjects", movingObjects);
+        SimulationManager.movedNetworkObjects(movingObjects);
         movingObjects = [];
     });
 
@@ -109,7 +108,7 @@ io.on("connection", socket => {
     });
 
     socket.on("requestRays", () => {
-        socket.emit("sendRays", rays);
+        SimulationManager.sendRays(rays);
         rays = [];
     });
 

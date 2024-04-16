@@ -1,6 +1,6 @@
-const Graphics = require("./graphics");
+import { Graphics } from "./graphics.js";
 
-class CPU {
+export class CPU {
     constructor(id) {
         this.id = id;
         this.gpu = new Graphics(128, 96);
@@ -13,5 +13,3 @@ class CPU {
         };
     }
 }
-
-module.exports = CPU;

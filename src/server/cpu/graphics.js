@@ -1,6 +1,6 @@
-const font = require("./font");
+import * as font from "./font.js";
 
-class Graphics {
+export class Graphics {
     constructor(resolutionX, resolutionY) {
         this.pixels = [];
 
@@ -88,5 +88,3 @@ class Graphics {
         this.textPos.y += 7;
     }
 }
-
-module.exports = Graphics;
