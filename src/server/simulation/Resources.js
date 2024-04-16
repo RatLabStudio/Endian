@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import { GameObject } from "./GameObject.js";
-import { InstancedObject } from "./InstancedObject.js";
+import { GameObject } from "./objects/GameObject.js";
+import { InstancedObject } from "./objects/InstancedObject.js";
 
 export let objects = {
     box: new GameObject(

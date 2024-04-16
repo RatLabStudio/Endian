@@ -1,6 +1,9 @@
 # Endian Alpha To-do List
 
 ## Next Update (5.2.0):
+- Finish Simulation migration
+    - Fix player rotation on clients
+    - Re-implement shooting 
 - Make the CPU display receive updates by the row, like how it updates
     - The reason for this is that the CPU display is causing a bottleneck 
         of commands through the socket.io server; which means that the 

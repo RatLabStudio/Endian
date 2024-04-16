@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import * as NetworkManager from './SimManager.js';
+import * as Server from "../server.js";
 
 export let rays = {};
 export let raySpeed = 0.5;

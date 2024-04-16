@@ -1,27 +1,25 @@
 import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
 
 export class GameObject {
-    constructor(geometry, material, body) {
-        this.geometry = geometry;
-        this.material = material;
+    constructor(geometry, material, body, game) {
+        this.geometry = geometry; // Visual shape of the object
+        this.material = material; // Visual material of the object
+        this.game = game;
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
 
-        
         this.body = body;
 
         this.body.allowSleep = true;
-        this.body.sleepSpeedLimit = 2.0;
+        this.body.sleepSpeedLimit = 1.0;
         this.body.sleepTimeLimit = 0.5;
-    }
 
-    addToGame(game) {
-        this.game = game;
-        this.game.scene.add(this.mesh);
-        this.game.world.addBody(this.body);
+        if (this.game) {
+            this.game.world.addBody(this.body);
+            this.game.scene.add(this.mesh);
+        }
     }
 
     physicsUpdate() {
@@ -37,19 +35,9 @@ export class GameObject {
         return this.body.position;
     }
 
-    get quaternion() {
-        return this.body.quaternion;
-    }
-
     setPosition(x, y, z) {
         this.body.position.set(x, y, z);
         this.mesh.position.set(x, y, z);
-    }
-
-    setVelocity(x, y, z) {
-        this.body.velocity.x = x;
-        this.body.velocity.y = y;
-        this.body.velocity.z = z;
     }
 
     setRotationFromQuaternion(q) {

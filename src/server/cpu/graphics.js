@@ -1,8 +1,11 @@
-import * as font from "./font.js";
+import { font } from "./font.js";
 
 export class Graphics {
     constructor(resolutionX, resolutionY) {
         this.pixels = [];
+
+        this.backgroundColor = "blue";
+        this.fontColor = "white";
 
         this.resolutionX = resolutionX;
         this.resolutionY = resolutionY;
@@ -40,7 +43,7 @@ export class Graphics {
 
         for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
             for (let j = this.textPos.y; j < this.textPos.y + 5; j++)
-                this.setPixel(i, j, false);
+                this.setPixel(i, j, this.backgroundColor);
         }
 
         char = font[char.toLowerCase()];
@@ -50,7 +53,7 @@ export class Graphics {
         for (let i = 0; i < char.length; i++) {
             for (let j = 0; j < char[i].length; j++) {
                 if (char[i][j] === 1)
-                    this.setPixel(j + this.textPos.x, i + this.textPos.y, "lime");
+                    this.setPixel(j + this.textPos.x, i + this.textPos.y, this.fontColor);
             }
         }
 
@@ -82,7 +85,7 @@ export class Graphics {
     nextLine() {
         for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
             for (let j = this.textPos.y; j < this.textPos.y + 5; j++)
-                this.setPixel(i, j, false);
+                this.setPixel(i, j, this.backgroundColor);
         }
         this.textPos.x = 9;
         this.textPos.y += 7;

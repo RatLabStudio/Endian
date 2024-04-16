@@ -102,11 +102,14 @@ function updatePlayerObjs() {
             p.position.z
         );
 
-        obj.setRotation(
-            0,
-            p.rotation._y - Math.PI / 2,
-            0
-        );
+        console.log(p)
+        if (p.rotation) {
+            obj.setRotation(
+                0,
+                p.rotation._y - Math.PI / 2,
+                0
+            );
+        }
 
         updated[playersArr[i]] = true;
     }

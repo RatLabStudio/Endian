@@ -6,9 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon simulation.js",
-    "init": "npm uninstall gl && npm install gl && nodemon simulation.js",
-    "view": "vite --host"
+    "dev": "vite --host"
   },
   "keywords": [],
   "author": "",
@@ -16,10 +14,6 @@
   "dependencies": {
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
-    "canvas": "^2.11.2",
-    "gl": "^8.0.2",
-    "nodemon": "^3.1.0",
-    "puppeteer": "^22.6.2",
     "socket.io-client": "^4.7.5",
     "three": "^0.162.0",
     "three-to-cannon": "^5.0.1",
