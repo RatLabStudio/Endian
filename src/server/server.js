@@ -42,7 +42,6 @@ io.on("connection", socket => {
         for (let i = 0; i < playerKeys.length; i++)
             playerData[playerKeys[i]] = players[playerKeys[i]].getData();
 
-        console.log(playerData)
         // Send the new data to all connected players
         socket.emit("playerClientUpdate", playerData);
     });

@@ -101,8 +101,7 @@ function updatePlayerObjs() {
             p.position.y + 1,
             p.position.z
         );
-
-        console.log(p)
+        
         if (p.rotation) {
             obj.setRotation(
                 0,

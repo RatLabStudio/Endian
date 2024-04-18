@@ -37,6 +37,10 @@ export class GameObject {
         return this.body.position;
     }
 
+    get rotation() {
+        return this.mesh.rotation;
+    }
+
     get quaternion() {
         return this.body.quaternion;
     }

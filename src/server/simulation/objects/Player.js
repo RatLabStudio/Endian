@@ -14,7 +14,7 @@ export class Player {
             networkId: this.networkId,
             username: this.username,
             position: this.object.position,
-            quaternion: this.object.quaternion
+            rotation: this.object.rotation
         };
     }
 
@@ -44,5 +44,6 @@ export class Player {
         this.object.body.quaternion.y = 0;
         this.object.body.quaternion.z = 0;
 
+        this.object.mesh.rotation.copy(newData.rotation);
     }
 }

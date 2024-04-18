@@ -63,6 +63,21 @@
             margin: 0;
             margin-top: 1vh;
         }
+
+        button {
+            font-size: 1.5vh;
+            padding: 0.5vh;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: solid 1px white;
+            border-radius: 0.5vh;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -70,6 +85,8 @@
     <div class="hud versionInfo">
         <h1 id="versionInfo">Endian Simulation Viewer</h1>
         <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
+        <br><br>
+        <button onclick="toggleDebugger();">Toggle Debugging</button>
     </div>
     <script type="module" src="script.js"></script>
 </body>

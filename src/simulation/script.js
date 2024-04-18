@@ -34,7 +34,7 @@ let game = {
   world: world
 };
 
-const cannonDebugger = new CannonDebugger(scene, world, {});
+let cannonDebugger = new CannonDebugger(scene, world, {});
 
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 let renderer = new THREE.WebGLRenderer();
@@ -58,9 +58,10 @@ window.addEventListener('resize', function () {
 setInterval(async function () {
   socket.emit("requestSimulationForView");
 
-  //world.fixedStep(); // Update the physics world
+  world.fixedStep(); // Update the physics world
 
-  cannonDebugger.update();
+  if (debuggerEnabled)
+    cannonDebugger.update();
 
   stats.update(); // FPS Counter
   controls.update();
@@ -84,11 +85,16 @@ socket.on("sendSimulationSceneForView", data => {
   for (let i = 0; i < newObjKeys.length; i++) {
     if (!objs[newObjKeys[i]]) {
       objs[newObjKeys[i]] = Resources.createObject(newObjs[newObjKeys[i]].resourceId);
-      scene.add(objs[newObjKeys[i]].mesh)
+      scene.add(objs[newObjKeys[i]].mesh);
+      objs[newObjKeys[i]].body.mass = 0;
+      world.addBody(objs[newObjKeys[i]].body);
     }
 
     objs[newObjKeys[i]].mesh.position.copy(newObjs[newObjKeys[i]].position);
+    objs[newObjKeys[i]].body.position.copy(newObjs[newObjKeys[i]].position);
+
     objs[newObjKeys[i]].mesh.quaternion.copy(newObjs[newObjKeys[i]].quaternion);
+    objs[newObjKeys[i]].body.quaternion.copy(newObjs[newObjKeys[i]].quaternion);
   }
 
   // Delete objects that aren't found
@@ -103,11 +109,19 @@ socket.on("sendSimulationSceneForView", data => {
   for (let i = 0; i < newPlayerKeys.length; i++) {
     if (!players[newPlayerKeys[i]]) {
       players[newPlayerKeys[i]] = Resources.createObject("player");
-      scene.add(players[newPlayerKeys[i]].mesh)
+      scene.add(players[newPlayerKeys[i]].mesh);
+      players[newPlayerKeys[i]].body.mass = 0;
+      world.addBody(players[newPlayerKeys[i]].body);
     }
 
     players[newPlayerKeys[i]].mesh.position.copy(newPlayers[newPlayerKeys[i]].position);
-    //players[newPlayerKeys[i]].mesh.quaternion.copy(newPlayers[newPlayerKeys[i]].quaternion);
+    players[newPlayerKeys[i]].body.position.copy(newPlayers[newPlayerKeys[i]].position);
+
+    players[newPlayerKeys[i]].mesh.rotation.copy(newPlayers[newPlayerKeys[i]].rotation);
+    players[newPlayerKeys[i]].mesh.rotation.x = 0; // Keep the player upright
+    players[newPlayerKeys[i]].body.quaternion.x = 0;
+    players[newPlayerKeys[i]].body.quaternion.y = 0;
+    players[newPlayerKeys[i]].body.quaternion.z = 0;
   }
 
   // Delete players that aren't found
@@ -132,3 +146,9 @@ sun.shadow.camera.top = 50;
 sun.shadow.camera.near = 0.1;
 sun.shadow.camera.far = 100;
 scene.add(sun);
+
+let debuggerEnabled = false;
+function toggleDebugger() {
+  debuggerEnabled = !debuggerEnabled;
+}
+window.toggleDebugger = toggleDebugger;
