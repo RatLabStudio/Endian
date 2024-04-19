@@ -6,20 +6,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js",
-    "view": "vite --host"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "buffer": "^6.0.3",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
     "nodemon": "^3.0.3",
     "socket.io": "^4.7.5",
     "three": "^0.163.0",
-    "three-to-cannon": "^5.0.1",
-    "vite": "^5.2.9"
+    "three-to-cannon": "^5.0.1"
   }
 }

@@ -1,0 +1,81 @@
+@font-face {
+    font-family: "pixel";
+    src: url('./assets/fonts/pixel.woff2');
+}
+
+html,
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+a {
+    color: rgb(25, 223, 230);
+    text-decoration: none;
+    transition: filter 0.2s ease;
+}
+
+a:hover {
+    filter: brightness(150%);
+}
+
+.hud {
+    z-index: 10;
+}
+
+.versionInfo {
+    position: absolute;
+    top: 2vh;
+    right: 2vh;
+    font-size: 4vh;
+    font-family: pixel;
+    color: rgb(43, 238, 245);
+    margin: 0;
+    text-align: right;
+}
+
+.versionInfo h1 {
+    font-size: 3vh;
+    font-weight: normal;
+    margin: 0;
+    margin-bottom: 0.5vh;
+}
+
+.versionInfo a {
+    font-size: 2vh;
+    color: rgb(229, 250, 135);
+}
+
+.versionInfo p {
+    color: white;
+    font-size: 2vh;
+    margin: 0;
+    margin-top: 1vh;
+}
+
+button {
+    font-size: 2.5vh;
+    font-family: pixel;
+    padding: 1vh;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: solid 1px white;
+    border-radius: 0.5vh;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+}
+
+.enabled {
+    color: lime;
+    border-color: lime;
+}

@@ -2,7 +2,8 @@
 
 ## Next Update (5.2.0):
 - Finish Simulation migration
-    - Re-implement shooting 
+    - Re-implement shooting
+    - Re-implement the chat
 - Make the CPU display receive updates by the row, like how it updates
     - The reason for this is that the CPU display is causing a bottleneck 
         of commands through the socket.io server; which means that the 
