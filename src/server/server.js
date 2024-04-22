@@ -32,6 +32,12 @@ io.on("connection", socket => {
         if (!players[player.networkId]) {
             players[player.networkId] = new Player(player.networkId);
             Simulation.game.world.addBody(players[player.networkId].object.body);
+
+            // Running this code here causes only the player who joined to see it
+            newChatMessages.push({
+                message: `${player.username} joined the game`,
+                color: 'yellow'
+            });
         }
 
         players[player.networkId].updateFromServer(player);
@@ -49,8 +55,13 @@ io.on("connection", socket => {
     // When a player leaves
     socket.on("disconnect", () => {
         console.log(`${socket.id} disconnected`);
-        if (players[socket.id])
+        if (players[socket.id]) {
             Simulation.game.world.removeBody(players[socket.id].object.body);
+            newChatMessages.push({
+                message: `${players[socket.id].username} left the game`,
+                color: 'tomato'
+            });
+        }
         delete players[socket.id];
     });
 
@@ -113,6 +124,12 @@ io.on("connection", socket => {
     socket.on("cpuInput", (cpuId, inputChar) => {
         if (cpus[cpuId])
             cpus[cpuId].gpu.printCharacter(inputChar);
+    });
+
+
+    socket.on("requestNewChatMessages", () => {
+        socket.emit("sendNewChatMessages", newChatMessages);
+        newChatMessages = [];
     });
 
     /////////////////////////////////////////////

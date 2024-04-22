@@ -13,6 +13,7 @@ let ip = "localhost";
 //let ip = "192.168.1.254"; // Home PC
 //let ip = "192.168.1.163"; // Local Server
 //let ip = "65.32.118.97"; // Public Server
+ip = "10.226.241.75";
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -312,10 +313,10 @@ socket.on("playerInfoUpdate", playerInfo => {
 
 let hasSentMessages = false;
 socket.on("sendNewChatMessages", messages => {
-    if (!hasSentMessages) {
+    /*if (!hasSentMessages) {
         hasSentMessages = true;
         return;
-    }
+    }*/
     for (let i = 0; i < messages.length; i++)
         Chat.log(messages[i].message, messages[i].color);
 });
