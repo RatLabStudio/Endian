@@ -140,9 +140,8 @@ export class Player {
     }
 
     physicsUpdate() {
-        // Keep Player Upright
-        this.gameObject.body.quaternion.x = 0;
-        this.gameObject.body.quaternion.z = 0;
+        // Update Rotation and Keep Player Upright
+        this.gameObject.body.quaternion.setFromEuler(0, this.rotation.y, 0);
     }
 
     // Determine which keys are pressed and store the information

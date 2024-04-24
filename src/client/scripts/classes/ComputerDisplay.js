@@ -16,7 +16,8 @@ import * as Lighting from './Lighting.js';
 const loader = new GLTFLoader();
 
 export class ComputerDisplay {
-    constructor(game, cssScene) {
+    constructor(id, game, cssScene) {
+        this.id = id;
         this.game = game;
         this.scene = game.scene;
         this.cssScene = cssScene;
@@ -105,7 +106,6 @@ export class ComputerDisplay {
 
         this.light = new Lighting.Light(new THREE.PointLight(0xFFFFFF, 10, 8, 2));
         this.objectGroup.add(this.light.light);
-        this.objectGroup.add(this.light.guiLight);
 
         this.setPosition(0, 0, 0); // Sets a default position for the computer at 0, 0, 0
 
@@ -114,40 +114,32 @@ export class ComputerDisplay {
         this.newPixels = [];
 
         this.scene.add(this.objectGroup);
+
+        this.body = null;
+        let bodies = this.game.world.bodies;
+        for (let i = 0; i < bodies.length; i++) {
+            if (bodies[i].name && bodies[i].name == `cpu${this.id}`)
+                this.body = bodies[i];
+        }
     }
 
     // Move the computer and all its components to a specified location
-    setPosition(x, y, z) {
+    setPosition(newX, newY, newZ) {
         this.position = {
-            x: x,
-            y: y,
-            z: z
+            x: newX,
+            y: newY,
+            z: newZ
         };
 
-        this.object.position.set(this.position.x, this.position.y, this.position.z);
-        this.meshBlend.position.copy(this.object.position);
-
-        if (this.model) {
-            this.model.position.set(
-                this.object.position.x,
-                this.object.position.y - 0.95,
-                this.object.position.z - 0.69,
-            );
-            this.model.scale.set(2.75, 2.75, 2.75)
-            this.model.rotation.y = Math.PI;
-        }
-
-        this.light.setPosition(
-            this.position.x,
-            this.position.y,
-            this.position.z + 0.5
-        );
+        this.objectGroup.position.copy(this.position);
+        this.group.position.copy(this.position);
+        this.light.guiLight.position.copy(this.position);
     }
 
     setRotation(x, y, z) {
         this.objectGroup.rotation.set(x, y, z);
         this.group.rotation.set(x, y, z);
-        console.log(this.objectGroup);
+        this.body.quaternion.setFromEuler(x, y, z);
     }
 
     // Clear entire screen of the display

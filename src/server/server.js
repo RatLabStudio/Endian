@@ -105,7 +105,33 @@ io.on("connection", socket => {
 
     /////////////// CPU Management ///////////////
 
-    
+    // Provide the locations of all CPUs
+    socket.on("requestAllCpuLocations", () => {
+        let data = {};
+        let cpuKeys = Object.keys(cpus);
+        for (let i = 0; i < cpuKeys.length; i++)
+            data[cpuKeys[i]] = Simulation.cpus[`cpu${cpuKeys[i]}`].object.position;
+        socket.emit("receiveAllCpuLocations", data);
+    });
+
+    // Provide the data for selected CPUs
+    socket.on("requestCpuData", (requestedCpus, row) => {
+        let data = {};
+        let rKeys = Object.keys(requestedCpus);
+        for (let i = 0; i < rKeys.length; i++) {
+            data[rKeys[i]] = cpus[rKeys[i]].getData(row);
+            data[rKeys[i]].position = Simulation.cpus[`cpu${rKeys[i]}`].object.position;
+            data[rKeys[i]].rotation = Simulation.cpus[`cpu${rKeys[i]}`].object.rotation;
+        }
+
+        if (rKeys.length > 0)
+            socket.emit("receiveCpuData", data, row);
+    });
+
+    socket.on("cpuInput", (cpuId, inputChar) => {
+        if (cpus[cpuId])
+            cpus[cpuId].gpu.printCharacter(inputChar);
+    });
 
     /////////////////////////////////////////////
 

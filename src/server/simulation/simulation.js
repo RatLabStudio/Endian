@@ -27,11 +27,12 @@ objects[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
 
-/*let cpu = new NetworkObject("cpu0", "computer");
-objects[cpu.id] = cpu;
-cpu.object.position.set(0, -1, -20);
-cpu.object.addToGame(game);
-setTimeout(() => { Server.createCpu(0) }, 1000);*/
+export let cpus = {};
+cpus["cpu0"] = new NetworkObject("cpu0", "computer");
+objects[cpus["cpu0"].id] = cpus["cpu0"];
+cpus["cpu0"].object.position.set(0, -1, -20);
+cpus["cpu0"].object.addToGame(game);
+setTimeout(() => { Server.createCpu(0) }, 1000);
 
 for (let i = 0; i < 10; i++) {
     setTimeout(() => {
@@ -48,12 +49,16 @@ for (let i = 0; i < 10; i++) {
 
 /////////////// Simulation Tick ///////////////
 
+let t = -20;
 setInterval(async function () {
     world.fixedStep(); // Update the physics world
 
     let objKeys = Object.keys(objects);
     for (let i = 0; i < objKeys.length; i++)
         objects[objKeys[i]].object.update();
+
+    //cpus["cpu0"].object.rotation.set(t, t, t);
+    t += 0.001;
 }, 0);
 
 /////////////////////////////////////////////

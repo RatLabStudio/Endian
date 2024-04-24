@@ -218,13 +218,13 @@ function animate() {
   Lighting.updateGuiLights(player);
 
   // Renderers
-  if (State.currentState >= State.getStateId("ready")) {
+  //if (State.currentState >= State.getStateId("ready")) {
     if (Settings.settings.usewebgpu == 1)
       renderer.renderAsync(scene, player.camera);
     else
       composer.render();
     cssRenderer.render(cssScene, player.camera);
-  }
+  //}
   //guiRenderer.render(guiScene, guiCamera);
   guiComposer.render();
 
@@ -234,37 +234,6 @@ animate();
 
 ////////////////////////////////////////////////////////////
 
-
-/////////////// CPU Updating ///////////////
-
-// Update CPU lighting
-setInterval(function () {
-  let cpuDisplays = NetworkManager.cpuDisplays;
-  for (let i = 0; i < Object.keys(cpuDisplays).length; i++)
-    cpuDisplays[Object.keys(cpuDisplays)[i]].updateLight();
-}, 500);
-
-// Update CPU displays
-setInterval(function () {
-  let cpuDisplays = NetworkManager.cpuDisplays;
-  for (let i = 0; i < Object.keys(cpuDisplays).length; i++) {
-    let cpu = cpuDisplays[Object.keys(cpuDisplays)[i]];
-
-    // Determine how far away the monitor is
-    let distance = Math.floor(Math.abs(
-      cpu.position.x - player.position.x +
-      cpu.position.y - player.position.y +
-      cpu.position.z - player.position.z
-    ));
-    // Only nearby monitors are rendered
-    if (distance < 16)
-      cpu.updateNextRow();
-  }
-}, 10);
-
-setInterval(function () {
-  NetworkManager.requestAllCpuData();
-}, 10);
 
 // Update the framerate
 setInterval(function () { UI.setElement('fps', fps); }, 2000);

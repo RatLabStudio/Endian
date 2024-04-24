@@ -14,4 +14,11 @@ export class CPU {
             pixels: this.gpu.pixels
         };
     }
+
+    getData(row) {
+        return {
+            id: this.id,
+            pixels: this.gpu.pixels[row]
+        };
+    }
 }

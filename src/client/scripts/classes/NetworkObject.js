@@ -9,6 +9,7 @@ export class NetworkObject {
         this.resourceId = resourceId;
         this.object = Resources.createObject(resourceId);
         this.object.mesh.name = id;
+        this.object.body.name = id;
     }
 
     updateFromServer(obj) {

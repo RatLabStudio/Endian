@@ -171,10 +171,7 @@ export function requestSimulationUpdate() {
     socket.emit("requestRayDisplayInfo"); // Updates blaster rays
     socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
     socket.emit("requestNewChatMessages"); // Gets all new chat messages
-}
-
-export function requestAllCpuData() {
-    socket.emit("requestAllCpuData"); // Gets CPU Data
+    socket.emit("requestAllCpuLocations");
 }
 
 
@@ -182,7 +179,7 @@ export function requestAllCpuData() {
 
 let cpus = {}; // List of all CPUs
 
-setTimeout(function () {
+/*setTimeout(function () {
     let t = new ComputerDisplay(localPlayer.game, localPlayer.game.cssScene);
 
     t.setPosition(0, 0, 0);
@@ -207,10 +204,54 @@ setTimeout(function () {
         t.updateNextRow();
 
     t.updateLight();
-}, 4000);
+}, 4000);*/
+
+let currentRow = 0;
+
+// Determine what CPU screens are nearby for rendering
+let nearbyCpus = {};
+socket.on("receiveAllCpuLocations", data => {
+    let dataKeys = Object.keys(data);
+    for (let i = 0; i < dataKeys.length; i++) {
+        // Determine how far away the monitor is
+        let distance = Math.floor(Math.abs(
+            data[dataKeys[i]].x - localPlayer.position.x +
+            data[dataKeys[i]].y - localPlayer.position.y +
+            data[dataKeys[i]].z - localPlayer.position.z
+        ));
+        // Only nearby monitors are rendered
+        if (distance < 100)
+            nearbyCpus[dataKeys[i]] = true;
+        else if (nearbyCpus[dataKeys[i]])
+            delete nearbyCpus[dataKeys[i]];
+    }
+    // TODO: CHECK FOR CPUS THAT NO LONGER EXIST
+
+    if (Object.keys(nearbyCpus).length > 0)
+        socket.emit("requestCpuData", nearbyCpus, currentRow); // Request the data for all nearby CPUs
+});
+
+socket.on("receiveCpuData", (data, row) => {
+    let dataKeys = Object.keys(data);
+    for (let i = 0; i < dataKeys.length; i++) {
+        let newCpuData = data[dataKeys[i]];
+        if (!cpus[dataKeys[i]]) {
+            cpus[dataKeys[i]] = new ComputerDisplay(dataKeys[i], localPlayer.game, localPlayer.game.cssScene);
+        }
+
+        cpus[dataKeys[i]].setPosition(newCpuData.position.x, newCpuData.position.y, newCpuData.position.z);
+        cpus[dataKeys[i]].setRotation(newCpuData.rotation._x, newCpuData.rotation._y, newCpuData.rotation._z);
+        cpus[dataKeys[i]].newPixels[row] = newCpuData.pixels;
+        cpus[dataKeys[i]].updateRow(row);
+        cpus[dataKeys[i]].updateLight();
+    }
+    currentRow++;
+    if (currentRow > 95)
+        currentRow = 0;
+});
 
 // Sends CPU input to the server for processing
-/*export function sendInputToCpu(cpuId, inputChar) {
+export function sendInputToCpu(cpuId, inputChar) {
     socket.emit("cpuInput", cpuId, inputChar);
 }
 
@@ -218,7 +259,7 @@ document.addEventListener("keydown", function (e) {
     let k = e.key;
     if (localPlayer.typing)
         sendInputToCpu("0", k.toLowerCase());
-});*/
+});
 
 /////////////////////////////////////////////
 
