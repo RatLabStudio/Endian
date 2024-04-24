@@ -105,24 +105,12 @@ io.on("connection", socket => {
 
     /////////////// CPU Management ///////////////
 
-    socket.on("requestAllCpuData", () => {
-        let cpuData = {};
-        let cpuKeys = Object.keys(cpus);
-        for (let i = 0; i < cpuKeys.length; i++)
-            cpuData[cpuKeys[i]] = cpus[cpuKeys[i]].getData();
-        socket.emit("cpuUpdateAll", cpuData);
-    });
+    
 
-    socket.on("requestCpuData", (cpuId) => {
-        let cpuData = cpus[cpuId].getData();
-        socket.emit("cpuUpdate", cpuData);
-    });
+    /////////////////////////////////////////////
 
-    socket.on("cpuInput", (cpuId, inputChar) => {
-        if (cpus[cpuId])
-            cpus[cpuId].gpu.printCharacter(inputChar);
-    });
 
+    /////////////// Chat and Console ///////////////
 
     socket.on("sendMessageToServer", message => {
         sendMessageToAllPlayers(message);
@@ -135,6 +123,7 @@ io.on("connection", socket => {
         }
     });
 
+    /////////////////////////////////////////////
 });
 
 /////////////////////////////////////////////

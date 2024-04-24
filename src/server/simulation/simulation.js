@@ -27,11 +27,11 @@ objects[floor.id] = floor;
 floor.object.position.set(0, -5, 0);
 floor.object.addToGame(game);
 
-let cpu = new NetworkObject("cpu0", "computer");
+/*let cpu = new NetworkObject("cpu0", "computer");
 objects[cpu.id] = cpu;
 cpu.object.position.set(0, -1, -20);
 cpu.object.addToGame(game);
-setTimeout(() => { Server.createCpu(0) }, 1000);
+setTimeout(() => { Server.createCpu(0) }, 1000);*/
 
 for (let i = 0; i < 10; i++) {
     setTimeout(() => {

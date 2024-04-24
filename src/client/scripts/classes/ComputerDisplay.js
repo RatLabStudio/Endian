@@ -15,7 +15,7 @@ import * as Lighting from './Lighting.js';
 
 const loader = new GLTFLoader();
 
-export class Computer {
+export class ComputerDisplay {
     constructor(game, cssScene) {
         this.game = game;
         this.scene = game.scene;
@@ -75,7 +75,9 @@ export class Computer {
         this.meshBlend.rotation.copy(this.object.rotation);
         this.meshBlend.scale.copy(this.object.scale);
 
-        this.scene.add(this.meshBlend);
+        this.objectGroup = new THREE.Group();
+
+        this.objectGroup.add(this.meshBlend);
         this.cssScene.add(this.group);
 
         this.model = null;
@@ -95,19 +97,23 @@ export class Computer {
             this.model.scale.set(2.75, 2.75, 2.75)
             this.model.rotation.y = Math.PI;
 
-            this.scene.add(this.model);
+            this.objectGroup.add(this.model);
 
         }, undefined, function (error) {
             console.error(error);
         });
 
         this.light = new Lighting.Light(new THREE.PointLight(0xFFFFFF, 10, 8, 2));
+        this.objectGroup.add(this.light.light);
+        this.objectGroup.add(this.light.guiLight);
 
         this.setPosition(0, 0, 0); // Sets a default position for the computer at 0, 0, 0
 
         this.currentRow = 0;
         this.lastRowSet = performance.now();
         this.newPixels = [];
+
+        this.scene.add(this.objectGroup);
     }
 
     // Move the computer and all its components to a specified location
@@ -136,6 +142,12 @@ export class Computer {
             this.position.y,
             this.position.z + 0.5
         );
+    }
+
+    setRotation(x, y, z) {
+        this.objectGroup.rotation.set(x, y, z);
+        this.group.rotation.set(x, y, z);
+        console.log(this.objectGroup);
     }
 
     // Clear entire screen of the display

@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es';
 import * as THREE from 'three';
 
 import { NetworkObject } from "./classes/NetworkObject.js";
-import { Computer } from "./classes/ComputerDisplay.js";
+import { ComputerDisplay } from "./classes/ComputerDisplay.js";
 import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
@@ -58,9 +58,6 @@ export function sendInfoToServer(player) {
 
 // Spawns new player object for a new payer
 function createPlayerObj(newPlayer) {
-    /*if (!justJoined)
-        Chat.log(`${newPlayer.username} joined the game`, "yellow");*/
-
     playerObjs[newPlayer.networkId] = new ModelObject(
         'assets/model/player.gltf',
         new CANNON.Body({
@@ -74,8 +71,6 @@ function createPlayerObj(newPlayer) {
 
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
-    //Chat.log(`${playerObjs[playerNetId].username} left the game`, "yellow");
-
     let player = playerObjs[playerNetId]; // Player to be removed
     player.game.scene.remove(player.model); // Remove player model
     //player.material.dispose(); // Dispose of model texture
@@ -102,7 +97,7 @@ function updatePlayerObjs() {
             p.position.y + 1,
             p.position.z
         );
-        
+
         if (p.rotation) {
             obj.setRotation(
                 0,
@@ -114,10 +109,8 @@ function updatePlayerObjs() {
         updated[playersArr[i]] = true;
     }
     for (let i = 0; i < playerObjsArr.length; i++) {
-        if (!updated[playerObjsArr[i]]) {
+        if (!updated[playerObjsArr[i]])
             removePlayerObj(playerObjsArr[i]);
-            //Chat.log(`${lastPlayerList[playerObjsArr[i]].username} left the game`, "yellow");
-        }
     }
 }
 
@@ -184,52 +177,40 @@ export function requestAllCpuData() {
     socket.emit("requestAllCpuData"); // Gets CPU Data
 }
 
-// CPU Functions:
-let cpus = {};
 
-socket.on("cpuUpdateAll", cpuData => {
-    cpus = cpuData;
-    let cpuKeys = Object.keys(cpus);
+/////////////// CPU Functions ///////////////
 
-    for (let i = 0; i < cpuKeys.length; i++) {
-        // If the CpuDisplay doesn't exist, create it, then update it
-        if (!cpuDisplays[cpuKeys[i]]) {
-            cpuDisplays[cpuKeys[i]] = new Computer(localPlayer.game, localPlayer.game.cssScene);
-            let obj = objs[`cpu${cpuKeys[i]}`].object;
+let cpus = {}; // List of all CPUs
 
-            // Position the CpuDisplay after is has been loaded
-            setTimeout(function () {
-                cpuDisplays[cpuKeys[i]].setPosition(obj.position.x, obj.position.y, obj.position.z + 0.3);
-            }, 500);
-        }
+setTimeout(function () {
+    let t = new ComputerDisplay(localPlayer.game, localPlayer.game.cssScene);
 
-        // Update the display
-        cpuDisplays[cpuKeys[i]].setDisplayFrom2DArray(cpus[cpuKeys].pixels);
+    t.setPosition(0, 0, 0);
+
+    t.setRotation(10, 10, 10);
+    let c = 0;
+    setInterval(function () {
+        t.setRotation(c, c, c);
+        c += 0.001;
+    }, 1);
+
+    let tempArr = [];
+    for (let i = 0; i < t.height; i++) {
+        tempArr.push([]);
+        for (let j = 0; j < t.width; j++)
+            tempArr[i][j] = "blue";
     }
-});
 
-// Get the data for a specific CPU
-export function getCpuData(cpuId) {
-    return cpus[cpuId];
-}
+    t.setDisplayFrom2DArray(tempArr);
 
-// Get the data for all CPUs
-export function getAllCpuData() {
-    return cpus;
-}
+    for (let i = 0; i < t.height; i++)
+        t.updateNextRow();
 
-// Request the data for every CPU from the server
-export function requestCpuUpdate(cpuId) {
-    socket.emit("requestCpuData", cpuId);
-}
-
-// When the server sends a CPU update
-socket.on("cpuUpdate", cpuData => {
-    cpus[cpuData.id] = cpuData;
-});
+    t.updateLight();
+}, 4000);
 
 // Sends CPU input to the server for processing
-export function sendInputToCpu(cpuId, inputChar) {
+/*export function sendInputToCpu(cpuId, inputChar) {
     socket.emit("cpuInput", cpuId, inputChar);
 }
 
@@ -237,7 +218,10 @@ document.addEventListener("keydown", function (e) {
     let k = e.key;
     if (localPlayer.typing)
         sendInputToCpu("0", k.toLowerCase());
-});
+});*/
+
+/////////////////////////////////////////////
+
 
 export function shootRay(ray) {
     let rayToSend = {
