@@ -7,6 +7,7 @@ export class Player {
         this.username = "Player";
         this.object = new NetworkObject("Player", "player").object; // Physical game object of the player
         this.info = {}; // Player information, such as health
+        this.newChatMessages = [];
     }
 
     getData() {

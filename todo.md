@@ -9,7 +9,5 @@
         whole game is lagging when the CPU display is updated all at once.
 - Add more input types to the settings menu to replace the boolean sliders
 - Work on Voxel Objects
-- Fix some players not receiving death messages in chat
 - Add damage indicators for all players
 - Add lighting and particle trail for bullets
-- Fix the player join messages

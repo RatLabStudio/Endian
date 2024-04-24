@@ -18,8 +18,6 @@ let movingObjects = []; // Objects that are currently being moved by a player
 export let rays = []; // Active rays (bullets)
 let displayRays = {}; // Rays to be displayed (reflects rays[])
 
-let newChatMessages = []; // Chat messages that have not yet been displayed
-
 // Called when the socket connection is created
 io.on("connection", socket => {
     console.log(socket.id + " connected");
@@ -33,8 +31,7 @@ io.on("connection", socket => {
             players[player.networkId] = new Player(player.networkId);
             Simulation.game.world.addBody(players[player.networkId].object.body);
 
-            // Running this code here causes only the player who joined to see it
-            newChatMessages.push({
+            sendMessageToAllPlayers({
                 message: `${player.username} joined the game`,
                 color: 'yellow'
             });
@@ -57,7 +54,7 @@ io.on("connection", socket => {
         console.log(`${socket.id} disconnected`);
         if (players[socket.id]) {
             Simulation.game.world.removeBody(players[socket.id].object.body);
-            newChatMessages.push({
+            sendMessageToAllPlayers({
                 message: `${players[socket.id].username} left the game`,
                 color: 'tomato'
             });
@@ -127,13 +124,20 @@ io.on("connection", socket => {
     });
 
 
-    socket.on("requestNewChatMessages", () => {
-        socket.emit("sendNewChatMessages", newChatMessages);
-        newChatMessages = [];
+    socket.on("sendMessageToServer", message => {
+        sendMessageToAllPlayers(message);
     });
 
-    /////////////////////////////////////////////
+    socket.on("requestNewChatMessages", () => {
+        if (players[socket.id]) {
+            socket.emit("sendNewChatMessages", players[socket.id].newChatMessages);
+            players[socket.id].newChatMessages = [];
+        }
+    });
+
 });
+
+/////////////////////////////////////////////
 
 export function createCpu(id) {
     cpus[id] = new CPU(id);
@@ -153,3 +157,9 @@ export function createCpu(id) {
     computer.nextLine();
     computer.printString("");
 };
+
+export function sendMessageToAllPlayers(message) {
+    let playerKeys = Object.keys(players);
+    for (let i = 0; i < playerKeys.length; i++)
+        players[playerKeys[i]].newChatMessages.push(message);
+}
