@@ -57,8 +57,10 @@ setInterval(async function () {
     for (let i = 0; i < objKeys.length; i++)
         objects[objKeys[i]].object.update();
 
-    //cpus["cpu0"].object.rotation.set(t, t, t);
-    t += 0.001;
+    updateProjectiles();
+
+    cpus["cpu0"].object.rotation.set(t, t, t);
+    t += 0.0001;
 }, 0);
 
 /////////////////////////////////////////////
@@ -71,3 +73,25 @@ export function moveNetworkObjects(movedObjects) {
         }
     }
 };
+
+
+/////////////// Projectiles ///////////////
+
+export let projectiles = {};
+let projectileSpeed = 1;
+
+export function updateProjectiles() {
+    let pKeys = Object.keys(projectiles);
+
+    for (let i = 0; i < pKeys.length; i++) {
+        let projectile = projectiles[pKeys[i]];
+
+        if (!projectile.networkObject) { // If the projectile doesn't have a physics body
+            projectile.networkObject = new NetworkObject(`projectile${pKeys[i]}`, "projectile"); // Physical object
+            projectile.networkObject.object.position.copy(projectile.ray.origin);
+            projectile.position = 0; // Position of the projectile on the ray
+        }
+    }
+}
+
+/////////////////////////////////////////////

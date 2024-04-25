@@ -136,6 +136,15 @@ io.on("connection", socket => {
     /////////////////////////////////////////////
 
 
+    /////////////// Projectiles ///////////////
+
+    socket.on("shootProjectile", newRay => {
+        Simulation.projectiles[newRay.id] = newRay;
+    });
+
+    /////////////////////////////////////////////
+
+
     /////////////// Chat and Console ///////////////
 
     socket.on("sendMessageToServer", message => {

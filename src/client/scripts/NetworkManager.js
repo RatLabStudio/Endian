@@ -264,7 +264,7 @@ document.addEventListener("keydown", function (e) {
 /////////////////////////////////////////////
 
 
-export function shootRay(ray) {
+export function shootProjectile(ray) {
     let rayToSend = {
         id: socket.id + "time" + performance.now().toFixed(3).replace(".", ""),
         sender: socket.id,
@@ -273,62 +273,8 @@ export function shootRay(ray) {
             direction: ray.direction
         }
     };
-    socket.emit("shootRay", rayToSend);
+    socket.emit("shootProjectile", rayToSend);
 }
-
-let displayRays = {};
-socket.on("sendRayDisplayInfoToPlayers", newDisplayRays => {
-    let newDisplayRayKeys = Object.keys(newDisplayRays);
-
-    for (let i = 0; i < newDisplayRayKeys.length; i++) {
-        if (!displayRays[newDisplayRayKeys[i]]) { // If the ray didn't already exist
-            // Manage creating a new ray display here
-            displayRays[newDisplayRayKeys[i]] = new NetworkObject(newDisplayRays[newDisplayRayKeys[i]].id, "bullet");
-            displayRays[newDisplayRayKeys[i]].object.mesh.position.set(0, -1000, 0);
-            localPlayer.game.scene.add(displayRays[newDisplayRayKeys[i]].object.mesh);
-        }
-
-        // Construct the ray from it's data
-        let ray = new THREE.Ray(
-            newDisplayRays[newDisplayRayKeys[i]].ray.origin,
-            newDisplayRays[newDisplayRayKeys[i]].ray.direction,
-        );
-
-        // Get the new position of the bullet on the ray line
-        let newPos = new THREE.Vector3();
-        let oldPos = displayRays[newDisplayRayKeys[i]].object.mesh.position;
-        ray.at(newDisplayRays[newDisplayRayKeys[i]].position, newPos)
-
-        // Get the difference between the old position and the new position
-        let difference = new THREE.Vector3(
-            newPos.x - oldPos.x,
-            newPos.y - oldPos.y,
-            newPos.z - oldPos.z
-        );
-
-        // If the bullet is too far away, it will snap to the position it should be at
-        let far = 900;
-        if (Math.abs(difference.x) > far || Math.abs(difference.y) > far || Math.abs(difference.z) > far) {
-            displayRays[newDisplayRayKeys[i]].object.mesh.position.copy(newPos);
-            continue;
-        }
-
-        // Move the bullet towards the new position
-        let speed = 0.5;
-        displayRays[newDisplayRayKeys[i]].object.mesh.position.x += difference.x * speed;
-        displayRays[newDisplayRayKeys[i]].object.mesh.position.y += difference.y * speed;
-        displayRays[newDisplayRayKeys[i]].object.mesh.position.z += difference.z * speed;
-    }
-
-    // Delete old rays that are not in the new list
-    let displayRayKeys = Object.keys(displayRays);
-    for (let i = 0; i < displayRayKeys.length; i++) {
-        if (!newDisplayRays[displayRayKeys[i]]) {
-            localPlayer.game.scene.remove(displayRays[displayRayKeys[i]].object.mesh);
-            delete displayRays[displayRayKeys[i]];
-        }
-    }
-});
 
 socket.on("playerInfoUpdate", playerInfo => {
     UI.setElement("health", playerInfo.health);
