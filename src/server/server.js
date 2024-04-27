@@ -115,17 +115,20 @@ io.on("connection", socket => {
     });
 
     // Provide the data for selected CPUs
-    socket.on("requestCpuData", (requestedCpus, row) => {
+    socket.on("requestCpuData", (requestedCpus) => {
         let data = {};
         let rKeys = Object.keys(requestedCpus);
+
         for (let i = 0; i < rKeys.length; i++) {
-            data[rKeys[i]] = cpus[rKeys[i]].getData(row);
+            if (!cpus[rKeys[i]])
+                continue;
+            data[rKeys[i]] = cpus[rKeys[i]].getData();
             data[rKeys[i]].position = Simulation.cpus[`cpu${rKeys[i]}`].object.position;
             data[rKeys[i]].rotation = Simulation.cpus[`cpu${rKeys[i]}`].object.rotation;
         }
 
         if (rKeys.length > 0)
-            socket.emit("receiveCpuData", data, row);
+            socket.emit("receiveCpuData", data);
     });
 
     socket.on("cpuInput", (cpuId, inputChar) => {
@@ -168,10 +171,7 @@ export function createCpu(id) {
 
     let computer = cpus[id].gpu;
 
-    for (let i = 0; i < 127; i++) {
-        for (let j = 0; j < 95; j++)
-            computer.setPixel(i, j, computer.backgroundColor);
-    }
+    computer.clear();
 
     computer.nextLine();
     computer.printString('Endian CPU');

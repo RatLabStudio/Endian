@@ -18,6 +18,17 @@ let defaultRot = {
     z: 0.1
 };
 
+let animationSpeeds = {
+    position: {
+        set: 0.0007,
+        return: 0.1
+    },
+    rotation: {
+        set: 0.0004,
+        return: 0.08
+    }
+}
+
 const loader = new GLTFLoader();
 export function loadHand(scene, player) {
     loader.load('assets/model/tools/blaster.gltf', (gltfScene) => {
@@ -37,35 +48,36 @@ export function loadHand(scene, player) {
     });
 }
 
-let previousTime = performance.now();
 function animate() {
     requestAnimationFrame(animate);
-    let currentTime = performance.now();
-    let dt = currentTime - previousTime;
-    dt = 7; // I found out DeltaTime was causing the hand to bug out on lower-end devices
 
     if (hand.object == null)
         return;
 
     // Modifies the blaster position based on player movement
     if (hand.player.controls.isLocked) {
-        hand.object.position.x += hand.player.velocity.x * -0.0003 * dt;
-        if (hand.object.position.y < -1)
-            hand.object.position.y += hand.player.gameObject.body.velocity.y * -0.0002 * dt;
-        hand.object.position.z += hand.player.velocity.z * 0.0003 * dt;
+        // X-Axis
+        hand.object.position.x += hand.player.velocity.x * -animationSpeeds.position.set;
+        hand.object.rotation.z -= hand.player.velocity.x * -animationSpeeds.rotation.set;
+
+        // Vertical Modification
+        hand.object.position.y += hand.player.gameObject.body.velocity.y * -animationSpeeds.position.set;
+        hand.object.rotation.x += hand.player.gameObject.body.velocity.y * -animationSpeeds.rotation.set;
+
+        // Z-Axis
+        hand.object.position.z += hand.player.velocity.z * animationSpeeds.position.set;
+        hand.object.rotation.x += hand.player.velocity.z * animationSpeeds.rotation.set;
     }
 
     // Returns the hand to the default position over time
-    hand.object.position.x += (defaultPos.x - hand.object.position.x) * 0.03 * dt;
-    hand.object.position.y += (defaultPos.y - hand.object.position.y) * 0.03 * dt;
-    hand.object.position.z += (defaultPos.z - hand.object.position.z) * 0.03 * dt;
+    hand.object.position.x += (defaultPos.x - hand.object.position.x) * animationSpeeds.position.return;
+    hand.object.position.y += (defaultPos.y - hand.object.position.y) * animationSpeeds.position.return;
+    hand.object.position.z += (defaultPos.z - hand.object.position.z) * animationSpeeds.position.return;
 
     // Returns the hand to the default rotation over time
-    hand.object.rotation.x += (defaultRot.x - hand.object.rotation.x) * 0.03 * dt;
-    hand.object.rotation.y += (defaultRot.y - hand.object.rotation.y) * 0.03 * dt;
-    hand.object.rotation.z += (defaultRot.z - hand.object.rotation.z) * 0.03 * dt;
-
-    previousTime = performance.now();
+    hand.object.rotation.x += (defaultRot.x - hand.object.rotation.x) * animationSpeeds.rotation.return;
+    hand.object.rotation.y += (defaultRot.y - hand.object.rotation.y) * animationSpeeds.rotation.return;
+    hand.object.rotation.z += (defaultRot.z - hand.object.rotation.z) * animationSpeeds.rotation.return;
 
     // For motion blur
     blurAmount -= 1000;
@@ -81,8 +93,8 @@ document.addEventListener('mousemove', function (event) {
         return;
 
     let mouseDisplacement = {
-        x: event.movementX * -0.001,
-        y: event.movementY * 0.001,
+        x: event.movementX * -0.0006,
+        y: event.movementY * 0.0006,
     };
 
     let max = 0.5;

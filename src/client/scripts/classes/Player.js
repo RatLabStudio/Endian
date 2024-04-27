@@ -137,6 +137,8 @@ export class Player {
             this.updateHeldObject();
             this.updateShooting();
         }
+
+        this.camera.rotation.z += 0 - this.camera.rotation.z * 0.4;
     }
 
     physicsUpdate() {
@@ -194,6 +196,8 @@ export class Player {
         if (this.keys[this.controlKeys.right])
             xSpeed += this.maxSpeed;
         this.input.x = xSpeed;
+
+        this.camera.rotation.z -= xSpeed * 0.001;
     }
 
     // Take the info stored from processInput() and apply it to the player

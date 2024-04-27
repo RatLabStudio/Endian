@@ -179,35 +179,6 @@ export function requestSimulationUpdate() {
 
 let cpus = {}; // List of all CPUs
 
-/*setTimeout(function () {
-    let t = new ComputerDisplay(localPlayer.game, localPlayer.game.cssScene);
-
-    t.setPosition(0, 0, 0);
-
-    t.setRotation(10, 10, 10);
-    let c = 0;
-    setInterval(function () {
-        t.setRotation(c, c, c);
-        c += 0.001;
-    }, 1);
-
-    let tempArr = [];
-    for (let i = 0; i < t.height; i++) {
-        tempArr.push([]);
-        for (let j = 0; j < t.width; j++)
-            tempArr[i][j] = "blue";
-    }
-
-    t.setDisplayFrom2DArray(tempArr);
-
-    for (let i = 0; i < t.height; i++)
-        t.updateNextRow();
-
-    t.updateLight();
-}, 4000);*/
-
-let currentRow = 0;
-
 // Determine what CPU screens are nearby for rendering
 let nearbyCpus = {};
 socket.on("receiveAllCpuLocations", data => {
@@ -228,26 +199,32 @@ socket.on("receiveAllCpuLocations", data => {
     // TODO: CHECK FOR CPUS THAT NO LONGER EXIST
 
     if (Object.keys(nearbyCpus).length > 0)
-        socket.emit("requestCpuData", nearbyCpus, currentRow); // Request the data for all nearby CPUs
+        socket.emit("requestCpuData", nearbyCpus); // Request the data for all nearby CPUs
 });
 
-socket.on("receiveCpuData", (data, row) => {
+socket.on("receiveCpuData", (data) => {
     let dataKeys = Object.keys(data);
     for (let i = 0; i < dataKeys.length; i++) {
         let newCpuData = data[dataKeys[i]];
+        // Create Computer Display
         if (!cpus[dataKeys[i]]) {
-            cpus[dataKeys[i]] = new ComputerDisplay(dataKeys[i], localPlayer.game, localPlayer.game.cssScene);
+            cpus[dataKeys[i]] = new ComputerDisplay(
+                dataKeys[i], // ID
+                localPlayer.game, // Game to place the monitor in
+                localPlayer.game.cssScene, // CSS scene to display the screen content
+                data[dataKeys[i]].resolution.x, // Resolution of the screen
+                data[dataKeys[i]].resolution.y
+            );
         }
 
         cpus[dataKeys[i]].setPosition(newCpuData.position.x, newCpuData.position.y, newCpuData.position.z);
         cpus[dataKeys[i]].setRotation(newCpuData.rotation._x, newCpuData.rotation._y, newCpuData.rotation._z);
-        cpus[dataKeys[i]].newPixels[row] = newCpuData.pixels;
-        cpus[dataKeys[i]].updateRow(row);
-        cpus[dataKeys[i]].updateLight();
+        if (newCpuData.rowToUpdate >= 0) {
+            cpus[dataKeys[i]].newPixels[newCpuData.rowToUpdate] = newCpuData.pixels;
+            cpus[dataKeys[i]].updateRow(newCpuData.rowToUpdate);
+            cpus[dataKeys[i]].updateLight();
+        }
     }
-    currentRow++;
-    if (currentRow > 95)
-        currentRow = 0;
 });
 
 // Sends CPU input to the server for processing

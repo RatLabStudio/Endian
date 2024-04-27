@@ -318,7 +318,7 @@ button:active {
   width: 100%;
   background-image: url('./assets/textures/ScreenOverlay.png');
   background-repeat: repeat;
-  background-size: 30%;
+  background-size: 100px;
   opacity: 100%;
   filter: "blur('100px');";
 }

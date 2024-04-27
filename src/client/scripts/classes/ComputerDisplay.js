@@ -16,7 +16,7 @@ import * as Lighting from './Lighting.js';
 const loader = new GLTFLoader();
 
 export class ComputerDisplay {
-    constructor(id, game, cssScene) {
+    constructor(id, game, cssScene, resolutionX = 128, resolutionY = 96) {
         this.id = id;
         this.game = game;
         this.scene = game.scene;
@@ -28,8 +28,8 @@ export class ComputerDisplay {
             z: 0
         };
 
-        this.width = 128; // X Resolution
-        this.height = 96; // Y Resolution
+        this.width = resolutionX; // X Resolution
+        this.height = resolutionY; // Y Resolution
 
         this.scale = 3; // Scale of the entire computer
 

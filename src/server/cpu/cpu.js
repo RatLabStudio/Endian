@@ -9,16 +9,12 @@ export class CPU {
     }
 
     getData() {
+        let nextRowData = this.gpu.getNextRowData();
         return {
             id: this.id,
-            pixels: this.gpu.pixels
-        };
-    }
-
-    getData(row) {
-        return {
-            id: this.id,
-            pixels: this.gpu.pixels[row]
+            pixels: nextRowData.pixels,
+            rowToUpdate: nextRowData.row,
+            resolution: { x: this.gpu.resolutionX, y: this.gpu.resolutionY }
         };
     }
 }

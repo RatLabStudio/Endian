@@ -13,25 +13,68 @@ export class Graphics {
         for (let row = 0; row < resolutionY; row++) {
             this.pixels.push([]);
             for (let col = 0; col < resolutionX; col++)
-                this.pixels[row][col] = 0;
+                this.pixels[row][col] = this.backgroundColor;
         }
 
         this.textPos = { // FOR TEXT DEBUGGING
             x: 0,
             y: 0
         };
+
+        this.lastUpdate = [];
+        this.currentRow = 0;
+    }
+
+    checkForChangedRows() {
+        if (this.lastUpdate.length <= 0)
+            return false;
+        for (let i = 0; i < this.pixels.length; i++) {
+            for (let j = 0; j < this.pixels[i].length; j++) {
+                if (this.lastUpdate[i][j] !== this.pixels[i][j])
+                    return i;
+            }
+        }
+        return false;
+    }
+
+    nextRow() {
+        this.currentRow++;
+        if (this.currentRow >= this.resolutionY)
+            this.currentRow = 0;
+    }
+
+    getNextRowData() {
+        let changedRow = this.checkForChangedRows();
+        if (changedRow !== false)
+            this.currentRow = changedRow;
+
+        let data = {
+            row: this.currentRow,
+            pixels: this.pixels[this.currentRow]
+        }
+
+        this.nextRow();
+
+        // Copy the pixel array to the lastUpdate array for storage
+        this.lastUpdate = this.pixels.map(function (arr) {
+            return arr.slice();
+        });
+
+        return data;
     }
 
     clear() {
-        for (let row = 0; row < resolutionY; row++) {
+        for (let row = 0; row < this.resolutionY; row++) {
             this.pixels.push([]);
-            for (let col = 0; col < resolutionX; col++)
-                this.pixels[row][col] = 0;
+            for (let col = 0; col < this.resolutionX; col++)
+                this.pixels[row][col] = this.backgroundColor;
         }
     }
 
     setPixel(x, y, active) {
         this.pixels[y][x] = active;
+        if (this.currentRow > y) // Move the current row to the changed pixel
+            this.currentRow = y;
     }
 
     // Prints a character to the screen
