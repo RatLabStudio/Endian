@@ -268,7 +268,7 @@ window.addEventListener('click', function () {
 
 /////////////// Start of Program ///////////////
 
-let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.01));
+let ambient = new Lighting.Light(new THREE.AmbientLight(0xFFFFFF, 0.1));
 guiScene.add(new THREE.AmbientLight(0xFFFFFF, 0.5)); // The hand should alway be a little brighter than the scene
 
 GUI.loadHand(guiScene, player);

@@ -79,7 +79,13 @@ export function createObject(objectId) {
 }
 
 export let voxels = {
-    panel: new GameObject(
-        new THREE.BoxGeometry(2, 2, 0.2), new THREE.MeshNormalMaterial(), new CANNON.Body()
-    )
+    air: {
+        geometry: new THREE.BoxGeometry(0, 0, 0),
+        shape: new CANNON.Shape()
+    },
+    panel: {
+        geometry: new THREE.BoxGeometry(2, 2, 0.5),
+        material: new THREE.MeshNormalMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.25))
+    }
 }

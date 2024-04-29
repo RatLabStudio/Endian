@@ -21,7 +21,7 @@ let defaultRot = {
 let animationSpeeds = {
     position: {
         set: 0.0007,
-        return: 0.1
+        return: 0.2
     },
     rotation: {
         set: 0.0004,
@@ -120,6 +120,8 @@ export function shootingAnimation() {
     defaultPos.z += 0.5;
     let storedRot = defaultRot.x;
     defaultRot.x += 0.3;
+
+    hand.player.camera.fov += 5;
 
     setTimeout(function () {
         defaultPos.z = storedPos;

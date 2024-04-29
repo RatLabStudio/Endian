@@ -101,8 +101,12 @@ export class Player {
         }.bind(this));
 
         this.normalFov = Settings.settings.fov; // FOV of the camera
-        this.sprintFov = this.normalFov + 7; // FOV to use while sprinting
+        this.sprintFov = this.normalFov.valueOf() + 7; // FOV to use while sprinting
         this.zoomFov = this.normalFov - 50;
+        this.currentFov = this.normalFov.valueOf();
+        this.fovRate = 0.1;
+
+        this.currentCameraRotation = 0;
 
         this.typing = false; // Whether the player is typing into the CPU
 
@@ -148,40 +152,6 @@ export class Player {
 
     // Determine which keys are pressed and store the information
     processInput() {
-        // Temporary Sprinting
-        if (this.keys[this.controlKeys.sprint]) {
-            this.maxSpeed = 12;
-            // Slowly bring FOV up
-            if (this.camera.fov < this.sprintFov)
-                this.camera.fov += 0.5;
-            this.camera.updateProjectionMatrix();
-        } else {
-            this.maxSpeed = 8;
-            // Slowly bring FOV back down
-            if (this.camera.fov > this.normalFov)
-                this.camera.fov -= 0.5;
-            this.camera.updateProjectionMatrix();
-        }
-
-        if (this.keys[this.controlKeys.zoom]) {
-            // Slowly bring FOV down
-            if (this.camera.fov > this.zoomFov)
-                this.camera.fov -= 4;
-            this.camera.updateProjectionMatrix();
-            this.controls.pointerSpeed = 0.25;
-        } else {
-            // Slowly bring FOV back up
-            if (this.camera.fov < this.normalFov)
-                this.camera.fov += 4;
-            this.camera.updateProjectionMatrix();
-            this.controls.pointerSpeed = 0.75;
-        }
-
-        if (this.keys[this.controlKeys.jump] && this.canJump) {
-            this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 3000, 0));
-            this.canJump = false;
-        }
-
         // Store Movement Controls
         let zSpeed = 0;
         if (this.keys[this.controlKeys.forward])
@@ -197,7 +167,33 @@ export class Player {
             xSpeed += this.maxSpeed;
         this.input.x = xSpeed;
 
-        this.camera.rotation.z -= xSpeed * 0.001;
+        this.currentCameraRotation = xSpeed * -0.01;
+        this.camera.rotation.z += (this.currentCameraRotation - this.camera.rotation.z) * 0.05;
+
+        // Temporary Sprinting
+        if (this.keys[this.controlKeys.sprint] && (Math.abs(xSpeed) > 0 || Math.abs(zSpeed) > 0)) {
+            this.currentFov = this.sprintFov.valueOf();
+            this.maxSpeed = 12;
+        } else {
+            this.currentFov = this.normalFov.valueOf();
+            this.maxSpeed = 8;
+        }
+
+        if (this.keys[this.controlKeys.zoom]) {
+            this.currentFov = this.zoomFov.valueOf();
+            this.controls.pointerSpeed = 0.25;
+        } else if (!this.keys[this.controlKeys.sprint]) {
+            this.currentFov = this.normalFov.valueOf();
+            this.controls.pointerSpeed = 0.75;
+        }
+
+        this.camera.fov += (this.currentFov - this.camera.fov) * this.fovRate;
+        this.camera.updateProjectionMatrix();
+
+        if (this.keys[this.controlKeys.jump] && this.canJump) {
+            this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 3000, 0));
+            this.canJump = false;
+        }
     }
 
     // Take the info stored from processInput() and apply it to the player
