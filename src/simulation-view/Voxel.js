@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
-import * as Resources from "../Resources.js";
+import * as Resources from "./Resources.js";
 
 export class Voxel {
     constructor(voxelId) {

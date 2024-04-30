@@ -8,6 +8,7 @@ import * as Chat from "./chat.js";
 import { ModelObject } from './classes/ModelObject.js';
 import * as State from './state.js';
 import * as UI from './ui.js';
+import { VoxelObject } from "./classes/VoxelObject.js";
 
 let ip = "localhost";
 //let ip = "192.168.1.254"; // Home PC
@@ -30,6 +31,8 @@ let playerObjs = {}; // List of physical player objects
 export let objs = [];
 
 export let cpuDisplays = {};
+
+export let voxelObjs = {};
 
 let justJoined = true;
 setTimeout(function () { justJoined = false; }, 2000);
@@ -172,6 +175,7 @@ export function requestSimulationUpdate() {
     socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
     socket.emit("requestNewChatMessages"); // Gets all new chat messages
     socket.emit("requestAllCpuLocations");
+    socket.emit("requestVoxelObjectUpdates");
 }
 
 
@@ -263,4 +267,16 @@ socket.on("playerInfoUpdate", playerInfo => {
 socket.on("sendNewChatMessages", messages => {
     for (let i = 0; i < messages.length; i++)
         Chat.log(messages[i].message, messages[i].color);
+});
+
+
+
+socket.on("voxelObjectUpdate", voxelObject => {
+    if (!voxelObjs[voxelObject.id]) {
+        voxelObjs[voxelObject.id] = new VoxelObject(localPlayer.game, voxelObject.id);
+    }
+
+    voxelObjs[voxelObject.id].setMatrixFromIds(voxelObject.matrix);
+    voxelObjs[voxelObject.id].setPosition(voxelObject.position);
+    voxelObjs[voxelObject.id].setRotation(voxelObject.rotation);
 });

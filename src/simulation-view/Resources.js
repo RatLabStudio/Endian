@@ -8,7 +8,7 @@ export let objects = {
         new THREE.BoxGeometry(2, 2, 2),
         new THREE.MeshLambertMaterial({ color: 0x00CCCC }),
         new CANNON.Body({
-            mass: 50,
+            mass: 0,
             shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
 
         })
@@ -35,7 +35,7 @@ export let objects = {
         new THREE.CylinderGeometry(0.45, 0.45, 2.5, 8, 1, false),
         new THREE.MeshNormalMaterial(),
         new CANNON.Body({
-            mass: 150,
+            mass: 0,
             shape: new CANNON.Cylinder(0.6, 0.6, 2.5, 8),
             material: new CANNON.Material({ friction: 10 })
         })
@@ -83,4 +83,22 @@ export function createModelObject(objectId, game) {
         }),
         game
     );
+}
+
+export let voxels = {
+    air: {
+        geometry: new THREE.BoxGeometry(0, 0, 0),
+        material: new THREE.MeshBasicMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(0, 0, 0))
+    },
+    panel: {
+        geometry: new THREE.BoxGeometry(2, 2, 0.5),
+        material: new THREE.MeshNormalMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.25))
+    },
+    box: {
+        geometry: new THREE.BoxGeometry(1, 1, 1),
+        material: new THREE.MeshNormalMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+    }
 }

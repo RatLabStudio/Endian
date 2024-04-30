@@ -75,6 +75,16 @@ io.on("connection", socket => {
         socket.emit("objectUpdates", compressedObjs);
     });
 
+    socket.on("requestVoxelObjectUpdates", () => {
+        // Compress voxel objects
+        let voKeys = Object.keys(Simulation.voxelObjects);
+        let compressedVoxelObjects = {};
+        for (let i = 0; i < voKeys.length; i++) {
+            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getData();
+            socket.emit("voxelObjectUpdate", compressedVoxelObjects[voKeys[i]]);
+        }
+    });
+
     socket.on("requestSimulationForView", () => {
         // Compress objects
         let objKeys = Object.keys(Simulation.objects);
@@ -88,8 +98,18 @@ io.on("connection", socket => {
         for (let i = 0; i < playerKeys.length; i++)
             compressedPlayers[playerKeys[i]] = players[playerKeys[i]].getData();
 
+        // Compress voxel objects
+        let voKeys = Object.keys(Simulation.voxelObjects);
+        let compressedVoxelObjects = {};
+        for (let i = 0; i < voKeys.length; i++)
+            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getData();
+
         // Send Data
-        socket.emit("sendSimulationSceneForView", { objects: compressedObjs, players: compressedPlayers });
+        socket.emit("sendSimulationSceneForView", {
+            objects: compressedObjs,
+            players: compressedPlayers,
+            voxelObjects: compressedVoxelObjects
+        });
     });
 
 

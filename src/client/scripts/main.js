@@ -201,7 +201,7 @@ function animate() {
 
   if (State.currentState >= State.getStateId("ready"))
     world.fixedStep(); // Update the physics world
-  //cannonDebugger.update(); // Display the physics world
+  cannonDebugger.update(); // Display the physics world
 
   player.update(dt);
 

@@ -5,6 +5,7 @@ import * as CANNON from "cannon-es";
 
 import * as Server from '../server.js';
 import { NetworkObject } from "./objects/NetworkObject.js";
+import { VoxelObject } from "./objects/VoxelObject.js";
 
 let scene = new THREE.Scene(); // This can be sent to a client later!
 
@@ -44,6 +45,37 @@ for (let i = 0; i < 10; i++) {
     }, 500 * i);
 }
 
+export let voxelObjects = {};
+voxelObjects.voTest = new VoxelObject(game, "voTest");
+voxelObjects.voTest.setPosition(new THREE.Vector3(0, 5, -10));
+
+let matrix = [];
+let size = 3;
+for (let x = 0; x < size; x++) {
+    matrix.push([]);
+    for (let y = 0; y < size; y++) {
+        matrix[x].push([]);
+        for (let z = 0; z < size; z++) {
+            matrix[x][y][z] = "air";
+        }
+    }
+}
+function setCoords(pos, value) {
+    matrix[pos[0]][pos[1]][pos[2]] = value;
+}
+
+setCoords([0, 0, 0], 'box');
+setCoords([2, 0, 0], 'box');
+setCoords([0, 0, 2], 'box');
+setCoords([2, 0, 2], 'box');
+setCoords([1, 1, 1], 'box');
+setCoords([0, 2, 0], 'box');
+setCoords([2, 2, 0], 'box');
+setCoords([0, 2, 2], 'box');
+setCoords([2, 2, 2], 'box');
+
+voxelObjects.voTest.setMatrixFromIds(matrix);
+
 /////////////////////////////////////////////
 
 
@@ -59,8 +91,9 @@ setInterval(async function () {
 
     updateProjectiles();
 
-    cpus["cpu0"].object.rotation.set(t, t, t);
-    t += 0.0001;
+    //cpus["cpu0"].object.rotation.set(t, t, t);
+    //voxelObjects.voTest.setRotation(new CANNON.Vec3(t, t, t));
+    t += 0.001;
 }, 0);
 
 /////////////////////////////////////////////

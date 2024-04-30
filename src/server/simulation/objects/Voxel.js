@@ -23,4 +23,8 @@ export class Voxel {
         // Note: A full body is not created so the voxel can be added to a body later
         this.shape = this.resource.shape;
     }
+
+    setPosition(position) {
+        this.mesh.position.copy(position);
+    }
 }

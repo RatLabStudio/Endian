@@ -79,7 +79,9 @@ export function createObject(objectId) {
         new CANNON.Body({
             mass: resource.body.mass,
             shape: resource.body.shapes[0],
-            material: resource.body.material
+            material: resource.body.material,
+            sleepSpeedLimit: 100000,
+            sleepTimeLimit: 0
         })
     );
 }
@@ -95,4 +97,22 @@ export function createModelObject(objectId, game) {
         }),
         game
     );
+}
+
+export let voxels = {
+    air: {
+        geometry: new THREE.BoxGeometry(0, 0, 0),
+        material: new THREE.MeshBasicMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(0, 0, 0))
+    },
+    panel: {
+        geometry: new THREE.BoxGeometry(2, 2, 0.5),
+        material: new THREE.MeshNormalMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.25))
+    },
+    box: {
+        geometry: new THREE.BoxGeometry(1, 1, 1),
+        material: new THREE.MeshNormalMaterial(),
+        shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+    }
 }

@@ -19,6 +19,8 @@ export class VoxelObject {
 
         // Body to store all physics shapes
         this.body = new CANNON.Body({ mass: 0 });
+        this.body.sleepSpeedLimit = 100000;
+        this.body.sleepTimeLimit = 0;
         this.game.world.addBody(this.body);
 
         // Group to contain all Three.js meshes

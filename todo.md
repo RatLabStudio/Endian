@@ -7,5 +7,3 @@
 - Work on Voxel Objects
 - Add damage indicators for all players
 - Add lighting and particle trail for bullets
-- Fix simulation-viewer not deleting physics bodies of old objects after the 
-    server reboots
