@@ -50,7 +50,7 @@ voxelObjects.voTest = new VoxelObject(game, "voTest");
 voxelObjects.voTest.setPosition(new THREE.Vector3(0, 5, -10));
 
 let matrix = [];
-let size = 3;
+let size = 5;
 for (let x = 0; x < size; x++) {
     matrix.push([]);
     for (let y = 0; y < size; y++) {
@@ -64,24 +64,31 @@ function setCoords(pos, value) {
     matrix[pos[0]][pos[1]][pos[2]] = value;
 }
 
-setCoords([0, 0, 0], 'box');
-setCoords([2, 0, 0], 'box');
-setCoords([0, 0, 2], 'box');
-setCoords([2, 0, 2], 'box');
-setCoords([1, 1, 1], 'box');
-setCoords([0, 2, 0], 'box');
-setCoords([2, 2, 0], 'box');
-setCoords([0, 2, 2], 'box');
-setCoords([2, 2, 2], 'box');
+for (let i = 0; i < size; i++) {
+    for (let j = 0; j < size; j++) {
+        for (let k = 0; k < size; k++) {
+            if (j % 2 == 0) {
+                if (i % 2 == 0 && k % 2 == 0)
+                    setCoords([i, j, k], "box");
+            } else {
+                if (i % 2 != 0 && k % 2 != 0)
+                    setCoords([i, j, k], "box");
+            }
+        }
+    }
+}
 
 voxelObjects.voTest.setMatrixFromIds(matrix);
+voxelObjects.voTest.body.mass = 1000;
+//voxelObjects.voTest.body.sleep();
+//voxelObjects.voTest.body.velocity.y = 10;
 
 /////////////////////////////////////////////
 
 
 /////////////// Simulation Tick ///////////////
 
-let t = -20;
+let t = 0;
 setInterval(async function () {
     world.fixedStep(); // Update the physics world
 
@@ -93,7 +100,9 @@ setInterval(async function () {
 
     //cpus["cpu0"].object.rotation.set(t, t, t);
     //voxelObjects.voTest.setRotation(new CANNON.Vec3(t, t, t));
-    t += 0.001;
+    //voxelObjects.voTest.position.y -= 0.001;
+    //voxelObjects.voTest.body.velocity.y = 0.001;
+    t += 0.0003;
 }, 0);
 
 /////////////////////////////////////////////

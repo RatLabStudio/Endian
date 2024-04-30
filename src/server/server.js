@@ -102,7 +102,7 @@ io.on("connection", socket => {
         let voKeys = Object.keys(Simulation.voxelObjects);
         let compressedVoxelObjects = {};
         for (let i = 0; i < voKeys.length; i++)
-            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getData();
+            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
 
         // Send Data
         socket.emit("sendSimulationSceneForView", {

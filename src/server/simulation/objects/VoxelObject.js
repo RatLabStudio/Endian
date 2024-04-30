@@ -16,9 +16,10 @@ export class VoxelObject {
         // 3D Matrix of voxels within the object
         this.matrix = [];
         this.matrixIds = [];
+        this.lastMatrix = [];
 
         // Body to store all physics shapes
-        this.body = new CANNON.Body({ mass: 0 });
+        this.body = new CANNON.Body({ mass: 1000 });
         this.game.world.addBody(this.body);
 
         // Group to contain all Three.js meshes
@@ -89,7 +90,31 @@ export class VoxelObject {
         this.body.quaternion.setFromEuler(rotation.x, rotation.y, rotation.z);
     }
 
-    getData() {
+    getNewMatrix() {
+        let newMatrixElements = [];
+        for (let i = 0; i < this.matrix.length; i++) {
+            for (let j = 0; j < this.matrix[i].length; j++) {
+                for (let k = 0; k < this.matrix[i][j].length; k++) {
+                    if (!this.lastMatrix[i][j][k] || this.lastMatrix[i][j][k] !== this.matrix[i][j][k]) {
+                        newMatrixElements.push({
+                            index: {
+                                x: i,
+                                y: j,
+                                z: k
+                            },
+                            data: this.matrix[i][j][k]
+                        });
+                    }
+                }
+            }
+        }
+        this.lastMatrix = this.matrix.map(function (arr) {
+            return arr.slice();
+        });
+        return this.newMatrixElements;
+    }
+
+    getNewData() {
         return {
             id: this.id,
             matrix: this.matrixIds,
