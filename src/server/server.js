@@ -80,7 +80,8 @@ io.on("connection", socket => {
         let voKeys = Object.keys(Simulation.voxelObjects);
         let compressedVoxelObjects = {};
         for (let i = 0; i < voKeys.length; i++) {
-            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getData();
+            //console.log(Simulation.voxelObjects[voKeys[i]].getNewData());
+            compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
             socket.emit("voxelObjectUpdate", compressedVoxelObjects[voKeys[i]]);
         }
     });

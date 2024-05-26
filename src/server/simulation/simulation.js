@@ -46,11 +46,11 @@ for (let i = 0; i < 10; i++) {
 }
 
 export let voxelObjects = {};
-voxelObjects.voTest = new VoxelObject(game, "voTest");
+/*voxelObjects.voTest = new VoxelObject(game, "voTest");
 voxelObjects.voTest.setPosition(new THREE.Vector3(0, 5, -10));
 
 let matrix = [];
-let size = 5;
+let size = 20;
 for (let x = 0; x < size; x++) {
     matrix.push([]);
     for (let y = 0; y < size; y++) {
@@ -81,7 +81,7 @@ for (let i = 0; i < size; i++) {
 voxelObjects.voTest.setMatrixFromIds(matrix);
 voxelObjects.voTest.body.mass = 1000;
 //voxelObjects.voTest.body.sleep();
-//voxelObjects.voTest.body.velocity.y = 10;
+//voxelObjects.voTest.body.velocity.y = 10;*/
 
 /////////////////////////////////////////////
 

@@ -362,6 +362,7 @@ button:active {
   font-size: 3vh;
   padding: 1vh 0 1vh 0;
   margin: 1vh 0 1vh 0;
+  font-family: pixel;
 }
 
 .console .message p {

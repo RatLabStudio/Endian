@@ -25,6 +25,8 @@ export class VoxelObject {
         // Group to contain all Three.js meshes
         this.group = new THREE.Group();
         this.game.scene.add(this.group);
+
+        this.sent = false;
     }
 
     clearMatrix() {
@@ -115,11 +117,16 @@ export class VoxelObject {
     }
 
     getNewData() {
-        return {
+        let data = {
             id: this.id,
             matrix: this.matrixIds,
             position: this.position,
             rotation: this.rotation
         }
+        if (this.sent)
+            data.matrix = [];
+        else
+            this.sent = true;
+        return data;
     }
 }

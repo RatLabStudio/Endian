@@ -39,6 +39,8 @@ export class VoxelObject {
 
     // Set the matrix values of the voxel object and update it accordingly
     setMatrixFromIds(matrix) {
+        if (matrix.length < 1)
+            return;
         this.clearMatrix();
         this.matrix = []; // Reset the matrix
         this.matrixIds = [];
