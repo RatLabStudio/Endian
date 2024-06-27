@@ -68,7 +68,7 @@ document.body.appendChild(renderer.domElement);
 let controls = new OrbitControls(camera, renderer.domElement);
 
 camera.position.set(-25, 5, -25);
-camera.lookAt(0, 0, 0)
+camera.lookAt(new THREE.Vector3(0, 0, 0))
 controls.update();
 
 window.addEventListener('resize', function () {
@@ -208,6 +208,34 @@ function changeServer() {
 }
 window.changeServer = changeServer;
 
+function resetSimulation() {
+  socket.emit("resetSimulation");
+}
+window.resetSimulation = resetSimulation;
+
+function resetCamera() {
+  controls.object.position.set(-25, 5, -25);
+  controls.target.set(0, 0, 0);
+}
+window.resetCamera = resetCamera;
+
+// Sets the camera to last stored position if there is data for it from today
+function setCameraFromMemory() {
+  let date = new Date();
+  let currentDate = [date.getMonth() + 1, date.getDate(), date.getFullYear()];
+
+  let setDate = localStorage.getItem("cameraSetTime").split("-");
+  if (setDate.length > 0) {
+    if (setDate[2] <= currentDate[2] && setDate[1] <= currentDate[1] && setDate[0] <= currentDate[0]) {
+      let pos = localStorage.getItem("cameraPosition").split(",");
+      controls.object.position.set(pos[0], pos[1], pos[2]);
+      let tar = localStorage.getItem("cameraTarget").split(",");
+      controls.target.set(tar[0], tar[1], tar[2]);
+    }
+  }
+}
+setCameraFromMemory();
+
 
 /////////////// Loop ///////////////
 
@@ -218,6 +246,14 @@ setInterval(async function () {
 
   if (debuggerEnabled)
     cannonDebugger.update();
+
+  // Store Camera Information:
+  let cameraPos = controls.object.position;
+  localStorage.setItem("cameraPosition", `${cameraPos.x},${cameraPos.y},${cameraPos.z}`);
+  let cameraTar = controls.target;
+  localStorage.setItem("cameraTarget", `${cameraTar.x},${cameraTar.y},${cameraTar.z}`);
+  let date = new Date();
+  localStorage.setItem("cameraSetTime", `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`);
 
   stats.update(); // FPS Counter
   controls.update();

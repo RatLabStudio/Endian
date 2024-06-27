@@ -219,11 +219,11 @@ function animate() {
 
   // Renderers
   //if (State.currentState >= State.getStateId("ready")) {
-    if (Settings.settings.usewebgpu == 1)
-      renderer.renderAsync(scene, player.camera);
-    else
-      composer.render();
-    cssRenderer.render(cssScene, player.camera);
+  if (Settings.settings.usewebgpu == 1)
+    renderer.renderAsync(scene, player.camera);
+  else
+    composer.render();
+  cssRenderer.render(cssScene, player.camera);
   //}
   //guiRenderer.render(guiScene, guiCamera);
   guiComposer.render();

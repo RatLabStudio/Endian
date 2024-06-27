@@ -183,9 +183,15 @@ io.on("connection", socket => {
     });
 
     /////////////////////////////////////////////
+
+
+    socket.on("resetSimulation", () => {
+        Simulation.reset();
+    });
 });
 
 /////////////////////////////////////////////
+
 
 export function createCpu(id) {
     cpus[id] = new CPU(id);

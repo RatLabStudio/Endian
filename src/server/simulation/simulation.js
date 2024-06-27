@@ -19,33 +19,10 @@ export let game = {
     world: world
 };
 
-/////////////// Start of Program ///////////////
-
 export let objects = {};
-
-let floor = new NetworkObject("floor", "floor");
-objects[floor.id] = floor;
-floor.object.position.set(0, -5, 0);
-floor.object.addToGame(game);
-
 export let cpus = {};
-cpus["cpu0"] = new NetworkObject("cpu0", "computer");
-objects[cpus["cpu0"].id] = cpus["cpu0"];
-cpus["cpu0"].object.position.set(0, -1, -20);
-cpus["cpu0"].object.addToGame(game);
-setTimeout(() => { Server.createCpu(0) }, 1000);
-
-for (let i = 0; i < 10; i++) {
-    setTimeout(() => {
-        let box = new NetworkObject("box" + i, "box");
-        objects[box.id] = box;
-        box.playerMovable = true;
-        box.object.position.y = i * 10;
-        box.object.addToGame(game);
-    }, 500 * i);
-}
-
 export let voxelObjects = {};
+
 /*voxelObjects.voTest = new VoxelObject(game, "voTest");
 voxelObjects.voTest.setPosition(new THREE.Vector3(0, 5, -10));
 
@@ -83,14 +60,12 @@ voxelObjects.voTest.body.mass = 1000;
 //voxelObjects.voTest.body.sleep();
 //voxelObjects.voTest.body.velocity.y = 10;*/
 
-/////////////////////////////////////////////
-
 
 /////////////// Simulation Tick ///////////////
 
 let t = 0;
 setInterval(async function () {
-    world.fixedStep(); // Update the physics world
+    game.world.fixedStep(); // Update the physics world
 
     let objKeys = Object.keys(objects);
     for (let i = 0; i < objKeys.length; i++)
@@ -135,5 +110,52 @@ export function updateProjectiles() {
         }
     }
 }
+
+/////////////////////////////////////////////
+
+
+/////////////// Simulation Management ///////////////
+
+export function reset() {
+    game = {
+        scene: new THREE.Scene(),
+        world: new CANNON.World({ gravity: new CANNON.Vec3(0, -50, 0), allowSleep: false })
+    };
+
+    objects = {};
+    cpus = {};
+    voxelObjects = {};
+    projectiles = {};
+
+    spawnBasicObjects();
+}
+
+/////////////////////////////////////////////
+
+
+/////////////// Start of Program ///////////////
+
+function spawnBasicObjects() {
+    let floor = new NetworkObject("floor", "floor");
+    objects[floor.id] = floor;
+    floor.object.position.set(0, -5, 0);
+    floor.object.addToGame(game);
+
+    cpus["cpu0"] = new NetworkObject("cpu0", "computer");
+    objects[cpus["cpu0"].id] = cpus["cpu0"];
+    cpus["cpu0"].object.position.set(0, -1, -20);
+    cpus["cpu0"].object.addToGame(game);
+    setTimeout(() => { Server.createCpu(0) }, 1000);
+
+    for (let i = 0; i < 10; i++) {
+        let box = new NetworkObject("box" + i, "box");
+        objects[box.id] = box;
+        box.playerMovable = true;
+        box.object.position.y = i * 10;
+        box.object.addToGame(game);
+    }
+}
+
+reset();
 
 /////////////////////////////////////////////

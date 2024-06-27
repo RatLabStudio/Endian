@@ -11,10 +11,7 @@ import * as UI from './ui.js';
 import { VoxelObject } from "./classes/VoxelObject.js";
 
 let ip = "localhost";
-//let ip = "192.168.1.254"; // Home PC
-//let ip = "192.168.1.163"; // Local Server
-//let ip = "65.32.118.97"; // Public Server
-//ip = "10.226.241.75";
+//ip = "65.32.118.97"; // Public Server
 let socket = io(`http://${ip}:3000`);
 
 // Make sure the client waits for player initialization to connect
@@ -25,7 +22,6 @@ let connected = false;
 
 let localPlayer = null; // The player on the local computer
 export let playerList = {}; // List of players shared from the server
-let lastPlayerList = {};
 let playerObjs = {}; // List of physical player objects
 
 export let objs = [];
@@ -119,7 +115,6 @@ function updatePlayerObjs() {
 
 // Receive information from the server about players
 socket.on("playerClientUpdate", players => {
-    lastPlayerList = playerList;
     playerList = {}; // Reset player list to delete old players
     let playersArr = Object.keys(players);
     for (let i = 0; i < playersArr.length; i++) {
@@ -154,6 +149,17 @@ socket.on("objectUpdates", updatedObjs => {
             objs[updatedObjKeys[i]].updateFromServer(updatedObjs[updatedObjKeys[i]]);
         }
     }
+
+    // Check for objects that no longer exist
+    let objKeys = Object.keys(objs);
+    for (let i = 0 ; i < objKeys.length; i++) {
+        if (!updatedObjs[objKeys[i]]) {
+            localPlayer.game.scene.remove(objs[objKeys[i]].object.mesh);
+            localPlayer.game.world.removeBody(objs[objKeys[i]].object.body);
+            delete objs[objKeys[i]];
+        }
+    }
+
     if (State.currentState <= State.getStateId("loading_simulation"))
         setTimeout(function () { State.setState("ready") }, 1500);
 
@@ -268,6 +274,11 @@ socket.on("sendNewChatMessages", messages => {
     for (let i = 0; i < messages.length; i++)
         Chat.log(messages[i].message, messages[i].color);
 });
+
+
+export function sendResetRequest() {
+    socket.emit("resetSimulation");
+}
 
 
 

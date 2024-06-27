@@ -36,7 +36,8 @@ export class Player {
         jump: 32,           // Space
         zoom: 67,           // C
         type: 13,           // Enter
-        fullscreen: 122     // F11
+        fullscreen: 122,    // F11
+        resetSim: 82,       // R
     };
 
     // Player Mouse Controls
@@ -193,6 +194,11 @@ export class Player {
         if (this.keys[this.controlKeys.jump] && this.canJump) {
             this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 3000, 0));
             this.canJump = false;
+        }
+
+        if (this.keys[this.controlKeys.resetSim]) {
+            // Reset Simulation
+            NetworkManager.sendResetRequest();
         }
     }
 
