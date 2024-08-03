@@ -2,10 +2,10 @@
 
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import CannonDebugger from 'cannon-es-debugger';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
+import CannonDebugger from "cannon-es-debugger";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 import { io } from "socket.io-client";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import * as Resources from "./Resources.js";
 import { VoxelObject } from "./VoxelObject.js";
@@ -13,17 +13,19 @@ import { VoxelObject } from "./VoxelObject.js";
 var debuggerEnabled = false;
 
 if (!localStorage.getItem("debugMode"))
-  localStorage.setItem("debugMode", 'false');
+  localStorage.setItem("debugMode", "false");
 else if (localStorage.getItem("debugMode") == "true") {
   debuggerEnabled = true;
   document.getElementById("toggleDebugger").classList.add("enabled");
 }
 
-
 /////////////// IP Management ///////////////
 
 if (!localStorage.getItem("ip") || localStorage.getItem("ip") == "null")
-  localStorage.setItem("ip", prompt("What Endian Server would you like to view?"));
+  localStorage.setItem(
+    "ip",
+    prompt("What Endian Server would you like to view?")
+  );
 
 let ip = localStorage.getItem("ip");
 //let ip = "192.168.1.254"; // Home PC
@@ -34,7 +36,6 @@ document.getElementById("ip").innerHTML = ip;
 
 /////////////////////////////////////////////
 
-
 let objs = {};
 let players = {};
 let voxelObjs = {};
@@ -43,24 +44,28 @@ let voxelObjs = {};
 let stats = new Stats();
 document.body.append(stats.dom);
 
-
 /////////////// Scene Setup ///////////////
 
 let scene = new THREE.Scene();
 
 const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -50, 0)
+  gravity: new CANNON.Vec3(0, -50, 0),
 });
 world.allowSleep = false;
 
 let game = {
   scene: scene,
-  world: world
+  world: world,
 };
 
 let cannonDebugger = new CannonDebugger(scene, world, {});
 
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+let camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -68,10 +73,10 @@ document.body.appendChild(renderer.domElement);
 let controls = new OrbitControls(camera, renderer.domElement);
 
 camera.position.set(-25, 5, -25);
-camera.lookAt(new THREE.Vector3(0, 0, 0))
+camera.lookAt(new THREE.Vector3(0, 0, 0));
 controls.update();
 
-window.addEventListener('resize', function () {
+window.addEventListener("resize", function () {
   let width = window.innerWidth;
   let height = window.innerHeight;
   renderer.setSize(width, height);
@@ -81,7 +86,6 @@ window.addEventListener('resize', function () {
 
 /////////////////////////////////////////////
 
-
 /////////////// Networking ///////////////
 
 socket.on("connect", () => {
@@ -89,7 +93,7 @@ socket.on("connect", () => {
   document.getElementById("networkId").innerHTML = socket.id;
 });
 
-socket.on("sendSimulationSceneForView", data => {
+socket.on("sendSimulationSceneForView", (data) => {
   let objKeys = Object.keys(objs);
   let newObjs = data.objects;
   let newObjKeys = Object.keys(newObjs);
@@ -105,7 +109,9 @@ socket.on("sendSimulationSceneForView", data => {
   // Update Objects
   for (let i = 0; i < newObjKeys.length; i++) {
     if (!objs[newObjKeys[i]]) {
-      objs[newObjKeys[i]] = Resources.createObject(newObjs[newObjKeys[i]].resourceId);
+      objs[newObjKeys[i]] = Resources.createObject(
+        newObjs[newObjKeys[i]].resourceId
+      );
       scene.add(objs[newObjKeys[i]].mesh);
       objs[newObjKeys[i]].body.mass = 0;
       world.addBody(objs[newObjKeys[i]].body);
@@ -122,7 +128,7 @@ socket.on("sendSimulationSceneForView", data => {
   for (let i = 0; i < objKeys.length; i++) {
     if (!newObjs[objKeys[i]]) {
       scene.remove(objs[objKeys[i]].mesh);
-      world.removeBody(objs[objKeys[i]].body)
+      world.removeBody(objs[objKeys[i]].body);
       delete objs[objKeys[i]];
     }
   }
@@ -136,10 +142,16 @@ socket.on("sendSimulationSceneForView", data => {
       world.addBody(players[newPlayerKeys[i]].body);
     }
 
-    players[newPlayerKeys[i]].mesh.position.copy(newPlayers[newPlayerKeys[i]].position);
-    players[newPlayerKeys[i]].body.position.copy(newPlayers[newPlayerKeys[i]].position);
+    players[newPlayerKeys[i]].mesh.position.copy(
+      newPlayers[newPlayerKeys[i]].position
+    );
+    players[newPlayerKeys[i]].body.position.copy(
+      newPlayers[newPlayerKeys[i]].position
+    );
 
-    players[newPlayerKeys[i]].mesh.rotation.copy(newPlayers[newPlayerKeys[i]].rotation);
+    players[newPlayerKeys[i]].mesh.rotation.copy(
+      newPlayers[newPlayerKeys[i]].rotation
+    );
     players[newPlayerKeys[i]].mesh.rotation.x = 0; // Keep the player upright
     players[newPlayerKeys[i]].body.quaternion.x = 0;
     players[newPlayerKeys[i]].body.quaternion.y = 0;
@@ -157,21 +169,29 @@ socket.on("sendSimulationSceneForView", data => {
 
   for (let i = 0; i < newVoxelObjKeys.length; i++) {
     if (!voxelObjs[newVoxelObjKeys[i]]) {
-      voxelObjs[newVoxelObjKeys[i]] = new VoxelObject(game, newVoxelObjs[newVoxelObjKeys[i]].id);
+      voxelObjs[newVoxelObjKeys[i]] = new VoxelObject(
+        game,
+        newVoxelObjs[newVoxelObjKeys[i]].id
+      );
     }
 
-    voxelObjs[newVoxelObjKeys[i]].setMatrixFromIds(data.voxelObjects[newVoxelObjKeys[i]].matrix);
-    voxelObjs[newVoxelObjKeys[i]].setPosition(data.voxelObjects[newVoxelObjKeys[i]].position);
-    voxelObjs[newVoxelObjKeys[i]].setRotation(data.voxelObjects[newVoxelObjKeys[i]].rotation);
+    voxelObjs[newVoxelObjKeys[i]].setMatrixFromIds(
+      data.voxelObjects[newVoxelObjKeys[i]].matrix
+    );
+    voxelObjs[newVoxelObjKeys[i]].setPosition(
+      data.voxelObjects[newVoxelObjKeys[i]].position
+    );
+    voxelObjs[newVoxelObjKeys[i]].setRotation(
+      data.voxelObjects[newVoxelObjKeys[i]].rotation
+    );
   }
 });
 
 /////////////////////////////////////////////
 
-
 /////////////// Lighting and Ambiance ///////////////
 
-scene.add(new THREE.AmbientLight(0xFFFFFF, 0.1));
+scene.add(new THREE.AmbientLight(0xffffff, 0.1));
 
 let sun = new THREE.DirectionalLight();
 sun.intensity = 0.5;
@@ -187,16 +207,14 @@ scene.add(sun);
 
 /////////////////////////////////////////////
 
-
 function toggleDebugger() {
   debuggerEnabled = !debuggerEnabled;
   if (debuggerEnabled) {
     document.getElementById("toggleDebugger").classList.add("enabled");
-    localStorage.setItem("debugMode", 'true');
-  }
-  else {
+    localStorage.setItem("debugMode", "true");
+  } else {
     document.getElementById("toggleDebugger").classList.remove("enabled");
-    localStorage.setItem("debugMode", 'false');
+    localStorage.setItem("debugMode", "false");
     window.location.reload();
   }
 }
@@ -224,9 +242,15 @@ function setCameraFromMemory() {
   let date = new Date();
   let currentDate = [date.getMonth() + 1, date.getDate(), date.getFullYear()];
 
-  let setDate = localStorage.getItem("cameraSetTime").split("-");
+  let setDate = "";
+  if (localStorage.getItem("cameraSetTime"))
+    setDate = localStorage.getItem("cameraSetTime").split("-");
   if (setDate.length > 0) {
-    if (setDate[2] <= currentDate[2] && setDate[1] <= currentDate[1] && setDate[0] <= currentDate[0]) {
+    if (
+      setDate[2] <= currentDate[2] &&
+      setDate[1] <= currentDate[1] &&
+      setDate[0] <= currentDate[0]
+    ) {
       let pos = localStorage.getItem("cameraPosition").split(",");
       controls.object.position.set(pos[0], pos[1], pos[2]);
       let tar = localStorage.getItem("cameraTarget").split(",");
@@ -236,7 +260,6 @@ function setCameraFromMemory() {
 }
 setCameraFromMemory();
 
-
 /////////////// Loop ///////////////
 
 setInterval(async function () {
@@ -244,16 +267,24 @@ setInterval(async function () {
 
   world.fixedStep(); // Update the physics world
 
-  if (debuggerEnabled)
-    cannonDebugger.update();
+  if (debuggerEnabled) cannonDebugger.update();
 
   // Store Camera Information:
   let cameraPos = controls.object.position;
-  localStorage.setItem("cameraPosition", `${cameraPos.x},${cameraPos.y},${cameraPos.z}`);
+  localStorage.setItem(
+    "cameraPosition",
+    `${cameraPos.x},${cameraPos.y},${cameraPos.z}`
+  );
   let cameraTar = controls.target;
-  localStorage.setItem("cameraTarget", `${cameraTar.x},${cameraTar.y},${cameraTar.z}`);
+  localStorage.setItem(
+    "cameraTarget",
+    `${cameraTar.x},${cameraTar.y},${cameraTar.z}`
+  );
   let date = new Date();
-  localStorage.setItem("cameraSetTime", `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`);
+  localStorage.setItem(
+    "cameraSetTime",
+    `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
+  );
 
   stats.update(); // FPS Counter
   controls.update();
