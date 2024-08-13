@@ -9,7 +9,7 @@ import { VoxelObject } from "./objects/VoxelObject.js";
 
 let scene = new THREE.Scene(); // This can be sent to a client later!
 
-const world = new CANNON.World({
+let world = new CANNON.World({
   gravity: new CANNON.Vec3(0, -50, 0),
 });
 world.allowSleep = false;
@@ -35,7 +35,7 @@ for (let x = 0; x < size; x++) {
         for (let z = 0; z < size; z++) {
             matrix[x][y][z] = "air";
         }
-    }
+    } 
 }
 function setCoords(pos, value) {
     matrix[pos[0]][pos[1]][pos[2]] = value;
@@ -119,12 +119,14 @@ export function updateProjectiles() {
 /////////////// Simulation Management ///////////////
 
 export function reset() {
+  let scene = new THREE.Scene();
+  let world = new CANNON.World({
+    gravity: new CANNON.Vec3(0, -50, 0),
+    allowSleep: false,
+  });
   game = {
-    scene: new THREE.Scene(),
-    world: new CANNON.World({
-      gravity: new CANNON.Vec3(0, -50, 0),
-      allowSleep: false,
-    }),
+    scene: scene,
+    world: world,
   };
 
   objects = {};
@@ -153,7 +155,7 @@ function spawnBasicObjects() {
     Server.createCpu(0);
   }, 1000);
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
     let box = new NetworkObject("box" + i, "crate");
     objects[box.id] = box;
     box.playerMovable = true;

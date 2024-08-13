@@ -43,6 +43,7 @@ export class Player {
     type: 13, // Enter
     fullscreen: 122, // F11
     resetSim: 82, // R
+    radar: 81, // Q
   };
 
   // Player Mouse Controls
@@ -128,7 +129,7 @@ export class Player {
     this.paused = false; // Reflects whether the game is paused
 
     this.sun = new THREE.DirectionalLight();
-    this.sun.intensity = 0.1;
+    this.sun.intensity = 0; //.1;
     this.sun.position.set(-10, 50, -10);
     this.sun.castShadow = true;
     this.sun.shadow.camera.left = -50;
@@ -138,6 +139,31 @@ export class Player {
     this.sun.shadow.camera.near = 0.1;
     this.sun.shadow.camera.far = 100;
     this.game.scene.add(this.sun);
+
+    // Particles
+    this.particlesGeometry = new THREE.BufferGeometry();
+
+    this.maxParticles = 100000; // Max number of particles that can be displayed at a time
+    this.currentParticle = 0;
+    this.particalPositions = new Float32Array(this.maxParticles * 3);
+
+    this.particlesGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.particalPositions, 3)
+    );
+
+    this.particlesMaterial = new THREE.PointsMaterial({
+      size: 0.02,
+      sizeAttenuation: true,
+    });
+
+    this.particles = new THREE.Points(
+      this.particlesGeometry,
+      this.particlesMaterial
+    );
+    this.particles.frustumCulled = false;
+
+    this.game.scene.add(this.particles);
   }
 
   update(dt) {
@@ -148,6 +174,7 @@ export class Player {
       this.applyInputs(dt);
       this.updateHeldObject();
       this.updateShooting();
+      this.updateRadar();
     }
 
     this.camera.rotation.z += 0 - this.camera.rotation.z * 0.4;
@@ -204,8 +231,12 @@ export class Player {
     }
 
     if (this.keys[this.controlKeys.resetSim]) {
-      // Reset Simulation
-      NetworkManager.sendResetRequest();
+      // Makes sure you can only reset every 10 seconds
+      if (!this.lastReset || this.lastReset < new Date().getTime() - 10000) {
+        // Reset Simulation
+        NetworkManager.sendResetRequest();
+        this.lastReset = new Date().getTime();
+      }
     }
   }
 
@@ -344,6 +375,79 @@ export class Player {
       let newPos = new THREE.Vector3();
       this.raycaster.ray.at(this.holdDistance, newPos);
       NetworkManager.moveNetworkObject(this.heldItem.name, newPos);
+    }
+  }
+
+  updateRadar() {
+    if (this.keys[this.controlKeys.radar]) {
+      // Active Scanning
+      for (let c = 0; c < 10; c++) {
+        // For loop is to increase the rate
+        this.raycaster.setFromCamera(
+          new THREE.Vector2(Math.random() * 1 - 0.5, Math.random() * 1 - 0.5),
+          this.camera
+        );
+        let intersects = this.raycaster.intersectObjects(
+          this.game.scene.children
+        );
+
+        for (let i = 0; i < intersects.length; i++) {
+          if (intersects[i].object.material == this.particlesMaterial) continue; // Ignore other particles
+
+          if (intersects[i].distance > 25) break;
+
+          let point = intersects[i].point;
+
+          this.particalPositions[this.currentParticle * 3] = point.x;
+          this.particalPositions[this.currentParticle * 3 + 1] = point.y;
+          this.particalPositions[this.currentParticle * 3 + 2] = point.z;
+
+          this.particlesGeometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(this.particalPositions, 3)
+          );
+
+          this.currentParticle++;
+          if (this.currentParticle > this.maxParticles - 1)
+            this.currentParticle = 0;
+
+          break;
+        }
+      }
+
+      // Passive Scanning
+      for (let c = 0; c < 2; c++) {
+        this.raycaster.set(
+          this.camera.position,
+          new THREE.Vector3().randomDirection()
+        );
+        let intersects = this.raycaster.intersectObjects(
+          this.game.scene.children
+        );
+
+        for (let i = 0; i < intersects.length; i++) {
+          if (intersects[i].object.material == this.particlesMaterial) continue;
+
+          if (intersects[i].distance > 15) break;
+
+          let point = intersects[i].point;
+
+          this.particalPositions[this.currentParticle * 3] = point.x;
+          this.particalPositions[this.currentParticle * 3 + 1] = point.y;
+          this.particalPositions[this.currentParticle * 3 + 2] = point.z;
+
+          this.particlesGeometry.setAttribute(
+            "position",
+            new THREE.BufferAttribute(this.particalPositions, 3)
+          );
+
+          this.currentParticle++;
+          if (this.currentParticle > this.maxParticles - 1)
+            this.currentParticle = 0;
+
+          break;
+        }
+      }
     }
   }
 

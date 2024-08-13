@@ -67,6 +67,7 @@ export function sendInfoToServer(player) {
 function createPlayerObj(newPlayer) {
   playerObjs[newPlayer.networkId] = new ModelObject(
     "assets/model/player.gltf",
+    1,
     new CANNON.Body({
       mass: 0,
       shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8),
