@@ -8,10 +8,11 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview",
-    "electron": "electron ./index.cjs",
-    "wbuild": "webpack --config webpack.config.cjs",
-    "ebuild": "webpack --config webpack.config.cjs && electron ./index.cjs",
-    "package": "electron-packager ./ Endian --platform=win32 --arch=x64 --icon=./public/assets/icon.ico --overwrite"
+    "bundle": "webpack --config webpack.config.cjs",
+    "electron-no-bundle": "electron ./index.cjs",
+    "electron": "webpack --config webpack.config.cjs && electron ./index.cjs",
+    "create-package": "electron-packager ./ Endian --platform=win32 --arch=x64 --icon=./public/assets/icon.ico --overwrite",
+    "deploy": "webpack --config webpack.config.cjs && electron-packager ./ Endian --platform=win32 --arch=x64 --icon=./public/assets/icon.ico --overwrite"
   },
   "devDependencies": {
     "electron": "^29.3.0",

@@ -1,73 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="assets/icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Endian Alpha - Rat Lab Studio</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" href="assets/icon.png">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css">
-  <title>Endian Alpha - Rat Lab Studio</title>
-</head>
-
-<body>
-  <div class="loadingScreen" id="loadingScreen" style="visibility: unset;">
-    <div class="loadingScreenBackground" id="loadingScreenBackground"></div>
-    <h1 style="font-family: pixel;"><span id="loadingState"></span>...</h1>
-  </div>
-
-  <div class="gameContent">
-    <div class="hud versionInfo">
-      <h1 id="versionInfo">Endian Alpha 5.0.0</h1>
-      <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
-      <p id="playerCount">0 Players Connected</p>
-      <p id="rendererInfo"></p>
-      <p id="netId" style="font-size: 10px;">NetID: </p>
+  <body>
+    <div class="loadingScreen" id="loadingScreen" style="visibility: unset">
+      <div class="loadingScreenBackground" id="loadingScreenBackground"></div>
+      <h1 style="font-family: pixel"><span id="loadingState"></span>...</h1>
     </div>
 
-    <img class="hud crosshair" src="assets/textures/gui/crosshair.png">
-    <!--<div class="hud crosshair">
+    <div class="gameContent">
+      <div class="hud versionInfo">
+        <h1 id="versionInfo">Endian Alpha 5.0.0</h1>
+        <a href="https://ratlabstudio.com">Rat Lab Studio 2024</a>
+        <p id="playerCount">0 Players Connected</p>
+        <p id="rendererInfo"></p>
+        <p id="netId" style="font-size: 10px">NetID:</p>
+      </div>
+
+      <img class="hud crosshair" src="assets/textures/gui/crosshair.png" />
+      <!--<div class="hud crosshair">
       <div class="crosshairVertical"></div>
       <div class="crosshairHorizontal"></div>
     </div>-->
 
-    <p class="hud" id="playerPosition"></p>
+      <p class="hud" id="playerPosition"></p>
 
-    <div class="hud gameInfo">
-      <p class="hud" id="health" style="color: lime;">SUIT INTEGRITY: 100%</p>
-      <p class="hud" id="toolPower" style="color: lime;">TOOL POWER: 100%</p>
-      <p class="hud" id="fps" style="color: lime;">SIM PERF: 0</p>
-    </div>
+      <div class="hud gameInfo">
+        <p class="hud" id="health" style="color: lime">SUIT INTEGRITY: 100%</p>
+        <p class="hud" id="toolPower" style="color: lime">TOOL POWER: 100%</p>
+        <p class="hud" id="fps" style="color: lime">SIM PERF: 0</p>
+      </div>
 
-    <div class="hud console" id="console"></div>
+      <div class="hud console" id="console"></div>
 
-    <div class="pauseMenu buttonContainer" id="pauseMenu" style="visibility: hidden;">
-      <div class="menu">
-        <button onclick="setPause(false)">Back to Game</button>
-        <br>
-        <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">Settings</button>
-        <br>
-        <button onclick="window.open('index.html', '_self')">Return to Title Screen</button>
+      <div
+        class="pauseMenu buttonContainer"
+        id="pauseMenu"
+        style="visibility: hidden"
+      >
+        <div class="menu">
+          <button onclick="setPause(false)">Back to Game</button>
+          <br />
+          <button
+            onclick="document.getElementById('settingsPanel').style.visibility = 'unset'"
+          >
+            Settings
+          </button>
+          <br />
+          <button onclick="window.open('index.html', '_self')">
+            Return to Title Screen
+          </button>
+        </div>
+      </div>
+
+      <div class="panel" id="settingsPanel" style="visibility: hidden">
+        <div class="panelBackground"></div>
+        <button
+          class="closePanel"
+          onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'"
+        >
+          Back
+        </button>
+        <button
+          id="applySettings"
+          onclick="applySettings(); setTimeout(() => { window.location.reload(); }, 500 );"
+        >
+          Apply Settings
+        </button>
+        <iframe src="settings.html"></iframe>
+      </div>
+
+      <div id="container">
+        <div id="gui" style="position: absolute; z-index: 2"></div>
+        <div
+          class="renderer"
+          id="css3d"
+          style="position: absolute; z-index: 0"
+        ></div>
+        <div
+          class="renderer"
+          id="game"
+          style="position: absolute; z-index: 0; filter: blur(0px)"
+        ></div>
       </div>
     </div>
 
-    <div class="panel" id="settingsPanel" style="visibility: hidden;">
-      <div class="panelBackground"></div>
-      <button class="closePanel"
-        onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">Back</button>
-      <button id="applySettings" onclick="applySettings(); setTimeout(() => { window.location.reload(); }, 500 );">Apply
-        Settings</button>
-      <iframe src="settings.html"></iframe>
-    </div>
-
-    <div id="container">
-      <div id="gui" style="position: absolute; z-index: 2;"></div>
-      <div class="renderer" id="css3d" style="position: absolute; z-index: 0;"></div>
-      <div class="renderer" id="game" style="position: absolute; z-index: 0; filter: blur(0px);"></div>
-    </div>
-  </div>
-
-  <!--<script type="module" src="../dist/bundle.js"></script>-->
-  <script type="module" src="../scripts/main.js"></script>
-</body>
-
+    <!--<script type="module" src="../dist/bundle.js"></script>-->
+    <script type="module" src="../scripts/main.js"></script>
+  </body>
 </html>
