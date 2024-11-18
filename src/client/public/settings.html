@@ -40,7 +40,12 @@
         visibility: hidden;
       }
 
-      .optionBox {
+      .toggle {
+        margin-left: 4vh;
+      }
+
+      .enabled {
+        border-color: lime;
       }
 
       .slidecontainer {
@@ -89,11 +94,7 @@
   <body>
     <h1>Settings</h1>
 
-    <div id="settingsContainer">
-      <div class="optionBoxContainer">
-        <button class="optionBox">Enabled</button>
-      </div>
-    </div>
+    <div id="settingsContainer"></div>
 
     <script type="module">
       import * as Settings from "../scripts/settings.js";
@@ -101,44 +102,68 @@
 
       Settings.loadAllSettings();
 
+      let toggles = [];
       let sliders = [];
+
+      function createToggle(name, value) {
+        settingsContainer.innerHTML += `
+          <button class="toggle" id="toggle${name.replace(" ", "-")}">${name}: Undefined</button>
+        `;
+        toggles = document.getElementsByClassName("toggle");
+      }
+
+      function setToggle(id, value) {
+        let elem = document.getElementById(id);
+        let visualId = id.replace("toggle", "").replace("-", " ");
+        if (value == true || value == 1) {
+          if (!elem.classList.contains("enabled")) elem.classList.add("enabled");
+          elem.innerHTML = `${visualId}: Enabled`;
+        } else {
+          elem.classList.remove("enabled");
+          elem.innerHTML = `${visualId}: Disabled`;
+        }
+      }
 
       function createSlider(name, min, max, step, value) {
         settingsContainer.innerHTML += `
                 <div class="slidecontainer">
-                    <h2>${name}: <span id="${name.replace(
-          " ",
-          "-"
-        )}-display">${value}</span></h2>
-                    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" class="slider" id="${name.replace(
-          " ",
-          "-"
-        )}">
+                    <h2>${name}: <span id="${name.replace(" ", "-")}-display">${value}</span></h2>
+                    <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" class="slider" id="${name.replace(" ", "-")}">
                     <br><br>
                 </div>
             `;
         sliders = document.getElementsByClassName("slider");
       }
 
+      createToggle("Post Processing", Settings.settings["post-processing"]);
+      createToggle("Use WebGPU", Settings.settings.usewebgpu);
+
       createSlider("FOV", 51, 100, 1, 70);
       createSlider("Resolution", 0.1, 2, 0.1, 1);
-      createSlider(
-        "Post Processing",
-        0,
-        1,
-        1,
-        Settings.settings["post-processing"]
-      );
-      createSlider("Use WebGPU", 0, 1, 1, Settings.settings.usewebgpu);
+
+      // Toggle Event Listeners
+      for (let i = 0; i < toggles.length; i++) {
+        toggles[i].addEventListener("click", function (event) {
+          let id = event.target.id;
+          let currentValue = event.target.classList.contains("enabled");
+          let settingId = id.replace(" ", "-").replace("toggle", "");
+          if (currentValue == true) {
+            setToggle(id, false);
+            Settings.settings[settingId.toLowerCase().replace("-", "")] = 0;
+          } else {
+            setToggle(id, true);
+            Settings.settings[settingId.toLowerCase().replace("-", "")] = 1;
+          }
+          Settings.saveAllSettings();
+        });
+      }
 
       // Slider Event Listeners
       for (let i = 0; i < sliders.length; i++) {
         sliders[i].addEventListener("input", function (event) {
           let id = event.target.id;
-          document.getElementById(id + "-display").innerHTML =
-            event.target.value;
-          Settings.settings[id.toLowerCase().replace("-", "")] =
-            event.target.value;
+          document.getElementById(id + "-display").innerHTML = event.target.value;
+          Settings.settings[id.toLowerCase().replace("-", "")] = event.target.value;
         });
 
         sliders[i].addEventListener("change", function (event) {
@@ -146,12 +171,15 @@
         });
       }
 
+      // Load all settings to toggles:
+      for (let i = 0; i < toggles.length; i++) {
+        setToggle(toggles[i].id, Settings.settings[toggles[i].id.toLowerCase().replace("-", "").replace("toggle", "")]);
+      }
+
       // Load all settings to sliders:
       for (let i = 0; i < sliders.length; i++) {
-        sliders[i].value =
-          Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
-        document.getElementById(sliders[i].id + "-display").innerHTML =
-          Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
+        sliders[i].value = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
+        document.getElementById(sliders[i].id + "-display").innerHTML = Settings.settings[sliders[i].id.toLowerCase().replace("-", "")];
       }
     </script>
   </body>

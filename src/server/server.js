@@ -210,4 +210,7 @@ export function sendMessageToAllPlayers(message) {
   let playerKeys = Object.keys(players);
   for (let i = 0; i < playerKeys.length; i++)
     players[playerKeys[i]].newChatMessages.push(message);
+
+  cpus[0].gpu.nextLine();
+  cpus[0].gpu.printString(message.message);
 }

@@ -1,6 +1,6 @@
 # Project Endian
 
-_Alpha v5.2.2_
+_Alpha v5.2.3_
 
 ## What is Endian
 
