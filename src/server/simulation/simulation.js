@@ -155,7 +155,7 @@ function spawnBasicObjects() {
     Server.createCpu(0);
   }, 1000);
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     let box = new NetworkObject("box" + i, "crate");
     objects[box.id] = box;
     box.playerMovable = true;

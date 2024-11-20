@@ -103,6 +103,8 @@ export class ComputerDisplay {
         this.model.rotation.y = Math.PI;
 
         this.objectGroup.add(this.model);
+
+        this.objectGroup.name = `cpu${this.id}`;
       },
       undefined,
       function (error) {
@@ -229,7 +231,7 @@ export class ComputerDisplay {
 
     if (this.currentRow < this.height - 1) this.currentRow++;
     else this.currentRow = 0;
-    //this.printScanLine();
+    this.printScanLine();
   }
 
   // Updates the PointLight to reflect the contents of the screen

@@ -80,9 +80,10 @@ export class Graphics {
     else if (char == "!") char = "exclamation";
     else if (char == ".") char = "dot";
 
-    for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
+    // Clearing the area for the next character:
+    /*for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
       for (let j = this.textPos.y; j < this.textPos.y + 5; j++) this.setPixel(i, j, this.backgroundColor);
-    }
+    }*/
 
     char = font[char.toLowerCase()];
     if (!char) return;
@@ -97,9 +98,10 @@ export class Graphics {
 
     if (this.textPos.x >= this.resolutionX - 12) this.nextLine();
 
-    for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
+    // Drawing the Caret:
+    /*for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
       for (let j = this.textPos.y; j < this.textPos.y + 5; j++) this.setPixel(i, j, true);
-    }
+    }*/
 
     // CLEAR SCREEN WHEN ITS FULL:
     if (this.textPos.y >= this.resolutionY) {
@@ -124,9 +126,11 @@ export class Graphics {
 
   // Moves the cursor to the start of the next line
   nextLine() {
-    for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
+    // Caret erase:
+    /*for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
       for (let j = this.textPos.y; j < this.textPos.y + 5; j++) this.setPixel(i, j, this.backgroundColor);
-    }
+    }*/
+
     this.textPos.x = 9;
     this.textPos.y += 7;
   }

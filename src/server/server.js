@@ -4,6 +4,8 @@ import * as Simulation from "./simulation/simulation.js";
 import { Player } from "./simulation/objects/Player.js";
 import { CPU } from "./cpu/cpu.js";
 
+import getPixels from "get-pixels";
+
 const io = new Socket.Server(3000, {
   cors: {
     origin: "*", // Allows connections from the same network
@@ -41,8 +43,7 @@ io.on("connection", (socket) => {
     // Get simplified player data
     let playerKeys = Object.keys(players);
     let playerData = {};
-    for (let i = 0; i < playerKeys.length; i++)
-      playerData[playerKeys[i]] = players[playerKeys[i]].getData();
+    for (let i = 0; i < playerKeys.length; i++) playerData[playerKeys[i]] = players[playerKeys[i]].getData();
 
     // Send the new data to all connected players
     socket.emit("playerClientUpdate", playerData);
@@ -67,8 +68,7 @@ io.on("connection", (socket) => {
   socket.on("requestSimulationUpdate", () => {
     let objKeys = Object.keys(Simulation.objects);
     let compressedObjs = {};
-    for (let i = 0; i < objKeys.length; i++)
-      compressedObjs[objKeys[i]] = Simulation.objects[objKeys[i]].compress();
+    for (let i = 0; i < objKeys.length; i++) compressedObjs[objKeys[i]] = Simulation.objects[objKeys[i]].compress();
 
     socket.emit("objectUpdates", compressedObjs);
   });
@@ -79,8 +79,7 @@ io.on("connection", (socket) => {
     let compressedVoxelObjects = {};
     for (let i = 0; i < voKeys.length; i++) {
       //console.log(Simulation.voxelObjects[voKeys[i]].getNewData());
-      compressedVoxelObjects[voKeys[i]] =
-        Simulation.voxelObjects[voKeys[i]].getNewData();
+      compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
       socket.emit("voxelObjectUpdate", compressedVoxelObjects[voKeys[i]]);
     }
   });
@@ -89,21 +88,17 @@ io.on("connection", (socket) => {
     // Compress objects
     let objKeys = Object.keys(Simulation.objects);
     let compressedObjs = {};
-    for (let i = 0; i < objKeys.length; i++)
-      compressedObjs[objKeys[i]] = Simulation.objects[objKeys[i]].compress();
+    for (let i = 0; i < objKeys.length; i++) compressedObjs[objKeys[i]] = Simulation.objects[objKeys[i]].compress();
 
     // Compress players
     let playerKeys = Object.keys(players);
     let compressedPlayers = {};
-    for (let i = 0; i < playerKeys.length; i++)
-      compressedPlayers[playerKeys[i]] = players[playerKeys[i]].getData();
+    for (let i = 0; i < playerKeys.length; i++) compressedPlayers[playerKeys[i]] = players[playerKeys[i]].getData();
 
     // Compress voxel objects
     let voKeys = Object.keys(Simulation.voxelObjects);
     let compressedVoxelObjects = {};
-    for (let i = 0; i < voKeys.length; i++)
-      compressedVoxelObjects[voKeys[i]] =
-        Simulation.voxelObjects[voKeys[i]].getNewData();
+    for (let i = 0; i < voKeys.length; i++) compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
 
     // Send Data
     socket.emit("sendSimulationSceneForView", {
@@ -128,8 +123,7 @@ io.on("connection", (socket) => {
   socket.on("requestAllCpuLocations", () => {
     let data = {};
     let cpuKeys = Object.keys(cpus);
-    for (let i = 0; i < cpuKeys.length; i++)
-      data[cpuKeys[i]] = Simulation.cpus[`cpu${cpuKeys[i]}`].object.position;
+    for (let i = 0; i < cpuKeys.length; i++) data[cpuKeys[i]] = Simulation.cpus[`cpu${cpuKeys[i]}`].object.position;
     socket.emit("receiveAllCpuLocations", data);
   });
 
@@ -141,10 +135,8 @@ io.on("connection", (socket) => {
     for (let i = 0; i < rKeys.length; i++) {
       if (!cpus[rKeys[i]]) continue;
       data[rKeys[i]] = cpus[rKeys[i]].getData();
-      data[rKeys[i]].position =
-        Simulation.cpus[`cpu${rKeys[i]}`].object.position;
-      data[rKeys[i]].rotation =
-        Simulation.cpus[`cpu${rKeys[i]}`].object.rotation;
+      data[rKeys[i]].position = Simulation.cpus[`cpu${rKeys[i]}`].object.position;
+      data[rKeys[i]].rotation = Simulation.cpus[`cpu${rKeys[i]}`].object.rotation;
     }
 
     if (rKeys.length > 0) socket.emit("receiveCpuData", data);
@@ -197,20 +189,58 @@ export function createCpu(id) {
 
   computer.clear();
 
+  // Displays Image on Computer Screen:
+  getPixels("https://ratlabstudio.com/wp-content/uploads/2024/11/flower.png", function (err, pixels) {
+    if (err) {
+      console.log("Bad image path");
+      return;
+    }
+
+    // Get Pixel Data and convert it into RGBA order:
+    let pixelColors = [];
+    for (let i = 0; i < pixels.data.length; i += 4) {
+      pixelColors.push([pixels.data[i], pixels.data[i + 1], pixels.data[i + 2], pixels.data[i + 3]]);
+    }
+
+    // Set the pixels based on the new format:
+    let x = 0,
+      y = 0;
+    for (let i = 0; i < pixelColors.length; i++) {
+      if (x >= 128) {
+        x = 0;
+        y++;
+      }
+      computer.setPixel(x, y, `rgba(${pixelColors[i][0]},${pixelColors[i][1]},${pixelColors[i][2]},${pixelColors[i][3]})`);
+      x++;
+    }
+  });
+
   computer.nextLine();
-  computer.printString("Endian CPU");
+  /*computer.printString("Endian CPU");
   computer.nextLine();
   computer.printString("Simulation Running...");
   computer.nextLine();
   computer.nextLine();
-  computer.printString("");
+  computer.printString("");*/
 }
+
+setInterval(function () {
+  if (!cpus[0]) return;
+  let computer = cpus[0].gpu;
+
+  let color = `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`;
+  let yCord = Math.floor(Math.random() * computer.resolutionY);
+  for (let i = 0; i < computer.resolutionX; i++) {
+    for (let j = yCord; j < yCord + 10 || j < computer.resolutionY; j++) {
+      computer.setPixel(i, j, color);
+    }
+  }
+}, 100);
 
 export function sendMessageToAllPlayers(message) {
   let playerKeys = Object.keys(players);
-  for (let i = 0; i < playerKeys.length; i++)
-    players[playerKeys[i]].newChatMessages.push(message);
+  for (let i = 0; i < playerKeys.length; i++) players[playerKeys[i]].newChatMessages.push(message);
 
-  cpus[0].gpu.nextLine();
-  cpus[0].gpu.printString(message.message);
+  //cpus[0].gpu.nextLine();
+  //cpus[0].gpu.printString(message.message);
 }
