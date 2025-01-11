@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
 
       sendMessageToAllPlayers({
         message: `${player.username} joined the game`,
-        color: "yellow",
+        color: "lime",
       });
     }
 

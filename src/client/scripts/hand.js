@@ -6,15 +6,25 @@ export let hand = {
 };
 
 // The position that the hand will always return to
-let defaultPos = {
+let defaultPosOld = {
     x: 1,
     y: -1.25,
     z: -1.1
 };
+let defaultPos = {
+    x: 1.25,
+    y: -1.75,
+    z: -1.5
+};
 
-let defaultRot = {
+let defaultRotOld = {
     x: 0.1,
     y: -0.25,
+    z: 0.1
+};
+let defaultRot = {
+    x: 0,
+    y: -5,
     z: 0.1
 };
 
@@ -31,7 +41,7 @@ let animationSpeeds = {
 
 const loader = new GLTFLoader();
 export function loadHand(scene, player) {
-    loader.load('assets/model/tools/blaster.gltf', (gltfScene) => {
+    loader.load('assets/model/tools/blaster2.gltf', (gltfScene) => {
 
         gltfScene.scene.receiveShadow = true;
         gltfScene.scene.castShadow = true;
@@ -42,6 +52,10 @@ export function loadHand(scene, player) {
 
         hand.object.position.set(defaultPos.x, defaultPos.y, defaultPos.z);
         hand.object.rotation.set(0.1, -0.25, 0.1);
+
+        hand.object.scale.x = 2.5;
+        hand.object.scale.y = 2.5;
+        hand.object.scale.z = 2.5;
 
     }, undefined, function (error) {
         console.error(error);

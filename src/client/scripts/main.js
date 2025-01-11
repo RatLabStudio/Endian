@@ -45,7 +45,7 @@ Settings.loadAllSettings();
 /////////////// Engine Setup ///////////////
 
 const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -50, 0),
+  //gravity: new CANNON.Vec3(0, -50, 0),
 });
 world.allowSleep = true;
 Physics.initialize(world);

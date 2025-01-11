@@ -19,12 +19,7 @@ export class Player {
   pos = { x: 0, y: 0, z: 0 };
   rot = { x: 0, y: 0, z: 0 };
 
-  camera = new THREE.PerspectiveCamera(
-    70,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    200
-  );
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
   controls = new PointerLockControls(this.camera, document.body); // Allows you to move the camera
   cameraHelper = new THREE.CameraHelper(this.camera); // Allows you to see where the camera is
 
@@ -38,6 +33,7 @@ export class Player {
     left: 65, // A
     right: 68, // D
     sprint: 16, // Shift
+    crouch: 17, // Control
     jump: 32, // Space
     zoom: 67, // C
     type: 13, // Enter
@@ -74,7 +70,7 @@ export class Player {
     this.game.world.addBody(this.gameObject.body);
 
     this.gameObject.body.allowSleep = true;
-    this.gameObject.body.sleepSpeedLimit = 5.0;
+    //this.gameObject.body.sleepSpeedLimit = 5.0;
     this.gameObject.body.sleepTimeLimit = 0.25;
 
     // Event Listeners:
@@ -90,20 +86,21 @@ export class Player {
 
     this.camera.rotation.order = "YXZ"; // Changes the way that getting camera rotation works, used for controls
 
+    this.gravityGenerator = true;
+
     // Jumping
-    this.canJump = false;
+    this.grounded = false;
     this.gameObject.body.addEventListener(
       "collide",
       function (e) {
         let contactNormal = new CANNON.Vec3();
         let upAxis = new CANNON.Vec3(0, 1, 0);
         let contact = e.contact;
-        if (contact.bi.id == this.gameObject.body.id)
-          contact.ni.negate(contactNormal);
+        if (contact.bi.id == this.gameObject.body.id) contact.ni.negate(contactNormal);
         else contactNormal.copy(contact.ni);
         if (contactNormal.dot(upAxis) > 0.5) {
           //Threshhold between 0-1
-          this.canJump = true;
+          this.grounded = true;
           this.gameObject.body.velocity.y = 0;
         }
       }.bind(this)
@@ -147,26 +144,21 @@ export class Player {
     this.currentParticle = 0;
     this.particalPositions = new Float32Array(this.maxParticles * 3);
 
-    this.particlesGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(this.particalPositions, 3)
-    );
+    this.particlesGeometry.setAttribute("position", new THREE.BufferAttribute(this.particalPositions, 3));
 
     this.particlesMaterial = new THREE.PointsMaterial({
       size: 0.02,
       sizeAttenuation: true,
     });
 
-    this.particles = new THREE.Points(
-      this.particlesGeometry,
-      this.particlesMaterial
-    );
+    this.particles = new THREE.Points(this.particlesGeometry, this.particlesMaterial);
     this.particles.frustumCulled = false;
 
     this.game.scene.add(this.particles);
   }
 
   update(dt) {
+    this.handleJumping();
     this.physicsUpdate();
     this.cameraUpdate();
 
@@ -178,6 +170,33 @@ export class Player {
     }
 
     this.camera.rotation.z += 0 - this.camera.rotation.z * 0.4;
+
+    if (this.gravityGenerator && !this.grounded && this.gameObject.body.velocity.y > -50) {
+      this.gameObject.body.velocity.y -= 0.25;
+    }
+  }
+
+  handleJumping() {
+    // Find objects beneath player
+    let rc = new THREE.Raycaster();
+    rc.set(
+      new THREE.Vector3(
+        this.gameObject.body.position.x,
+        this.gameObject.body.position.y - this.gameObject.body.shapes[0].height / 2,
+        this.gameObject.body.position.z
+      ),
+      new THREE.Vector3(0, -1, 0)
+    );
+    let hits = rc.intersectObjects(this.game.scene.children);
+
+    // Check if the player is grounded (making them able to jump)
+    if (hits.length > 0) {
+      UI.setElement("groundDistance", hits[0].distance.toFixed(3));
+      if (hits[0].distance <= 0.5) {
+        this.grounded = true;
+        this.gameObject.body.velocity.y = 0;
+      } else this.grounded = false;
+    } else this.grounded = false;
   }
 
   physicsUpdate() {
@@ -199,14 +218,10 @@ export class Player {
     this.input.x = xSpeed;
 
     this.currentCameraRotation = xSpeed * -0.01;
-    this.camera.rotation.z +=
-      (this.currentCameraRotation - this.camera.rotation.z) * 0.05;
+    this.camera.rotation.z += (this.currentCameraRotation - this.camera.rotation.z) * 0.05;
 
     // Temporary Sprinting
-    if (
-      this.keys[this.controlKeys.sprint] &&
-      (Math.abs(xSpeed) > 0 || Math.abs(zSpeed) > 0)
-    ) {
+    if (this.keys[this.controlKeys.sprint] && (Math.abs(xSpeed) > 0 || Math.abs(zSpeed) > 0)) {
       this.currentFov = this.sprintFov.valueOf();
       this.maxSpeed = 12;
     } else {
@@ -225,9 +240,13 @@ export class Player {
     this.camera.fov += (this.currentFov - this.camera.fov) * this.fovRate;
     this.camera.updateProjectionMatrix();
 
-    if (this.keys[this.controlKeys.jump] && this.canJump) {
-      this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 3000, 0));
-      this.canJump = false;
+    // Jumping / Upward Thrust
+    if (this.keys[this.controlKeys.jump]) {
+      if (this.gravityGenerator && this.grounded) {
+        this.gameObject.body.position.y += 0.1; // Move player slightly above the ground to fix grounding issues
+        this.gameObject.body.applyImpulse(new CANNON.Vec3(0, 2500, 0));
+      }
+      this.grounded = false;
     }
 
     if (this.keys[this.controlKeys.resetSim]) {
@@ -272,31 +291,24 @@ export class Player {
 
   // Moves the player forward and to the right relative to the camera
   move(distanceForward, distanceRight) {
-    if (distanceForward != 0 || distanceRight != 0)
-      this.gameObject.body.wakeUp();
+    if (distanceForward != 0 || distanceRight != 0) this.gameObject.body.wakeUp();
 
     let moveVector = new CANNON.Vec3(); // Store movement
 
     // Forward Movement
     let multiplier = 1;
-    moveVector.x +=
-      -Math.sin(this.camera.rotation.y) * distanceForward * multiplier;
-    moveVector.z +=
-      -Math.cos(this.camera.rotation.y) * distanceForward * multiplier;
+    moveVector.x += -Math.sin(this.camera.rotation.y) * distanceForward * multiplier;
+    moveVector.z += -Math.cos(this.camera.rotation.y) * distanceForward * multiplier;
 
     // Right Movement
-    moveVector.x +=
-      -Math.sin(this.camera.rotation.y - Math.PI / 2) *
-      distanceRight *
-      (multiplier * 0.75);
-    moveVector.z +=
-      -Math.cos(this.camera.rotation.y - Math.PI / 2) *
-      distanceRight *
-      (multiplier * 0.75);
+    moveVector.x += -Math.sin(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
+    moveVector.z += -Math.cos(this.camera.rotation.y - Math.PI / 2) * distanceRight * (multiplier * 0.75);
 
     // Apply Movements
-    this.gameObject.body.velocity.x = moveVector.x;
-    this.gameObject.body.velocity.z = moveVector.z;
+    if (this.gravityGenerator) {
+      this.gameObject.body.velocity.x = moveVector.x;
+      this.gameObject.body.velocity.z = moveVector.z;
+    }
   }
 
   // Moves the camera towards the physics body smoothly
@@ -309,12 +321,7 @@ export class Player {
     };
 
     // Snaps camera to body if it gets too far away
-    if (
-      Math.abs(difference.x) > 3 ||
-      Math.abs(difference.y) > 3 ||
-      Math.abs(difference.z) > 3
-    )
-      this.camera.position.copy(this.gameObject.body.position);
+    if (Math.abs(difference.x) > 3 || Math.abs(difference.y) > 3 || Math.abs(difference.z) > 3) this.camera.position.copy(this.gameObject.body.position);
 
     let acc = 0.4; // How fast the camera moves toward to body
     // Move the camera towards the body:
@@ -323,11 +330,7 @@ export class Player {
     this.camera.position.z -= difference.z * acc;
 
     // Move the sun with the player to simulate it being further away
-    this.sun.position.set(
-      this.camera.position.x - 10,
-      this.camera.position.y + 50,
-      this.camera.position.z - 10
-    );
+    this.sun.position.set(this.camera.position.x - 10, this.camera.position.y + 50, this.camera.position.z - 10);
   }
 
   updateShooting() {
@@ -352,19 +355,12 @@ export class Player {
 
   updateHeldObject() {
     this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-    const intersects = this.raycaster.intersectObjects(
-      this.game.scene.children
-    );
+    const intersects = this.raycaster.intersectObjects(this.game.scene.children);
 
-    if (
-      intersects.length > 0 &&
-      this.mouseButtons[this.controlMouseButtons.hold] &&
-      !this.heldItem
-    ) {
+    if (intersects.length > 0 && this.mouseButtons[this.controlMouseButtons.hold] && !this.heldItem) {
       this.heldItem = intersects[0].object;
       // Find the most general form of the object that isn't the scene
-      while (!this.heldItem.parent.isScene)
-        this.heldItem = this.heldItem.parent;
+      while (!this.heldItem.parent.isScene) this.heldItem = this.heldItem.parent;
 
       this.holdDistance = intersects[0].distance + 0.5;
     } else if (!this.mouseButtons[this.controlMouseButtons.hold]) {
@@ -383,13 +379,8 @@ export class Player {
       // Active Scanning
       for (let c = 0; c < 10; c++) {
         // For loop is to increase the rate
-        this.raycaster.setFromCamera(
-          new THREE.Vector2(Math.random() * 1 - 0.5, Math.random() * 1 - 0.5),
-          this.camera
-        );
-        let intersects = this.raycaster.intersectObjects(
-          this.game.scene.children
-        );
+        this.raycaster.setFromCamera(new THREE.Vector2(Math.random() * 1 - 0.5, Math.random() * 1 - 0.5), this.camera);
+        let intersects = this.raycaster.intersectObjects(this.game.scene.children);
 
         for (let i = 0; i < intersects.length; i++) {
           if (intersects[i].object.material == this.particlesMaterial) continue; // Ignore other particles
@@ -402,14 +393,10 @@ export class Player {
           this.particalPositions[this.currentParticle * 3 + 1] = point.y;
           this.particalPositions[this.currentParticle * 3 + 2] = point.z;
 
-          this.particlesGeometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(this.particalPositions, 3)
-          );
+          this.particlesGeometry.setAttribute("position", new THREE.BufferAttribute(this.particalPositions, 3));
 
           this.currentParticle++;
-          if (this.currentParticle > this.maxParticles - 1)
-            this.currentParticle = 0;
+          if (this.currentParticle > this.maxParticles - 1) this.currentParticle = 0;
 
           break;
         }
@@ -417,13 +404,8 @@ export class Player {
 
       // Passive Scanning
       for (let c = 0; c < 2; c++) {
-        this.raycaster.set(
-          this.camera.position,
-          new THREE.Vector3().randomDirection()
-        );
-        let intersects = this.raycaster.intersectObjects(
-          this.game.scene.children
-        );
+        this.raycaster.set(this.camera.position, new THREE.Vector3().randomDirection());
+        let intersects = this.raycaster.intersectObjects(this.game.scene.children);
 
         for (let i = 0; i < intersects.length; i++) {
           if (intersects[i].object.material == this.particlesMaterial) continue;
@@ -436,14 +418,10 @@ export class Player {
           this.particalPositions[this.currentParticle * 3 + 1] = point.y;
           this.particalPositions[this.currentParticle * 3 + 2] = point.z;
 
-          this.particlesGeometry.setAttribute(
-            "position",
-            new THREE.BufferAttribute(this.particalPositions, 3)
-          );
+          this.particlesGeometry.setAttribute("position", new THREE.BufferAttribute(this.particalPositions, 3));
 
           this.currentParticle++;
-          if (this.currentParticle > this.maxParticles - 1)
-            this.currentParticle = 0;
+          if (this.currentParticle > this.maxParticles - 1) this.currentParticle = 0;
 
           break;
         }

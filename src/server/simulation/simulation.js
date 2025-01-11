@@ -10,7 +10,7 @@ import { VoxelObject } from "./objects/VoxelObject.js";
 let scene = new THREE.Scene(); // This can be sent to a client later!
 
 let world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -50, 0),
+  //gravity: new CANNON.Vec3(0, -50, 0),
 });
 world.allowSleep = false;
 
@@ -121,7 +121,7 @@ export function updateProjectiles() {
 export function reset() {
   let scene = new THREE.Scene();
   let world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -50, 0),
+    //gravity: new CANNON.Vec3(0, -50, 0),
     allowSleep: false,
   });
   game = {
