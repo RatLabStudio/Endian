@@ -10,6 +10,7 @@ import * as Resources from "../Resources.js";
 import * as NetworkManager from "../NetworkManager.js";
 import * as UI from "../ui.js";
 import * as Hand from "../hand.js";
+import * as State from "../state.js";
 
 export class Player {
   maxSpeed = 10;
@@ -38,8 +39,9 @@ export class Player {
     zoom: 67, // C
     type: 13, // Enter
     fullscreen: 122, // F11
-    resetSim: 82, // R
+    resetSim: 46, // Delete
     radar: 81, // Q
+    playerList: 90, // Z
   };
 
   // Player Mouse Controls
@@ -144,8 +146,6 @@ export class Player {
     this.currentParticle = 0;
     this.particalPositions = new Float32Array(this.maxParticles * 3);
 
-    this.particlesGeometry.setAttribute("position", new THREE.BufferAttribute(this.particalPositions, 3));
-
     this.particlesMaterial = new THREE.PointsMaterial({
       size: 0.02,
       sizeAttenuation: true,
@@ -236,6 +236,9 @@ export class Player {
       this.currentFov = this.normalFov.valueOf();
       this.controls.pointerSpeed = 0.75;
     }
+
+    if (this.keys[this.controlKeys.playerList]) document.getElementById("playerListPanel").style.visibility = "unset";
+    else document.getElementById("playerListPanel").style.visibility = "hidden";
 
     this.camera.fov += (this.currentFov - this.camera.fov) * this.fovRate;
     this.camera.updateProjectionMatrix();
@@ -355,6 +358,7 @@ export class Player {
 
   updateHeldObject() {
     this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
+    if (State.currentState != State.states.ready) return;
     const intersects = this.raycaster.intersectObjects(this.game.scene.children);
 
     if (intersects.length > 0 && this.mouseButtons[this.controlMouseButtons.hold] && !this.heldItem) {

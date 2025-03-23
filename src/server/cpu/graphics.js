@@ -1,4 +1,5 @@
 import { font } from "./font.js";
+import getPixels from "get-pixels";
 
 export class Graphics {
   constructor(resolutionX, resolutionY) {
@@ -79,6 +80,7 @@ export class Graphics {
     else if (char == ":") char = "colon";
     else if (char == "!") char = "exclamation";
     else if (char == ".") char = "dot";
+    else if (char == '"') char = "quote";
 
     // Clearing the area for the next character:
     /*for (let i = this.textPos.x + 1; i < this.textPos.x + 2; i++) {
@@ -133,5 +135,35 @@ export class Graphics {
 
     this.textPos.x = 9;
     this.textPos.y += 7;
+  }
+
+  // Displays Image on Computer Screen
+  displayImage(url) {
+    this.clear();
+
+    getPixels(url, function (err, pixels) {
+      if (err) {
+        this.printString(`Image "${url.substring(url.lastIndexOf("/"))}" not found!`);
+        return;
+      }
+
+      // Get Pixel Data and convert it into RGBA order:
+      let pixelColors = [];
+      for (let i = 0; i < pixels.data.length; i += 4) {
+        pixelColors.push([pixels.data[i], pixels.data[i + 1], pixels.data[i + 2], pixels.data[i + 3]]);
+      }
+
+      // Set the pixels based on the new format:
+      let x = 0,
+        y = 0;
+      for (let i = 0; i < pixelColors.length; i++) {
+        if (x >= 128) {
+          x = 0;
+          y++;
+        }
+        this.setPixel(x, y, `rgba(${pixelColors[i][0]},${pixelColors[i][1]},${pixelColors[i][2]},${pixelColors[i][3]})`);
+        x++;
+      }
+    }.bind(this));
   }
 }

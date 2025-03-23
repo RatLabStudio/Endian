@@ -1,6 +1,8 @@
 // This file manages the state of the game, to let the program know what
 // has and has not been loaded or taken care of.
 
+import * as UI from "./ui.js";
+
 export let currentState = "start";
 
 export let states = {
@@ -29,8 +31,10 @@ export function setState(state) {
     if (getStateId(state) >= getStateId("ready")) {
         document.getElementById("loadingScreen").style.visibility = "hidden";
     } else {
-        document.getElementById("loadingScreen").style.visibility = "unset"; // SET TO HIDDEN FOR DEBUG
+        document.getElementById("loadingScreen").style.visibility = "hidden"; // SET TO HIDDEN FOR DEBUG
     }
+
+    UI.setElement("gameState", state)
 }
 
 function capitalize(string) {

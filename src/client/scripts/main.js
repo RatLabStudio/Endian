@@ -3,9 +3,8 @@
 
 // Version Information
 import { info } from "./versionInfo.js";
-document.getElementById(
-  "versionInfo"
-).innerHTML = `${info.name} ${info.version}`;
+document.getElementById("versionInfo").innerHTML = `${info.name} ${info.version}`;
+document.getElementById("copyrightInfo").innerHTML = `Rat Lab Studio ${info.date.year}`;
 
 // Importing Engine Classes
 import * as THREE from "three";
@@ -52,12 +51,7 @@ Physics.initialize(world);
 
 // GUI Scene
 const guiScene = new THREE.Scene();
-const guiCamera = new THREE.PerspectiveCamera(
-  70,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  200
-);
+const guiCamera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
 const guiRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 guiRenderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById("gui").appendChild(guiRenderer.domElement);
@@ -110,24 +104,13 @@ const guiRenderPass = new RenderPass(guiScene, guiCamera);
 guiComposer.addPass(guiRenderPass);
 
 if (Settings.settings["postprocessing"] > 0) {
-  const unrealBloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.2,
-    0.2,
-    0.1
-  );
+  const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.2, 0.1);
   composer.addPass(unrealBloomPass);
   guiComposer.addPass(unrealBloomPass);
 
-  const pixelatedPass = new RenderPixelatedPass(
-    window.innerWidth / 768,
-    scene,
-    player.camera
-  );
+  const pixelatedPass = new RenderPixelatedPass(window.innerWidth / 768, scene, player.camera);
   composer.addPass(pixelatedPass);
-  guiComposer.addPass(
-    new RenderPixelatedPass(window.innerWidth / 768, guiScene, guiCamera)
-  );
+  guiComposer.addPass(new RenderPixelatedPass(window.innerWidth / 768, guiScene, guiCamera));
 
   const filmPass = new FilmPass(window.innerWidth / 3000, false);
   composer.addPass(filmPass);
@@ -151,20 +134,12 @@ const stats = new Stats();
 // Setting up the sky:
 const loader = new THREE.CubeTextureLoader();
 loader.setPath("assets/textures/sky/");
-const textureCube = loader.load([
-  "sky.jpg",
-  "sky.jpg",
-  "sky.jpg",
-  "sky.jpg",
-  "sky.jpg",
-  "sky.jpg",
-]);
+const textureCube = loader.load(["sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg"]);
 scene.background = textureCube;
 
 /////////////// Settings and GUI ///////////////
 
-let isMultiplayer =
-  document.URL.substring(document.URL.indexOf("?") + 1) != "offline";
+let isMultiplayer = document.URL.substring(document.URL.indexOf("?") + 1) != "offline";
 if (!isMultiplayer) NetworkManager.setOffline();
 
 // Detect when the user leaves pointerLock
@@ -233,8 +208,7 @@ function animate() {
 
   // Renderers
   //if (State.currentState >= State.getStateId("ready")) {
-  if (Settings.settings.usewebgpu == 1)
-    renderer.renderAsync(scene, player.camera);
+  if (Settings.settings.usewebgpu == 1) renderer.renderAsync(scene, player.camera);
   else composer.render();
   cssRenderer.render(cssScene, player.camera);
   //}
@@ -287,10 +261,6 @@ GUI.loadHand(guiScene, player);
 Lighting.initializeLighting(game);
 
 // Place the player in a random position
-player.setPosition(
-  Math.round(Math.random() * 20 - 10),
-  4,
-  Math.round(Math.random() * 20 - 10)
-);
+player.setPosition(Math.round(Math.random() * 20 - 10), 4, Math.round(Math.random() * 20 - 10));
 
 ////////////////////////////////////////////////////////////

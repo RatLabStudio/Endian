@@ -4,17 +4,17 @@
 
 @font-face {
   font-family: "airstream";
-  src: url('./assets/fonts/airstream.woff2');
+  src: url("./assets/fonts/airstream.woff2");
 }
 
 @font-face {
   font-family: "neonlight";
-  src: url('./assets/fonts/neonlight.otf');
+  src: url("./assets/fonts/neonlight.otf");
 }
 
 @font-face {
   font-family: "pixel";
-  src: url('./assets/fonts/pixel.woff2');
+  src: url("./assets/fonts/pixel.woff2");
 }
 
 html,
@@ -58,7 +58,7 @@ body {
   transform: translate(-50%, -50%);
   width: 130%;
   height: 130%;
-  background-image: url('./assets/textures/gui/titleBackground.png');
+  background-image: url("./assets/textures/gui/titleBackground.png");
   background-size: 100%;
   filter: blur(15px);
   animation: panLoadingScreen 10s alternate infinite;
@@ -316,7 +316,7 @@ button:active {
   top: 0;
   height: 100%;
   width: 100%;
-  background-image: url('./assets/textures/ScreenOverlay.png');
+  background-image: url("./assets/textures/ScreenOverlay.png");
   background-repeat: repeat;
   background-size: 100px;
   opacity: 100%;
@@ -368,4 +368,48 @@ button:active {
 .console .message p {
   padding: 0;
   margin: 0 0 0 2vh;
+}
+
+#playerListPanel {
+  filter: none;
+  transform: translate(0px, 0px);
+  top: auto;
+  bottom: 30vh;
+  left: 1vh;
+  width: 20vh;
+  height: 50vh;
+  overflow: scroll;
+  overflow-x: hidden;
+  border-color: rgba(255, 255, 255, 0.1);
+  border-radius: 1vh;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+  text-align: center;
+}
+
+#playerListPanel::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.playerListContainer {
+  overflow: hidden;
+  padding: 1vh;
+  text-align: center;
+}
+
+.playerListElement {
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 85%;
+  padding: 1vh;
+  padding-bottom: 0.25vh;
+  overflow: hidden;
+  color: white;
+  font-size: 3vh;
+  font-family: pixel;
+  margin-bottom: 1vh;
+  border: solid 1px rgba(255, 255, 255, 0.1);
+  border-radius: 0.5vh;
+  text-align: center;
+  margin-left: 50%;
+  transform: translate(-50%);
 }

@@ -207,7 +207,7 @@
 
       <!-- Version Information -->
       <p id="versionInfo">Alpha v5</p>
-      <p id="copyrightInfo">Copyright Rat Lab Studio 2025</p>
+      <p id="copyrightInfo">Copyright Rat Lab Studio 2024</p>
 
       <!-- Username Selection Panel -->
       <div class="panel" id="newUserPanel" style="visibility: hidden">
@@ -279,6 +279,7 @@
       import { info } from "../scripts/versionInfo.js";
       import * as Settings from "../scripts/settings.js";
       document.getElementById("versionInfo").innerHTML = `${info.version}`;
+      document.getElementById("copyrightInfo").innerHTML = `Rat Lab Studio ${info.date.year}`;
 
       // Flickers the text in the logo
       let flickerElements = document.getElementsByClassName("flicker");

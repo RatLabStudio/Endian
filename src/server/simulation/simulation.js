@@ -82,10 +82,7 @@ setInterval(async function () {
 
 export function moveNetworkObjects(movedObjects) {
   for (let i = 0; i < movedObjects.length; i++) {
-    if (
-      objects[movedObjects[i].id] &&
-      objects[movedObjects[i].id].playerMovable
-    ) {
+    if (objects[movedObjects[i].id] && objects[movedObjects[i].id].playerMovable) {
       objects[movedObjects[i].id].receiveMovementFromServer(movedObjects[i]);
     }
   }
@@ -104,10 +101,7 @@ export function updateProjectiles() {
 
     if (!projectile.networkObject) {
       // If the projectile doesn't have a physics body
-      projectile.networkObject = new NetworkObject(
-        `projectile${pKeys[i]}`,
-        "projectile"
-      ); // Physical object
+      projectile.networkObject = new NetworkObject(`projectile${pKeys[i]}`, "projectile"); // Physical object
       projectile.networkObject.object.position.copy(projectile.ray.origin);
       projectile.position = 0; // Position of the projectile on the ray
     }
@@ -133,6 +127,28 @@ export function reset() {
   cpus = {};
   voxelObjects = {};
   projectiles = {};
+
+  /*try {
+    console.log(Server.players);
+  } catch(e) {
+    console.log(e);
+  }*/
+
+  try {
+    //console.log(Server.players);
+    let pKeys = Object.keys(Server.players);
+    for (let i = 0; i < pKeys.length; i++) {
+      //console.log(Server.players[pKeys[i]]);
+      game.scene.add(Server.players[pKeys[i]].object.mesh);
+      game.world.addBody(Server.players[pKeys[i]].object.body);
+      Server.sendMessageToAllPlayers({
+        message: `${Server.players[pKeys[i]].username} joined the game`,
+        color: "lime",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 
   spawnBasicObjects();
 }

@@ -57,6 +57,13 @@ export function setOffline() {
   socket = io("http://localhost:3000");
 }
 
+export function leaveGame() {
+  window.open(`index.html`, "_self");
+}
+socket.on("disconnectRequest", () => {
+  leaveGame();
+});
+
 // Sends only current player's info to the server
 export function sendInfoToServer(player) {
   if (!connected) return;
@@ -80,9 +87,10 @@ function createPlayerObj(newPlayer) {
 // Removes a player entirely from the game
 function removePlayerObj(playerNetId) {
   let player = playerObjs[playerNetId]; // Player to be removed
-  player.game.scene.remove(player.model); // Remove player model
+  console.log(player);
+  localPlayer.game.scene.remove(player.mesh); // Remove player model
   //player.material.dispose(); // Dispose of model texture
-  player.game.world.removeBody(player.body); // Remove physics body
+  localPlayer.game.world.removeBody(player.body); // Remove physics body
   delete playerObjs[playerNetId]; // Delete JS object
 }
 
@@ -97,10 +105,10 @@ function updatePlayerObjs() {
     // If no player object exists:
     if (obj == undefined) {
       createPlayerObj(p);
-      return;
+      continue;
     }
     // Update Position
-    obj.setPosition(p.position.x, p.position.y + 1, p.position.z);
+    obj.setPosition(p.position.x, p.position.y + 0.5, p.position.z);
 
     if (p.rotation) {
       obj.setRotation(0, p.rotation._y - Math.PI / 2, 0);
@@ -117,13 +125,23 @@ function updatePlayerObjs() {
 socket.on("playerClientUpdate", (players) => {
   playerList = {}; // Reset player list to delete old players
   let playersArr = Object.keys(players);
+
+  let playerListContainer = document.getElementById("playerListContainer");
+  playerListContainer.innerHTML = "";
+
   for (let i = 0; i < playersArr.length; i++) {
     let p = players[playersArr[i]];
+
+    playerListContainer.innerHTML += `<div class="playerListElement" id="playerList-${p.networkId}">${p.username}</div>`;
+
     if (p.networkId == socket.id)
       // Skip local player
       continue; // NOTE: Local Player is NOT stored in the player list
     playerList[playersArr[i]] = p; // Update player with new info from server
   }
+
+  document.getElementById(`playerList-${socket.id}`).style.color = "lime";
+
   updatePlayerObjs(); // Update the physical objects to reflect info
 });
 
@@ -141,16 +159,12 @@ socket.on("objectUpdates", (updatedObjs) => {
     let obj = objs[updatedObjKeys[i]];
     if (!obj) {
       // Create New Object
-      objs[updatedObjKeys[i]] = new NetworkObject(
-        updatedObjs[updatedObjKeys[i]].id,
-        updatedObjs[updatedObjKeys[i]].resourceId
-      );
+      objs[updatedObjKeys[i]] = new NetworkObject(updatedObjs[updatedObjKeys[i]].id, updatedObjs[updatedObjKeys[i]].resourceId);
       // Add object body to client game, mesh is added later to account for loading times
       localPlayer.game.world.addBody(objs[updatedObjKeys[i]].object.body);
     } else {
       // Add object mesh to client game
-      if (objs[updatedObjKeys[i]].waitingToBeAddedToGame)
-        localPlayer.game.scene.add(objs[updatedObjKeys[i]].object.mesh);
+      if (objs[updatedObjKeys[i]].waitingToBeAddedToGame) localPlayer.game.scene.add(objs[updatedObjKeys[i]].object.mesh);
 
       // Update Existing Object
       objs[updatedObjKeys[i]].updateFromServer(updatedObjs[updatedObjKeys[i]]);
@@ -204,14 +218,7 @@ socket.on("receiveAllCpuLocations", (data) => {
   for (let i = 0; i < dataKeys.length; i++) {
     // Determine how far away the monitor is
     let distance = Math.floor(
-      Math.abs(
-        data[dataKeys[i]].x -
-          localPlayer.position.x +
-          data[dataKeys[i]].y -
-          localPlayer.position.y +
-          data[dataKeys[i]].z -
-          localPlayer.position.z
-      )
+      Math.abs(data[dataKeys[i]].x - localPlayer.position.x + data[dataKeys[i]].y - localPlayer.position.y + data[dataKeys[i]].z - localPlayer.position.z)
     );
     // Only nearby monitors are rendered
     if (distance < 100) nearbyCpus[dataKeys[i]] = true;
@@ -219,8 +226,7 @@ socket.on("receiveAllCpuLocations", (data) => {
   }
   // TODO: CHECK FOR CPUS THAT NO LONGER EXIST
 
-  if (Object.keys(nearbyCpus).length > 0)
-    socket.emit("requestCpuData", nearbyCpus); // Request the data for all nearby CPUs
+  if (Object.keys(nearbyCpus).length > 0) socket.emit("requestCpuData", nearbyCpus); // Request the data for all nearby CPUs
 });
 
 socket.on("receiveCpuData", (data) => {
@@ -238,16 +244,8 @@ socket.on("receiveCpuData", (data) => {
       );
     }
 
-    cpus[dataKeys[i]].setPosition(
-      newCpuData.position.x,
-      newCpuData.position.y,
-      newCpuData.position.z
-    );
-    cpus[dataKeys[i]].setRotation(
-      newCpuData.rotation._x,
-      newCpuData.rotation._y,
-      newCpuData.rotation._z
-    );
+    cpus[dataKeys[i]].setPosition(newCpuData.position.x, newCpuData.position.y, newCpuData.position.z);
+    cpus[dataKeys[i]].setRotation(newCpuData.rotation._x, newCpuData.rotation._y, newCpuData.rotation._z);
     if (newCpuData.rowToUpdate >= 0) {
       cpus[dataKeys[i]].newPixels[newCpuData.rowToUpdate] = newCpuData.pixels;
       cpus[dataKeys[i]].updateRow(newCpuData.rowToUpdate);
@@ -288,8 +286,7 @@ socket.on("playerInfoUpdate", (playerInfo) => {
 });
 
 socket.on("sendNewChatMessages", (messages) => {
-  for (let i = 0; i < messages.length; i++)
-    Chat.log(messages[i].message, messages[i].color);
+  for (let i = 0; i < messages.length; i++) Chat.log(messages[i].message, messages[i].color);
 });
 
 export function sendResetRequest() {
@@ -298,10 +295,7 @@ export function sendResetRequest() {
 
 socket.on("voxelObjectUpdate", (voxelObject) => {
   if (!voxelObjs[voxelObject.id]) {
-    voxelObjs[voxelObject.id] = new VoxelObject(
-      localPlayer.game,
-      voxelObject.id
-    );
+    voxelObjs[voxelObject.id] = new VoxelObject(localPlayer.game, voxelObject.id);
   }
 
   voxelObjs[voxelObject.id].setMatrixFromIds(voxelObject.matrix);

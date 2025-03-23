@@ -26,6 +26,12 @@ export let elements = {
     unit: "",
     thresholds: [10, 5, 1, 0.1],
   },
+  gameState: {
+    display: document.getElementById("gameState"),
+    label: "State",
+    unit: "",
+    thresholds: ["ready", "loading_simulation", "connecting_to_server", "loading", "start"],
+  },
   playerCount: {
     display: document.getElementById("playerCount"),
     label: "Connected Players",

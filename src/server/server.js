@@ -58,6 +58,7 @@ io.on("connection", (socket) => {
         message: `${players[socket.id].username} left the game`,
         color: "tomato",
       });
+      socket.emit("removePlayer", socket.id);
     }
     delete players[socket.id];
   });
@@ -189,42 +190,12 @@ export function createCpu(id) {
 
   computer.clear();
 
-  // Displays Image on Computer Screen:
-  getPixels("https://ratlabstudio.com/wp-content/uploads/2024/11/flower.png", function (err, pixels) {
-    if (err) {
-      console.log("Bad image path");
-      return;
-    }
-
-    // Get Pixel Data and convert it into RGBA order:
-    let pixelColors = [];
-    for (let i = 0; i < pixels.data.length; i += 4) {
-      pixelColors.push([pixels.data[i], pixels.data[i + 1], pixels.data[i + 2], pixels.data[i + 3]]);
-    }
-
-    // Set the pixels based on the new format:
-    let x = 0,
-      y = 0;
-    for (let i = 0; i < pixelColors.length; i++) {
-      if (x >= 128) {
-        x = 0;
-        y++;
-      }
-      computer.setPixel(x, y, `rgba(${pixelColors[i][0]},${pixelColors[i][1]},${pixelColors[i][2]},${pixelColors[i][3]})`);
-      x++;
-    }
-  });
+  computer.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
 
   computer.nextLine();
-  /*computer.printString("Endian CPU");
-  computer.nextLine();
-  computer.printString("Simulation Running...");
-  computer.nextLine();
-  computer.nextLine();
-  computer.printString("");*/
 }
 
-setInterval(function () {
+/*setInterval(function () {
   if (!cpus[0]) return;
   let computer = cpus[0].gpu;
 
@@ -235,7 +206,7 @@ setInterval(function () {
       computer.setPixel(i, j, color);
     }
   }
-}, 100);
+}, 100);*/
 
 export function sendMessageToAllPlayers(message) {
   let playerKeys = Object.keys(players);
