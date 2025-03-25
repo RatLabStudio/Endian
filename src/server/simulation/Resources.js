@@ -59,7 +59,7 @@ export let objects = {
     new THREE.BoxGeometry(2.5, 2, 1.5),
     new THREE.MeshLambertMaterial({ color: 0x808080 }),
     new CANNON.Body({
-      mass: 0,
+      mass: 1,
       shape: new CANNON.Box(new CANNON.Vec3(1.25, 1, 0.75)),
     })
   ),

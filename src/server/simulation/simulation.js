@@ -76,6 +76,11 @@ setInterval(async function () {
   //voxelObjects.voTest.position.y -= 0.001;
   //voxelObjects.voTest.body.velocity.y = 0.001;
   t += 0.0003;
+
+  let cpuKeys = Object.keys(Server.cpus);
+  for (let i = 0; i < cpuKeys.length; i++) {
+    Server.cpus[cpuKeys[i]].update();
+  }
 }, 0);
 
 /////////////////////////////////////////////
@@ -165,10 +170,33 @@ function spawnBasicObjects() {
 
   cpus["cpu0"] = new NetworkObject("cpu0", "computer");
   objects[cpus["cpu0"].id] = cpus["cpu0"];
-  cpus["cpu0"].object.position.set(0, -1, -20);
+  cpus["cpu0"].object.position.set(-4, -1, -20);
   cpus["cpu0"].object.addToGame(game);
+  cpus["cpu0"].playerMovable = true;
+
+  cpus["cpu1"] = new NetworkObject("cpu1", "computer");
+  objects[cpus["cpu1"].id] = cpus["cpu1"];
+  cpus["cpu1"].object.position.set(0, -1, -20);
+  cpus["cpu1"].object.addToGame(game);
+  cpus["cpu1"].playerMovable = true;
+
+  cpus["cpu2"] = new NetworkObject("cpu2", "computer");
+  objects[cpus["cpu2"].id] = cpus["cpu2"];
+  cpus["cpu2"].object.position.set(4, -1, -20);
+  cpus["cpu2"].object.addToGame(game);
+  cpus["cpu2"].playerMovable = true;
+
   setTimeout(() => {
     Server.createCpu(0);
+    Server.cpus[0].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
+
+    Server.createCpu(1);
+    Server.cpus[1].glitching = true;
+
+    Server.createCpu(2);
+    Server.cpus[2].gpu.nextLine();
+    Server.cpus[2].gpu.printString("Simulation Running...");
+    Server.cpus[2].gpu.nextLine();
   }, 1000);
 
   for (let i = 0; i < 10; i++) {

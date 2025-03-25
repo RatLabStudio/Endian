@@ -260,8 +260,32 @@ export function sendInputToCpu(cpuId, inputChar) {
 }
 
 document.addEventListener("keydown", function (e) {
+  if (!localPlayer.typing) return;
+
   let k = e.key;
-  if (localPlayer.typing) sendInputToCpu("0", k.toLowerCase());
+
+  let cpuKeys = Object.keys(cpus); // Get list of CPUs
+
+  let closestCpu = null;
+  for (let i = 0; i < cpuKeys.length; i++) {
+    let currentCpu = cpus[cpuKeys[i]]; // CPU to compare
+
+    // First CPU checked it set as closest by default
+    if (!closestCpu) {
+      closestCpu = currentCpu;
+      continue;
+    }
+
+    // Store distances of each CPU from player
+    let closestCpuDistance = localPlayer.position.distanceTo(closestCpu.position);
+    let comparingCpuDistance = localPlayer.position.distanceTo(currentCpu.position);
+
+    // Compare the distances
+    if (comparingCpuDistance < closestCpuDistance) closestCpu = currentCpu;
+  }
+
+  // Send characters to closest CPU
+  sendInputToCpu(closestCpu.id, k.toLowerCase());
 });
 
 /////////////////////////////////////////////

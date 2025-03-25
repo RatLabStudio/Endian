@@ -185,33 +185,12 @@ io.on("connection", (socket) => {
 
 export function createCpu(id) {
   cpus[id] = new CPU(id);
-
-  let computer = cpus[id].gpu;
-
-  computer.clear();
-
-  computer.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
-
-  computer.nextLine();
 }
-
-/*setInterval(function () {
-  if (!cpus[0]) return;
-  let computer = cpus[0].gpu;
-
-  let color = `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`;
-  let yCord = Math.floor(Math.random() * computer.resolutionY);
-  for (let i = 0; i < computer.resolutionX; i++) {
-    for (let j = yCord; j < yCord + 10 || j < computer.resolutionY; j++) {
-      computer.setPixel(i, j, color);
-    }
-  }
-}, 100);*/
 
 export function sendMessageToAllPlayers(message) {
   let playerKeys = Object.keys(players);
   for (let i = 0; i < playerKeys.length; i++) players[playerKeys[i]].newChatMessages.push(message);
 
-  //cpus[0].gpu.nextLine();
-  //cpus[0].gpu.printString(message.message);
+  cpus[2].gpu.nextLine();
+  cpus[2].gpu.printString(message.message);
 }

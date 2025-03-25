@@ -68,10 +68,12 @@ export class Graphics {
   }
 
   setPixel(x, y, active) {
-    this.pixels[y][x] = active;
-    if (this.currentRow > y)
-      // Move the current row to the changed pixel
-      this.currentRow = y;
+    if (this.pixels && this.pixels[y] && this.pixels[y][x]) {
+      this.pixels[y][x] = active;
+      if (this.currentRow > y)
+        // Move the current row to the changed pixel
+        this.currentRow = y;
+    }
   }
 
   // Prints a character to the screen
@@ -141,29 +143,32 @@ export class Graphics {
   displayImage(url) {
     this.clear();
 
-    getPixels(url, function (err, pixels) {
-      if (err) {
-        this.printString(`Image "${url.substring(url.lastIndexOf("/"))}" not found!`);
-        return;
-      }
-
-      // Get Pixel Data and convert it into RGBA order:
-      let pixelColors = [];
-      for (let i = 0; i < pixels.data.length; i += 4) {
-        pixelColors.push([pixels.data[i], pixels.data[i + 1], pixels.data[i + 2], pixels.data[i + 3]]);
-      }
-
-      // Set the pixels based on the new format:
-      let x = 0,
-        y = 0;
-      for (let i = 0; i < pixelColors.length; i++) {
-        if (x >= 128) {
-          x = 0;
-          y++;
+    getPixels(
+      url,
+      function (err, pixels) {
+        if (err) {
+          this.printString(`Image "${url.substring(url.lastIndexOf("/"))}" not found!`);
+          return;
         }
-        this.setPixel(x, y, `rgba(${pixelColors[i][0]},${pixelColors[i][1]},${pixelColors[i][2]},${pixelColors[i][3]})`);
-        x++;
-      }
-    }.bind(this));
+
+        // Get Pixel Data and convert it into RGBA order:
+        let pixelColors = [];
+        for (let i = 0; i < pixels.data.length; i += 4) {
+          pixelColors.push([pixels.data[i], pixels.data[i + 1], pixels.data[i + 2], pixels.data[i + 3]]);
+        }
+
+        // Set the pixels based on the new format:
+        let x = 0,
+          y = 0;
+        for (let i = 0; i < pixelColors.length; i++) {
+          if (x >= 128) {
+            x = 0;
+            y++;
+          }
+          this.setPixel(x, y, `rgba(${pixelColors[i][0]},${pixelColors[i][1]},${pixelColors[i][2]},${pixelColors[i][3]})`);
+          x++;
+        }
+      }.bind(this)
+    );
   }
 }
