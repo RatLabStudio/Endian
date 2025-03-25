@@ -88,8 +88,8 @@ export function reset() {
   cpus = {};
   projectiles = {};
 
-  try {
-    //console.log(Server.players);
+  setTimeout(function () {
+    // Wait for player initialization
     let pKeys = Object.keys(Server.players);
     for (let i = 0; i < pKeys.length; i++) {
       //console.log(Server.players[pKeys[i]]);
@@ -100,9 +100,7 @@ export function reset() {
         color: "lime",
       });
     }
-  } catch (e) {
-    console.log(e);
-  }
+  }, 500);
 
   spawnBasicObjects();
 }

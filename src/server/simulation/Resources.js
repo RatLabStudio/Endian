@@ -85,21 +85,3 @@ export function createObject(objectId) {
     })
   );
 }
-
-export let voxels = {
-  air: {
-    geometry: new THREE.BoxGeometry(0, 0, 0),
-    material: new THREE.Material(),
-    shape: new CANNON.Box(new CANNON.Vec3(0, 0, 0)),
-  },
-  panel: {
-    geometry: new THREE.BoxGeometry(2, 2, 0.5),
-    material: new THREE.MeshNormalMaterial(),
-    shape: new CANNON.Box(new CANNON.Vec3(1, 1, 0.25)),
-  },
-  box: {
-    geometry: new THREE.BoxGeometry(1, 1, 1),
-    material: new THREE.MeshNormalMaterial(),
-    shape: new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5)),
-  },
-};

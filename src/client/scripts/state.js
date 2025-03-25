@@ -31,7 +31,7 @@ export function setState(state) {
     if (getStateId(state) >= getStateId("ready")) {
         document.getElementById("loadingScreen").style.visibility = "hidden";
     } else {
-        document.getElementById("loadingScreen").style.visibility = "hidden"; // SET TO HIDDEN FOR DEBUG
+        document.getElementById("loadingScreen").style.visibility = "unset"; // SET TO HIDDEN FOR DEBUG
     }
 
     UI.setElement("gameState", state)

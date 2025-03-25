@@ -192,7 +192,7 @@ export class Player {
     // Check if the player is grounded (making them able to jump)
     if (hits.length > 0) {
       UI.setElement("groundDistance", hits[0].distance.toFixed(3));
-      if (hits[0].distance <= 0.5) {
+      if (hits[0].distance <= 0.75) {
         this.grounded = true;
         this.gameObject.body.velocity.y = 0;
       } else this.grounded = false;

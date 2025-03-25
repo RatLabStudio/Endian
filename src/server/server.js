@@ -72,17 +72,6 @@ io.on("connection", (socket) => {
     socket.emit("objectUpdates", compressedObjs);
   });
 
-  socket.on("requestVoxelObjectUpdates", () => {
-    // Compress voxel objects
-    let voKeys = Object.keys(Simulation.voxelObjects);
-    let compressedVoxelObjects = {};
-    for (let i = 0; i < voKeys.length; i++) {
-      //console.log(Simulation.voxelObjects[voKeys[i]].getNewData());
-      compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
-      socket.emit("voxelObjectUpdate", compressedVoxelObjects[voKeys[i]]);
-    }
-  });
-
   // Request from simulation-view to see the simulation
   socket.on("requestSimulationForView", () => {
     // Compress objects
@@ -95,16 +84,10 @@ io.on("connection", (socket) => {
     let compressedPlayers = {};
     for (let i = 0; i < playerKeys.length; i++) compressedPlayers[playerKeys[i]] = players[playerKeys[i]].getData();
 
-    // Compress voxel objects
-    let voKeys = Object.keys(Simulation.voxelObjects);
-    let compressedVoxelObjects = {};
-    for (let i = 0; i < voKeys.length; i++) compressedVoxelObjects[voKeys[i]] = Simulation.voxelObjects[voKeys[i]].getNewData();
-
     // Send Data
     socket.emit("sendSimulationSceneForView", {
       objects: compressedObjs,
       players: compressedPlayers,
-      voxelObjects: compressedVoxelObjects,
     });
   });
 

@@ -8,7 +8,6 @@ import { io } from "socket.io-client";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import * as Resources from "./Resources.js";
-import { VoxelObject } from "./VoxelObject.js";
 
 var debuggerEnabled = false;
 
@@ -38,7 +37,6 @@ document.getElementById("ip").innerHTML = ip;
 
 let objs = {};
 let players = {};
-let voxelObjs = {};
 
 // FPS Counter Creation
 let stats = new Stats();
@@ -102,10 +100,6 @@ socket.on("sendSimulationSceneForView", (data) => {
   let newPlayers = data.players;
   let newPlayerKeys = Object.keys(newPlayers);
 
-  let voKeys = Object.keys(voxelObjs);
-  let newVoxelObjs = data.voxelObjects;
-  let newVoxelObjKeys = Object.keys(newVoxelObjs);
-
   // Update Objects
   for (let i = 0; i < newObjKeys.length; i++) {
     if (!objs[newObjKeys[i]]) {
@@ -165,25 +159,6 @@ socket.on("sendSimulationSceneForView", (data) => {
       world.removeBody(players[playerKeys[i]].body);
       delete players[playerKeys[i]];
     }
-  }
-
-  for (let i = 0; i < newVoxelObjKeys.length; i++) {
-    if (!voxelObjs[newVoxelObjKeys[i]]) {
-      voxelObjs[newVoxelObjKeys[i]] = new VoxelObject(
-        game,
-        newVoxelObjs[newVoxelObjKeys[i]].id
-      );
-    }
-
-    voxelObjs[newVoxelObjKeys[i]].setMatrixFromIds(
-      data.voxelObjects[newVoxelObjKeys[i]].matrix
-    );
-    voxelObjs[newVoxelObjKeys[i]].setPosition(
-      data.voxelObjects[newVoxelObjKeys[i]].position
-    );
-    voxelObjs[newVoxelObjKeys[i]].setRotation(
-      data.voxelObjects[newVoxelObjKeys[i]].rotation
-    );
   }
 });
 
