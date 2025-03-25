@@ -5,7 +5,6 @@ import * as CANNON from "cannon-es";
 
 import * as Server from "../server.js";
 import { NetworkObject } from "./objects/NetworkObject.js";
-import { VoxelObject } from "./objects/VoxelObject.js";
 
 let scene = new THREE.Scene(); // This can be sent to a client later!
 
@@ -21,44 +20,6 @@ export let game = {
 
 export let objects = {};
 export let cpus = {};
-export let voxelObjects = {};
-
-/*voxelObjects.voTest = new VoxelObject(game, "voTest");
-voxelObjects.voTest.setPosition(new THREE.Vector3(0, 5, -10));
-
-let matrix = [];
-let size = 20;
-for (let x = 0; x < size; x++) {
-    matrix.push([]);
-    for (let y = 0; y < size; y++) {
-        matrix[x].push([]);
-        for (let z = 0; z < size; z++) {
-            matrix[x][y][z] = "air";
-        }
-    } 
-}
-function setCoords(pos, value) {
-    matrix[pos[0]][pos[1]][pos[2]] = value;
-}
-
-for (let i = 0; i < size; i++) {
-    for (let j = 0; j < size; j++) {
-        for (let k = 0; k < size; k++) {
-            if (j % 2 == 0) {
-                if (i % 2 == 0 && k % 2 == 0)
-                    setCoords([i, j, k], "box");
-            } else {
-                if (i % 2 != 0 && k % 2 != 0)
-                    setCoords([i, j, k], "box");
-            }
-        }
-    }
-}
-
-voxelObjects.voTest.setMatrixFromIds(matrix);
-voxelObjects.voTest.body.mass = 1000;
-//voxelObjects.voTest.body.sleep();
-//voxelObjects.voTest.body.velocity.y = 10;*/
 
 /////////////// Simulation Tick ///////////////
 
@@ -70,11 +31,6 @@ setInterval(async function () {
   for (let i = 0; i < objKeys.length; i++) objects[objKeys[i]].object.update();
 
   updateProjectiles();
-
-  //cpus["cpu0"].object.rotation.set(t, t, t);
-  //voxelObjects.voTest.setRotation(new CANNON.Vec3(t, t, t));
-  //voxelObjects.voTest.position.y -= 0.001;
-  //voxelObjects.voTest.body.velocity.y = 0.001;
   t += 0.0003;
 
   let cpuKeys = Object.keys(Server.cpus);
@@ -130,14 +86,7 @@ export function reset() {
 
   objects = {};
   cpus = {};
-  voxelObjects = {};
   projectiles = {};
-
-  /*try {
-    console.log(Server.players);
-  } catch(e) {
-    console.log(e);
-  }*/
 
   try {
     //console.log(Server.players);

@@ -4,8 +4,6 @@ import * as Simulation from "./simulation/simulation.js";
 import { Player } from "./simulation/objects/Player.js";
 import { CPU } from "./cpu/cpu.js";
 
-import getPixels from "get-pixels";
-
 const io = new Socket.Server(3000, {
   cors: {
     origin: "*", // Allows connections from the same network
@@ -85,6 +83,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Request from simulation-view to see the simulation
   socket.on("requestSimulationForView", () => {
     // Compress objects
     let objKeys = Object.keys(Simulation.objects);
@@ -191,6 +190,7 @@ export function sendMessageToAllPlayers(message) {
   let playerKeys = Object.keys(players);
   for (let i = 0; i < playerKeys.length; i++) players[playerKeys[i]].newChatMessages.push(message);
 
-  cpus[2].gpu.nextLine();
-  cpus[2].gpu.printString(message.message);
+  // Temporary - Sends console messages to a computer display
+  cpus[Object.keys(cpus).length - 1].gpu.nextLine();
+  cpus[Object.keys(cpus).length - 1].gpu.printString(message.message);
 }

@@ -30,7 +30,7 @@ const createWindow = () => {
     });
 
   mainWindow.loadURL(startUrl);
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   globalShortcut.register("F11", () => {
     mainWindow.setFullScreen(!mainWindow.isFullScreen());

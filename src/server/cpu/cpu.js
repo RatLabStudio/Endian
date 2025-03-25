@@ -12,6 +12,7 @@ export class CPU {
   }
 
   update() {
+    // Glitching Animation
     if (this.glitching && new Date().getTime() > this.lastTick + 100) {
       let color = `rgb(${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)},${Math.floor(Math.random() * 255)})`;
       let yCord = Math.floor(Math.random() * this.gpu.resolutionY);
