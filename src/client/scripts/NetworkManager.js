@@ -50,6 +50,8 @@ socket.on("connect", () => {
   connected = true;
 });
 
+socket.on("disconnect", () => { leaveGame(); });
+
 export function setOffline() {
   socket = io("http://localhost:3000");
 }

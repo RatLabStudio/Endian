@@ -84,18 +84,45 @@ export function reset() {
 
 /////////////// Rays ///////////////
 
+let raycaster = new THREE.Raycaster();
+
 function updateRays() {
   let rayKeys = Object.keys(Server.activeRays);
   for (let i = 0; i < rayKeys.length; i++) {
     let currentRay = Server.activeRays[rayKeys[i]];
     currentRay.distanceTraveled += 0.1; // Will probably add delta time here
 
+    /* {
+  ray: {
+    origin: {
+      x: 3.0000000000000004,
+      y: 0.141411792161943,
+      z: 4.000000000000001
+    },
+    direction: {
+      x: 0.04254678920122486,
+      y: -0.6650046169718703,
+      z: -0.7456263341210279
+    }
+  },
+  sender: '9eofZpJuQeIbfYESAAAC',
+  distanceTraveled: 100.09999999999859
+} */
+
+    // Set general use raycaster for this ray
+    raycaster.set(currentRay.ray.origin, currentRay.ray.direction);
+
+    let intersects = [];
+    raycaster.intersectObjects(game.scene.children, true, intersects);
+    /*if (intersects.length > 0)
+      console.log(intersects);*/
+
     // Rays delete after travelling too far
     if (currentRay.distanceTraveled > 100) {
       delete Server.activeRays[rayKeys[i]];
       continue;
     }
-  } 
+  }
 }
 
 /////////////////////////////////////////////
