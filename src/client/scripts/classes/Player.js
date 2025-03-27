@@ -344,12 +344,21 @@ export class Player {
 
     if (this.mouseButtons[this.controlMouseButtons.shoot]) {
       if (timeSinceLastShot > 200 && this.toolPower >= 5) {
+        // Shooting:
         let raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(new THREE.Vector2(0, 0), this.camera);
-        NetworkManager.shootProjectile(raycaster.ray);
+        let rayToSend = {
+          ray: raycaster.ray,
+          sender: NetworkManager.localPlayer.networkId,
+          distanceTraveled: 0
+        };
+        NetworkManager.shootRay(rayToSend);
+
+        // Animation:
+        Hand.shootingAnimation();
+
         this.lastShot = currentTime; // Store last shot time
         this.toolPower -= 5; // Remove ammunition
-        Hand.shootingAnimation();
       }
     }
 

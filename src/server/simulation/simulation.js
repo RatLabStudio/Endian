@@ -23,20 +23,18 @@ export let cpus = {};
 
 /////////////// Simulation Tick ///////////////
 
-let t = 0;
 setInterval(async function () {
   game.world.fixedStep(); // Update the physics world
 
   let objKeys = Object.keys(objects);
   for (let i = 0; i < objKeys.length; i++) objects[objKeys[i]].object.update();
 
-  updateProjectiles();
-  t += 0.0003;
-
   let cpuKeys = Object.keys(Server.cpus);
   for (let i = 0; i < cpuKeys.length; i++) {
     Server.cpus[cpuKeys[i]].update();
   }
+
+  updateRays();
 }, 0);
 
 /////////////////////////////////////////////
@@ -48,28 +46,6 @@ export function moveNetworkObjects(movedObjects) {
     }
   }
 }
-
-/////////////// Projectiles ///////////////
-
-export let projectiles = {};
-let projectileSpeed = 1;
-
-export function updateProjectiles() {
-  let pKeys = Object.keys(projectiles);
-
-  for (let i = 0; i < pKeys.length; i++) {
-    let projectile = projectiles[pKeys[i]];
-
-    if (!projectile.networkObject) {
-      // If the projectile doesn't have a physics body
-      projectile.networkObject = new NetworkObject(`projectile${pKeys[i]}`, "projectile"); // Physical object
-      projectile.networkObject.object.position.copy(projectile.ray.origin);
-      projectile.position = 0; // Position of the projectile on the ray
-    }
-  }
-}
-
-/////////////////////////////////////////////
 
 /////////////// Simulation Management ///////////////
 
@@ -86,7 +62,6 @@ export function reset() {
 
   objects = {};
   cpus = {};
-  projectiles = {};
 
   setTimeout(function () {
     // Wait for player initialization
@@ -103,6 +78,24 @@ export function reset() {
   }, 500);
 
   spawnBasicObjects();
+}
+
+/////////////////////////////////////////////
+
+/////////////// Rays ///////////////
+
+function updateRays() {
+  let rayKeys = Object.keys(Server.activeRays);
+  for (let i = 0; i < rayKeys.length; i++) {
+    let currentRay = Server.activeRays[rayKeys[i]];
+    currentRay.distanceTraveled += 0.1; // Will probably add delta time here
+
+    // Rays delete after travelling too far
+    if (currentRay.distanceTraveled > 100) {
+      delete Server.activeRays[rayKeys[i]];
+      continue;
+    }
+  } 
 }
 
 /////////////////////////////////////////////

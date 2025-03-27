@@ -13,10 +13,10 @@ const io = new Socket.Server(3000, {
 export let players = {}; // All players currently connected
 export let cpus = {}; // All CPUs in the scene
 
+export let activeRays = {}; // List of all rays that have been shot but not yet resolved
+
 let movingObjects = []; // Objects that are currently being moved by a player
 
-export let rays = []; // Active rays (bullets)
-let displayRays = {}; // Rays to be displayed (reflects rays[])
 
 // Called when the socket connection is created
 io.on("connection", (socket) => {
@@ -131,14 +131,6 @@ io.on("connection", (socket) => {
 
   /////////////////////////////////////////////
 
-  /////////////// Projectiles ///////////////
-
-  socket.on("shootProjectile", (newRay) => {
-    Simulation.projectiles[newRay.id] = newRay;
-  });
-
-  /////////////////////////////////////////////
-
   /////////////// Chat and Console ///////////////
 
   socket.on("sendMessageToServer", (message) => {
@@ -150,6 +142,14 @@ io.on("connection", (socket) => {
       socket.emit("sendNewChatMessages", players[socket.id].newChatMessages);
       players[socket.id].newChatMessages = [];
     }
+  });
+
+  /////////////////////////////////////////////
+
+  /////////////// Rays ///////////////
+
+  socket.on("shootRay", (ray) => {
+    activeRays[new Date().getTime()] = ray;
   });
 
   /////////////////////////////////////////////

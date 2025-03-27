@@ -26,7 +26,7 @@ setTimeout(() => {
 }, 5000);
 let connected = false;
 
-let localPlayer = null; // The player on the local computer
+export let localPlayer = null; // The player on the local computer
 export let playerList = {}; // List of players shared from the server
 let playerObjs = {}; // List of physical player objects
 
@@ -197,7 +197,6 @@ export function moveNetworkObject(id, position) {
 
 export function requestSimulationUpdate() {
   socket.emit("requestSimulationUpdate"); // Updates networked objects
-  socket.emit("requestRayDisplayInfo"); // Updates blaster rays
   socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
   socket.emit("requestNewChatMessages"); // Gets all new chat messages
   socket.emit("requestAllCpuLocations");
@@ -286,18 +285,6 @@ document.addEventListener("keydown", function (e) {
 
 /////////////////////////////////////////////
 
-export function shootProjectile(ray) {
-  let rayToSend = {
-    id: socket.id + "time" + performance.now().toFixed(3).replace(".", ""),
-    sender: socket.id,
-    ray: {
-      origin: ray.origin,
-      direction: ray.direction,
-    },
-  };
-  socket.emit("shootProjectile", rayToSend);
-}
-
 socket.on("playerInfoUpdate", (playerInfo) => {
   UI.setElement("health", playerInfo.health);
   if (playerInfo.health <= 0) {
@@ -311,4 +298,8 @@ socket.on("sendNewChatMessages", (messages) => {
 
 export function sendResetRequest() {
   socket.emit("resetSimulation");
+}
+
+export function shootRay(ray) {
+  socket.emit("shootRay", ray);
 }
