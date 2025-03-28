@@ -8,6 +8,7 @@ import * as Chat from "./chat.js";
 import { ModelObject } from "./classes/ModelObject.js";
 import * as State from "./state.js";
 import * as UI from "./ui.js";
+import { Ray } from "./classes/Ray.js";
 
 let ip = "localhost";
 
@@ -50,7 +51,9 @@ socket.on("connect", () => {
   connected = true;
 });
 
-socket.on("disconnect", () => { leaveGame(); });
+socket.on("disconnect", () => {
+  leaveGame();
+});
 
 export function setOffline() {
   socket = io("http://localhost:3000");
@@ -202,6 +205,7 @@ export function requestSimulationUpdate() {
   socket.emit("requestPlayerInfo", socket.id); // Gets info for the current player
   socket.emit("requestNewChatMessages"); // Gets all new chat messages
   socket.emit("requestAllCpuLocations");
+  socket.emit("requestRays");
 }
 
 /////////////// CPU Functions ///////////////
@@ -288,6 +292,7 @@ document.addEventListener("keydown", function (e) {
 /////////////////////////////////////////////
 
 socket.on("playerInfoUpdate", (playerInfo) => {
+  if (!playerInfo) return;
   UI.setElement("health", playerInfo.health);
   if (playerInfo.health <= 0) {
     window.location.reload();
@@ -305,3 +310,40 @@ export function sendResetRequest() {
 export function shootRay(ray) {
   socket.emit("shootRay", ray);
 }
+
+let currentRays = {};
+
+socket.on("rayUpdate", (rays) => {
+  // Creating and updating visual rays
+  let rayKeys = Object.keys(rays);
+
+  for (let i = 0; i < rayKeys.length; i++) {
+    let currentRay = rays[rayKeys[i]];
+
+    if (!currentRays[rayKeys[i]]) {
+      // Wait to display the ray until it is not too close to the player
+      if (localPlayer.position.distanceTo(currentRay.position) > 2)
+        currentRays[rayKeys[i]] = new Ray(currentRay.position, currentRay.direction, localPlayer.game);
+      else continue;
+    }
+
+    // Updating the position of the ray to reflect the server
+    let oldPos = currentRays[rayKeys[i]].object.position;
+    let newPos = currentRay.position;
+    currentRays[rayKeys[i]].object.position.set(
+      oldPos.x + (newPos.x - oldPos.x) * 0.5,
+      oldPos.y + (newPos.y - oldPos.y) * 0.5,
+      oldPos.z + (newPos.z - oldPos.z) * 0.5
+    );
+  }
+
+  // Deleting rays that no longer exist
+  let currentRayKeys = Object.keys(currentRays);
+
+  for (let i = 0; i < currentRayKeys.length; i++) {
+    if (!rays[currentRayKeys[i]]) {
+      currentRays[currentRayKeys[i]].remove();
+      delete currentRays[currentRayKeys[i]];
+    }
+  }
+});

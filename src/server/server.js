@@ -11,12 +11,13 @@ const io = new Socket.Server(3000, {
 });
 
 export let players = {}; // All players currently connected
+export let playerBodyIds = {};
+export let playerInfo = {};
 export let cpus = {}; // All CPUs in the scene
 
 export let activeRays = {}; // List of all rays that have been shot but not yet resolved
 
 let movingObjects = []; // Objects that are currently being moved by a player
-
 
 // Called when the socket connection is created
 io.on("connection", (socket) => {
@@ -30,6 +31,12 @@ io.on("connection", (socket) => {
       players[player.networkId] = new Player(player.networkId);
       Simulation.game.world.addBody(players[player.networkId].object.body);
 
+      playerBodyIds[players[player.networkId].object.body.id] = player.networkId;
+
+      playerInfo[player.networkId] = {
+        health: 100,
+      };
+
       sendMessageToAllPlayers({
         message: `${player.username} joined the game`,
         color: "lime",
@@ -41,10 +48,16 @@ io.on("connection", (socket) => {
     // Get simplified player data
     let playerKeys = Object.keys(players);
     let playerData = {};
-    for (let i = 0; i < playerKeys.length; i++) playerData[playerKeys[i]] = players[playerKeys[i]].getData();
+    for (let i = 0; i < playerKeys.length; i++) {
+      playerData[playerKeys[i]] = players[playerKeys[i]].getData();
+    }
 
     // Send the new data to all connected players
     socket.emit("playerClientUpdate", playerData);
+  });
+
+  socket.on("requestPlayerInfo", (networkId) => {
+    socket.emit("playerInfoUpdate", playerInfo[networkId]);
   });
 
   // When a player leaves
@@ -58,6 +71,7 @@ io.on("connection", (socket) => {
       });
       socket.emit("removePlayer", socket.id);
     }
+    delete playerBodyIds[players[socket.id].object.body.id];
     delete players[socket.id];
   });
 
@@ -150,6 +164,10 @@ io.on("connection", (socket) => {
 
   socket.on("shootRay", (ray) => {
     activeRays[new Date().getTime()] = ray;
+  });
+
+  socket.on("requestRays", () => {
+    socket.emit("rayUpdate", Simulation.currentRayPositions);
   });
 
   /////////////////////////////////////////////

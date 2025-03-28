@@ -84,42 +84,75 @@ export function reset() {
 
 /////////////// Rays ///////////////
 
-let raycaster = new THREE.Raycaster();
+export let currentRayPositions = {};
 
 function updateRays() {
   let rayKeys = Object.keys(Server.activeRays);
   for (let i = 0; i < rayKeys.length; i++) {
     let currentRay = Server.activeRays[rayKeys[i]];
-    currentRay.distanceTraveled += 0.1; // Will probably add delta time here
+    currentRay.distanceTraveled += 0.25; // Will probably add delta time here
 
-    /* {
-  ray: {
-    origin: {
-      x: 3.0000000000000004,
-      y: 0.141411792161943,
-      z: 4.000000000000001
-    },
-    direction: {
-      x: 0.04254678920122486,
-      y: -0.6650046169718703,
-      z: -0.7456263341210279
-    }
-  },
-  sender: '9eofZpJuQeIbfYESAAAC',
-  distanceTraveled: 100.09999999999859
-} */
+    // Reconstruct the ray
+    let threeRay = new THREE.Ray(currentRay.ray.origin, currentRay.ray.direction);
+
+    // Prepare data for clients
+    currentRayPositions[rayKeys[i]] = {
+      position: new THREE.Vector3(),
+      direction: currentRay.ray.direction,
+    };
+    threeRay.at(currentRay.distanceTraveled, currentRayPositions[rayKeys[i]].position);
 
     // Set general use raycaster for this ray
-    raycaster.set(currentRay.ray.origin, currentRay.ray.direction);
+    let cRay = new CANNON.Ray();
+    cRay.from.set(currentRay.ray.origin.x, currentRay.ray.origin.y, currentRay.ray.origin.z);
 
+    // Set the endpoint of the ray for Cannon
+    let endPoint = new THREE.Vector3();
+    threeRay.at(100, endPoint);
+    cRay.to.set(endPoint.x, endPoint.y, endPoint.z);
+
+    let closestIntersect = null;
     let intersects = [];
-    raycaster.intersectObjects(game.scene.children, true, intersects);
-    /*if (intersects.length > 0)
-      console.log(intersects);*/
+
+    // Cycle through every game object
+    for (let i = 0; i < game.world.bodies.length; i++) {
+      // Ensure the sender of the ray cannot be hit by the ray
+      if (!Server.players[currentRay.sender] || game.world.bodies[i].id == Server.players[currentRay.sender].object.body.id) continue;
+
+      let intersect = new CANNON.RaycastResult();
+      cRay.intersectBody(game.world.bodies[i], intersect); // Check for intersection between ray and object
+
+      // Add the intersect to the list if it hits
+      if (intersect.hasHit) intersects.push(intersect);
+    }
+
+    // Sort the intersections by distance (closest first)
+    intersects.sort((a, b) => a.distance - b.distance);
+
+    if (intersects.length > 0) {
+      closestIntersect = intersects[0];
+
+      // Bullet travel
+      if (closestIntersect.distance > currentRay.distanceTraveled - 0.25 && closestIntersect.distance < currentRay.distanceTraveled + 0.25) {
+        if (Server.playerBodyIds[closestIntersect.body.id]) {
+          Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health -= 10;
+          if (Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health <= 0)
+            Server.sendMessageToAllPlayers({
+              message: `${Server.players[Server.playerBodyIds[closestIntersect.body.id]].username} was killed by ${Server.players[currentRay.sender].username}`,
+              color: "orange",
+            });
+        }
+
+        delete Server.activeRays[rayKeys[i]];
+        delete currentRayPositions[rayKeys[i]];
+        continue;
+      }
+    }
 
     // Rays delete after travelling too far
     if (currentRay.distanceTraveled > 100) {
       delete Server.activeRays[rayKeys[i]];
+      delete currentRayPositions[rayKeys[i]];
       continue;
     }
   }
