@@ -6,8 +6,8 @@ export let info = {
   version: "Alpha 5.2.7",
   host: "Rat Lab Studio",
   date: {
-    day: 27,
-    month: 3,
+    day: 1,
+    month: 4,
     year: 2025,
   },
 };

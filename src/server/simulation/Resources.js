@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { GameObject } from "./objects/GameObject.js";
-import { InstancedObject } from "./objects/InstancedObject.js";
 
 export let objects = {
   box: new GameObject(
@@ -19,15 +18,6 @@ export let objects = {
       mass: 50,
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
     })
-  ),
-  iBox: new InstancedObject(
-    new THREE.BoxGeometry(2, 2, 2),
-    new THREE.MeshLambertMaterial({ color: 0x00cccc }),
-    new CANNON.Body({
-      mass: 50,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 1)),
-    }),
-    1000
   ),
   ball: new GameObject(
     new THREE.SphereGeometry(0.75, 16, 16),

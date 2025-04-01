@@ -34,4 +34,14 @@ export class CPU {
       resolution: { x: this.gpu.resolutionX, y: this.gpu.resolutionY },
     };
   }
+
+  // Displays an error message if the CPU encounters an error, to prevent the simulation from crashing
+  displayError(error) {
+    this.gpu.backgroundColor = "rgba(200, 0, 0)";
+    this.gpu.clear();
+    this.gpu.nextLine();
+    this.gpu.printString("Error:");
+    this.gpu.nextLine();
+    this.gpu.printString(error + "");
+  }
 }

@@ -18,20 +18,27 @@ export let game = {
   world: world,
 };
 
-export let objects = {};
-export let cpus = {};
+export let objects = {}; // All world GameObjects
+export let cpus = {}; // Physical CPU Objects
+export let cpuPairs = {}; // CPU Object and Simulated Computer Pair
 
 /////////////// Simulation Tick ///////////////
 
 setInterval(async function () {
   game.world.fixedStep(); // Update the physics world
 
+  // Update all GameObjects
   let objKeys = Object.keys(objects);
   for (let i = 0; i < objKeys.length; i++) objects[objKeys[i]].object.update();
 
+  // Update all CPUs
   let cpuKeys = Object.keys(Server.cpus);
   for (let i = 0; i < cpuKeys.length; i++) {
-    Server.cpus[cpuKeys[i]].update();
+    try {
+      Server.cpus[cpuKeys[i]].update();
+    } catch (e) {
+      Server.cpus[cpuKeys[i]].displayError(e);
+    }
   }
 
   updateRays();
@@ -86,13 +93,14 @@ export function reset() {
 
 export let currentRayPositions = {};
 
+// Manages all rays
 function updateRays() {
   let rayKeys = Object.keys(Server.activeRays);
   for (let i = 0; i < rayKeys.length; i++) {
     let currentRay = Server.activeRays[rayKeys[i]];
     currentRay.distanceTraveled += 0.25; // Will probably add delta time here
 
-    // Reconstruct the ray
+    // Reconstruct the ray for server use
     let threeRay = new THREE.Ray(currentRay.ray.origin, currentRay.ray.direction);
 
     // Prepare data for clients
@@ -111,8 +119,8 @@ function updateRays() {
     threeRay.at(100, endPoint);
     cRay.to.set(endPoint.x, endPoint.y, endPoint.z);
 
-    let closestIntersect = null;
-    let intersects = [];
+    let closestIntersect = null; // First object the ray hits
+    let intersects = []; // All objects the ray hits
 
     // Cycle through every game object
     for (let i = 0; i < game.world.bodies.length; i++) {
@@ -137,19 +145,23 @@ function updateRays() {
 
         // If the ray hits a player
         if (Server.playerBodyIds[closestIntersect.body.id]) {
-          Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health -= 10;
+          Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health -= 10; // Take health away from target
           if (Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health <= 0)
+            // Chat message
             Server.sendMessageToAllPlayers({
               message: `${Server.players[Server.playerBodyIds[closestIntersect.body.id]].username} was killed by ${Server.players[currentRay.sender].username}`,
               color: "orange",
             });
         }
-        
+
+        // If the ray hits a generic object
         else {
+          // Apply a force the object following the impulse direction of the ray
           closestIntersect.body.applyImpulse(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000), endPoint);
           closestIntersect.body.applyTorque(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000));
         }
 
+        // Delete the ray after it hits something
         delete Server.activeRays[rayKeys[i]];
         delete currentRayPositions[rayKeys[i]];
         continue;
@@ -167,6 +179,33 @@ function updateRays() {
 
 /////////////////////////////////////////////
 
+// Creates a CPU physical object and screen pair
+function createNewCpu(id = Object.keys(cpus).length, position = new THREE.Vector3(0, 0, 0), initialFunction) {
+  cpus[`cpu${id}`] = new NetworkObject(`cpu${id}`, "computer"); // Create the physical object
+  objects[cpus[`cpu${id}`].id] = cpus[`cpu${id}`]; // Add the object to the object list
+  cpus[`cpu${id}`].object.position.set(position.x, position.y, position.z); // Relocate the CPU
+  cpus[`cpu${id}`].object.addToGame(game);
+  cpus[`cpu${id}`].playerMovable = true; // CPUs are movable by players by default
+
+  // Create the simulated CPU
+  setTimeout(() => {
+    Server.createCpu(id);
+
+    cpuPairs[id] = {
+      networkObject: cpus[`cpu${id}`],
+      simulatedCpu: Server.cpus[id]
+    };
+
+    // Allows the CPU to run a function upon starting
+    try {
+      if (initialFunction)
+        initialFunction(id);
+    } catch (e) { // Handles errors within the starting function
+      Server.cpus[id].displayError(e);
+    }
+  }, 1000);
+}
+
 /////////////// Start of Program ///////////////
 
 function spawnBasicObjects() {
@@ -175,37 +214,15 @@ function spawnBasicObjects() {
   floor.object.position.set(0, -5, 0);
   floor.object.addToGame(game);
 
-  cpus["cpu0"] = new NetworkObject("cpu0", "computer");
-  objects[cpus["cpu0"].id] = cpus["cpu0"];
-  cpus["cpu0"].object.position.set(-4, -1, -20);
-  cpus["cpu0"].object.addToGame(game);
-  cpus["cpu0"].playerMovable = true;
+  createNewCpu(0, new THREE.Vector3(-4, -1, -20), (id) => { Server.cpus[id].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png"); });
+  createNewCpu(1, new THREE.Vector3(0, -1, -20), (id) => { Server.cpus[id].glitching = true; });
+  createNewCpu(2, new THREE.Vector3(4, -1, -20), (id) => {
+    Server.cpus[id].gpu.nextLine();
+    Server.cpus[id].gpu.printString("Simulation Running...");
+    Server.cpus[id].gpu.nextLine();
+  });
 
-  cpus["cpu1"] = new NetworkObject("cpu1", "computer");
-  objects[cpus["cpu1"].id] = cpus["cpu1"];
-  cpus["cpu1"].object.position.set(0, -1, -20);
-  cpus["cpu1"].object.addToGame(game);
-  cpus["cpu1"].playerMovable = true;
-
-  cpus["cpu2"] = new NetworkObject("cpu2", "computer");
-  objects[cpus["cpu2"].id] = cpus["cpu2"];
-  cpus["cpu2"].object.position.set(4, -1, -20);
-  cpus["cpu2"].object.addToGame(game);
-  cpus["cpu2"].playerMovable = true;
-
-  setTimeout(() => {
-    Server.createCpu(0);
-    Server.cpus[0].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
-
-    Server.createCpu(1);
-    Server.cpus[1].glitching = true;
-
-    Server.createCpu(2);
-    Server.cpus[2].gpu.nextLine();
-    Server.cpus[2].gpu.printString("Simulation Running...");
-    Server.cpus[2].gpu.nextLine();
-  }, 1000);
-
+  // Floating Crates:
   for (let i = 0; i < 10; i++) {
     let box = new NetworkObject("box" + i, "crate");
     objects[box.id] = box;

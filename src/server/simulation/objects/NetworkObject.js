@@ -13,6 +13,7 @@ export class NetworkObject {
         this.object.mesh.name = id;
     }
 
+    // Returns an object containing only necessary data to send to clients
     compress() {
         return {
             id: this.id,

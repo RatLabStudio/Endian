@@ -71,8 +71,13 @@ io.on("connection", (socket) => {
       });
       socket.emit("removePlayer", socket.id);
     }
-    delete playerBodyIds[players[socket.id].object.body.id];
-    delete players[socket.id];
+    try {
+      delete playerBodyIds[players[socket.id].object.body.id];
+      delete players[socket.id];
+    }
+    catch {
+      console.error(`Unable to delete player "${socket.id}"`);
+    }
   });
 
   /////////////////////////////////////////////
