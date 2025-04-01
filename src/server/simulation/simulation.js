@@ -134,6 +134,8 @@ function updateRays() {
 
       // Bullet travel
       if (closestIntersect.distance > currentRay.distanceTraveled - 0.25 && closestIntersect.distance < currentRay.distanceTraveled + 0.25) {
+
+        // If the ray hits a player
         if (Server.playerBodyIds[closestIntersect.body.id]) {
           Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health -= 10;
           if (Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health <= 0)
@@ -141,6 +143,11 @@ function updateRays() {
               message: `${Server.players[Server.playerBodyIds[closestIntersect.body.id]].username} was killed by ${Server.players[currentRay.sender].username}`,
               color: "orange",
             });
+        }
+        
+        else {
+          closestIntersect.body.applyImpulse(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000), endPoint);
+          closestIntersect.body.applyTorque(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000));
         }
 
         delete Server.activeRays[rayKeys[i]];

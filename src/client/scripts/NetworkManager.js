@@ -322,7 +322,7 @@ socket.on("rayUpdate", (rays) => {
 
     if (!currentRays[rayKeys[i]]) {
       // Wait to display the ray until it is not too close to the player
-      if (localPlayer.position.distanceTo(currentRay.position) > 2)
+      if (localPlayer.position.distanceTo(currentRay.position) > 2.5)
         currentRays[rayKeys[i]] = new Ray(currentRay.position, currentRay.direction, localPlayer.game);
       else continue;
     }
@@ -330,10 +330,11 @@ socket.on("rayUpdate", (rays) => {
     // Updating the position of the ray to reflect the server
     let oldPos = currentRays[rayKeys[i]].object.position;
     let newPos = currentRay.position;
+    let travelSpeed = 0.5;
     currentRays[rayKeys[i]].object.position.set(
-      oldPos.x + (newPos.x - oldPos.x) * 0.5,
-      oldPos.y + (newPos.y - oldPos.y) * 0.5,
-      oldPos.z + (newPos.z - oldPos.z) * 0.5
+      oldPos.x + (newPos.x - oldPos.x) * travelSpeed,
+      oldPos.y + (newPos.y - oldPos.y) * travelSpeed,
+      oldPos.z + (newPos.z - oldPos.z) * travelSpeed
     );
   }
 
