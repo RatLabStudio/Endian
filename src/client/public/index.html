@@ -1,352 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Endian Alpha - Rat Lab Studio</title>
-    <link rel="icon" href="assets/icon.png" />
-    <link rel="stylesheet" href="style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Megrim&display=swap"
-      rel="stylesheet"
-    />
 
-    <style>
-      .megrim-regular {
-        font-family: "Megrim", system-ui;
-        font-weight: 400;
-        font-style: normal;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Endian Alpha - Rat Lab Studio</title>
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet" />
+
+  <style>
+    .megrim-regular {
+      font-family: "Megrim", system-ui;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    html,
+    body {
+      user-select: none;
+      margin: 0;
+      color: white;
+      text-align: center;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .background {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-40%, -60%);
+      width: 130%;
+      height: 130%;
+      background-image: url("./assets/textures/gui/titleBackground.png");
+      background-size: cover;
+      filter: blur(5px);
+      z-index: 1;
+      animation: pan 60s alternate infinite;
+    }
+
+    .content {
+      z-index: 2;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    #title {
+      color: rgb(24, 24, 24);
+      -webkit-text-fill-color: rgb(24, 24, 24);
+      font-size: 16vh;
+      -webkit-text-stroke-width: 0.25vh;
+      -webkit-text-stroke-color: lime;
+      text-shadow: 0px 0px 3vh rgba(0, 255, 0, 0.5);
+      margin-bottom: 0;
+      font-family: neonlight;
+    }
+
+    #subtitle {
+      margin: 0;
+    }
+
+    .buttonContainer {
+      width: 60%;
+      margin-left: 50%;
+      transform: translate(-50%);
+    }
+
+    .buttonContainer button {
+      width: 50%;
+    }
+
+    button {
+      padding: 2.25vh 2.5vh 1.5vh 2.5vh;
+      margin: 1.5vh;
+      background-color: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(100px);
+      -webkit-backdrop-filter: blur(100px);
+      border: solid 1px aqua;
+      border-radius: 1vh;
+      color: white;
+      font-size: 3vh;
+      letter-spacing: 0.5vh;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    button:disabled {
+      filter: opacity(50%);
+    }
+
+    button:disabled:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    button:hover {
+      background-color: rgba(25, 25, 25, 0.75);
+    }
+
+    button:active {
+      background-color: rgba(255, 255, 255, 0.35);
+    }
+
+    #versionInfo {
+      position: absolute;
+      bottom: 1vh;
+      left: 1vh;
+      margin: 0;
+      font-family: pixel;
+      font-size: 2vh;
+    }
+
+    #copyrightInfo {
+      position: absolute;
+      bottom: 1vh;
+      right: 1vh;
+      margin: 0;
+      font-family: pixel;
+      font-size: 2vh;
+    }
+
+    @keyframes pan {
+      0% {
+        transform: translate(-40%, -50%);
       }
 
-      html,
-      body {
-        user-select: none;
-        margin: 0;
-        color: white;
-        text-align: center;
-        height: 100%;
-        overflow: hidden;
+      100% {
+        transform: translate(-60%, -60%);
       }
+    }
 
-      .background {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-40%, -60%);
-        width: 130%;
-        height: 130%;
-        background-image: url("./assets/textures/gui/titleBackground.png");
-        background-size: cover;
-        filter: blur(5px);
-        z-index: 1;
-        animation: pan 60s alternate infinite;
-      }
+    .selected {
+      color: lime;
+      font-weight: bold;
+    }
 
-      .content {
-        z-index: 2;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-      }
+    .panel .content {
+      position: absolute;
+      top: 5vh;
+      left: 5vh;
+      margin: 0;
+      text-align: left;
+      font-family: pixel;
+      color: white;
+      width: fit-content;
+    }
 
-      #title {
-        color: rgb(24, 24, 24);
-        -webkit-text-fill-color: rgb(24, 24, 24);
-        font-size: 16vh;
-        -webkit-text-stroke-width: 0.25vh;
-        -webkit-text-stroke-color: lime;
-        text-shadow: 0px 0px 3vh rgba(0, 255, 0, 0.5);
-        margin-bottom: 0;
-        font-family: neonlight;
-      }
+    .panel h1 {
+      margin: 0;
+      font-size: 4vh;
+      color: lime;
+    }
 
-      #subtitle {
-        margin: 0;
-      }
+    .panel p {
+      font-size: 3vh;
+    }
 
-      .buttonContainer {
-        width: 60%;
-        margin-left: 50%;
-        transform: translate(-50%);
-      }
+    .panel input {
+      background-color: black;
+      border: solid 2px white;
+      font-size: 4vh;
+      color: lime;
+      font-family: pixel;
+      padding: 2vh;
+    }
+  </style>
+</head>
 
-      .buttonContainer button {
-        width: 50%;
-      }
+<body>
+  <div class="content">
+    <!-- Title Content -->
+    <h1 id="title" class="megrim-regular">
+      Endia<span class="flicker">n</span>
+    </h1>
+    <h2 id="subtitle" class="megrim-regular">Rat Lab Studio</h2>
+    <br /><br /><br /><br />
 
-      button {
-        padding: 2.25vh 2.5vh 1.5vh 2.5vh;
-        margin: 1.5vh;
-        background-color: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(100px);
-        -webkit-backdrop-filter: blur(100px);
-        border: solid 1px aqua;
-        border-radius: 1vh;
-        color: white;
-        font-size: 3vh;
-        letter-spacing: 0.5vh;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
-        z-index: 2;
-      }
+    <!-- Title Buttons -->
+    <div class="buttonContainer">
+      <button disabled style="visibility: hidden" onclick="window.open('game.html?offline', '_self')">
+        Singleplayer
+      </button>
+      <br />
+      <button onclick="selectServer();">Multiplayer</button>
+      <br />
+      <button onclick="document.getElementById('settingsPanel').style.visibility = 'unset'">
+        Settings
+      </button>
+      <br />
+      <button onclick="window.open('https://ratlabstudio.com', '_self')">
+        Rat Lab Studio
+      </button>
+    </div>
 
-      button:disabled {
-        filter: opacity(50%);
-      }
+    <!-- Version Information -->
+    <p id="versionInfo">Alpha v5</p>
+    <p id="copyrightInfo">Copyright Rat Lab Studio 2024</p>
 
-      button:disabled:hover {
-        background-color: rgba(255, 255, 255, 0.25);
-      }
-
-      button:hover {
-        background-color: rgba(25, 25, 25, 0.75);
-      }
-
-      button:active {
-        background-color: rgba(255, 255, 255, 0.35);
-      }
-
-      #versionInfo {
-        position: absolute;
-        bottom: 1vh;
-        left: 1vh;
-        margin: 0;
-        font-family: pixel;
-        font-size: 2vh;
-      }
-
-      #copyrightInfo {
-        position: absolute;
-        bottom: 1vh;
-        right: 1vh;
-        margin: 0;
-        font-family: pixel;
-        font-size: 2vh;
-      }
-
-      @keyframes pan {
-        0% {
-          transform: translate(-40%, -50%);
-        }
-
-        100% {
-          transform: translate(-60%, -60%);
-        }
-      }
-
-      .selected {
-        color: lime;
-        font-weight: bold;
-      }
-
-      .panel .content {
-        position: absolute;
-        top: 5vh;
-        left: 5vh;
-        margin: 0;
-        text-align: left;
-        font-family: pixel;
-        color: white;
-        width: fit-content;
-      }
-
-      .panel h1 {
-        margin: 0;
-        font-size: 4vh;
-        color: lime;
-      }
-
-      .panel p {
-        font-size: 3vh;
-      }
-
-      .panel input {
-        background-color: black;
-        border: solid 2px white;
-        font-size: 4vh;
-        color: lime;
-        font-family: pixel;
-        padding: 2vh;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="content">
-      <!-- Title Content -->
-      <h1 id="title" class="megrim-regular">
-        Endia<span class="flicker">n</span>
-      </h1>
-      <h2 id="subtitle" class="megrim-regular">Rat Lab Studio</h2>
-      <br /><br /><br /><br />
-
-      <!-- Title Buttons -->
-      <div class="buttonContainer">
-        <button
-          disabled
-          style="visibility: hidden"
-          onclick="window.open('game.html?offline', '_self')"
-        >
-          Singleplayer
-        </button>
-        <br />
-        <button onclick="selectServer();">Multiplayer</button>
-        <br />
-        <button
-          onclick="document.getElementById('settingsPanel').style.visibility = 'unset'"
-        >
-          Settings
-        </button>
-        <br />
-        <button onclick="window.open('https://ratlabstudio.com', '_self')">
-          Rat Lab Studio
-        </button>
-      </div>
-
-      <!-- Version Information -->
-      <p id="versionInfo">Alpha v5</p>
-      <p id="copyrightInfo">Copyright Rat Lab Studio 2024</p>
-
-      <!-- Username Selection Panel -->
-      <div class="panel" id="newUserPanel" style="visibility: hidden">
-        <div class="panelBackground"></div>
-        <button
-          class="closePanel"
-          onclick="document.getElementById('newUserPanel').style.visibility = 'hidden'"
-        >
-          Back
-        </button>
-        <div class="content">
-          <h1>Please Enter a Name:</h1>
-          <p>This name will be seen by other players</p>
-          <br /><br />
-          <input id="usernameInput" type="text" placeholder="Username" />
-          <br /><br /><br /><br />
-          <button onclick="playMultiplayer();">Join Server</button>
-        </div>
-      </div>
-
-      <!-- Server Selection Panel -->
-      <div class="panel" id="serverSelectPanel" style="visibility: hidden">
-        <div class="panelBackground"></div>
-        <button
-          class="closePanel"
-          onclick="document.getElementById('serverSelectPanel').style.visibility = 'hidden'"
-        >
-          Back
-        </button>
-        <div class="content">
-          <h1>Select a Server:</h1>
-          <p>Default Servers:</p>
-          <button class="serverOption" id="server-70.125.50.214">
-            Rat Lab Alpha Server
-          </button>
-          <button class="serverOption" id="server-localhost">
-            Local Server
-          </button>
-          <br /><br />
-          <p>You can enter a custom server address here:</p>
-          <input
-            id="serverInput"
-            type="text"
-            placeholder="0.0.0.0"
-            style="color: white"
-          />
-          <br /><br /><br /><br />
-          <button onclick="playMultiplayer();">Join</button>
-        </div>
-      </div>
-
-      <!-- Settings Panel -->
-      <div class="panel" id="settingsPanel" style="visibility: hidden">
-        <div class="panelBackground"></div>
-        <button
-          class="closePanel"
-          onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'"
-        >
-          Back
-        </button>
-        <iframe src="./settings.html"></iframe>
+    <!-- Username Selection Panel -->
+    <div class="panel" id="newUserPanel" style="visibility: hidden">
+      <div class="panelBackground"></div>
+      <button class="closePanel" onclick="document.getElementById('newUserPanel').style.visibility = 'hidden'">
+        Back
+      </button>
+      <div class="content">
+        <h1>Please Enter a Name:</h1>
+        <p>This name will be seen by other players</p>
+        <br /><br />
+        <input id="usernameInput" type="text" placeholder="Username" />
+        <br /><br /><br /><br />
+        <button onclick="playMultiplayer();">Join Server</button>
       </div>
     </div>
 
-    <div class="background" style="transform: translate(-40%, -60%)"></div>
+    <!-- Server Selection Panel -->
+    <div class="panel" id="serverSelectPanel" style="visibility: hidden">
+      <div class="panelBackground"></div>
+      <button class="closePanel" onclick="document.getElementById('serverSelectPanel').style.visibility = 'hidden'">
+        Back
+      </button>
+      <div class="content">
+        <h1>Select a Server:</h1>
+        <p>Default Servers:</p>
+        <button class="serverOption" id="server-70.125.50.214">
+          Rat Lab Alpha Server
+        </button>
+        <button class="serverOption" id="server-localhost">
+          Local Server
+        </button>
+        <br /><br />
+        <p>You can enter a custom server address here:</p>
+        <input id="serverInput" type="text" placeholder="0.0.0.0" style="color: white" />
+        <br /><br /><br /><br />
+        <button onclick="playMultiplayer();">Join</button>
+      </div>
+    </div>
 
-    <script type="module">
-      // Version Information
-      import { info } from "../scripts/versionInfo.js";
-      import * as Settings from "../scripts/settings.js";
-      document.getElementById("versionInfo").innerHTML = `${info.version}`;
-      document.getElementById("copyrightInfo").innerHTML = `Rat Lab Studio ${info.date.year}`;
+    <!-- Settings Panel -->
+    <div class="panel" id="settingsPanel" style="visibility: hidden">
+      <div class="panelBackground"></div>
+      <button class="closePanel" onclick="document.getElementById('settingsPanel').style.visibility = 'hidden'">
+        Back
+      </button>
+      <iframe src="./settings.html"></iframe>
+    </div>
+  </div>
 
-      // Flickers the text in the logo
-      let flickerElements = document.getElementsByClassName("flicker");
-      setInterval(function () {
-        for (let i = 0; i < flickerElements.length; i++) {
-          let elem = flickerElements[i];
-          if (Math.floor(Math.random() * 100) >= 60) {
-            elem.style.webkitTextStrokeColor = "black";
-            setTimeout(function () {
-              elem.style.webkitTextStrokeColor = "lime";
-            }, 200);
-          }
+  <div class="background" style="transform: translate(-40%, -60%)"></div>
+
+  <script type="module">
+    // Version Information
+    import { info } from "../scripts/versionInfo.js";
+    import * as Settings from "../scripts/settings.js";
+    document.getElementById("versionInfo").innerHTML = `${info.version}`;
+    document.getElementById("copyrightInfo").innerHTML = `Rat Lab Studio ${info.date.year}`;
+
+    // Flickers the text in the logo
+    let flickerElements = document.getElementsByClassName("flicker");
+    setInterval(function () {
+      for (let i = 0; i < flickerElements.length; i++) {
+        let elem = flickerElements[i];
+        if (Math.floor(Math.random() * 100) >= 60) {
+          elem.style.webkitTextStrokeColor = "black";
+          setTimeout(function () {
+            elem.style.webkitTextStrokeColor = "lime";
+          }, 200);
         }
-      }, 3000);
-
-      Settings.loadAllSettings();
-      let usernameInput = document.getElementById("usernameInput");
-
-      function playMultiplayer() {
-        // Saves the user's name input to localstorage
-        if (usernameInput.value.length > 0) {
-          Settings.settings.username = usernameInput.value;
-          Settings.saveAllSettings();
-        }
-
-        document.getElementById("serverSelectPanel").style.visibility =
-          "hidden";
-
-        // If the user doesn't have a name, prompt them to provide one
-        if (!Settings.settings.username || Settings.settings.username == "User")
-          document.getElementById("newUserPanel").style.visibility = "unset";
-        else window.open(`game.html?ip=${selectedServer}`, "_self"); // Load the game and provide the IP
       }
-      window.playMultiplayer = playMultiplayer;
+    }, 3000);
 
-      function selectServer() {
-        document.getElementById("serverSelectPanel").style.visibility = "unset";
-      }
-      window.selectServer = selectServer;
+    Settings.loadAllSettings();
+    let usernameInput = document.getElementById("usernameInput");
 
-      let selectedServer = "localhost"; // Localhost is default server
-      let serverOptions = document.getElementsByClassName("serverOption"); // Get server option buttons
-
-      // Reset selection (sets to first option after as default, but not visually)
-      function clearSelection() {
-        for (let j = 0; j < serverOptions.length; j++)
-          serverOptions[j].classList.remove("selected");
-        document.getElementById("serverInput").style.color = "white"; // Deselect input visually
-        selectedServer = serverOptions[0].id.replace("server-", ""); // Default to first option
-      }
-      clearSelection();
-      serverOptions[0].classList.add("selected"); // Visually select the first option by default
-
-      for (let i = 0; i < serverOptions.length; i++) {
-        serverOptions[i].addEventListener("click", function (e) {
-          clearSelection();
-          e.target.classList.add("selected"); // Visually select the clicked option
-          selectedServer = e.target.id.replace("server-", ""); // Get the server ip from the ID of the button (format: server-0.0.0.0)
-        });
+    function playMultiplayer() {
+      // Saves the user's name input to localstorage
+      if (usernameInput.value.length > 0) {
+        Settings.settings.username = usernameInput.value;
+        Settings.saveAllSettings();
       }
 
-      // Check if the user types something in the server input, and selects it
-      document.getElementById("serverInput").addEventListener("input", (e) => {
+      document.getElementById("serverSelectPanel").style.visibility =
+        "hidden";
+
+      // If the user doesn't have a name, prompt them to provide one
+      if (!Settings.settings.username || Settings.settings.username == "User")
+        document.getElementById("newUserPanel").style.visibility = "unset";
+      else window.open(`game.html?ip=${selectedServer}`, "_self"); // Load the game and provide the IP
+    }
+    window.playMultiplayer = playMultiplayer;
+
+    function selectServer() {
+      document.getElementById("serverSelectPanel").style.visibility = "unset";
+    }
+    window.selectServer = selectServer;
+
+    let selectedServer = "localhost"; // Localhost is default server
+    let serverOptions = document.getElementsByClassName("serverOption"); // Get server option buttons
+
+    // Reset selection (sets to first option after as default, but not visually)
+    function clearSelection() {
+      for (let j = 0; j < serverOptions.length; j++)
+        serverOptions[j].classList.remove("selected");
+      document.getElementById("serverInput").style.color = "white"; // Deselect input visually
+      selectedServer = serverOptions[0].id.replace("server-", ""); // Default to first option
+    }
+    clearSelection();
+    serverOptions[0].classList.add("selected"); // Visually select the first option by default
+
+    for (let i = 0; i < serverOptions.length; i++) {
+      serverOptions[i].addEventListener("click", function (e) {
         clearSelection();
-        selectedServer = e.target.value;
-        e.target.style.color = "lime";
+        e.target.classList.add("selected"); // Visually select the clicked option
+        selectedServer = e.target.id.replace("server-", ""); // Get the server ip from the ID of the button (format: server-0.0.0.0)
       });
-    </script>
-  </body>
+    }
+
+    // Check if the user types something in the server input, and selects it
+    document.getElementById("serverInput").addEventListener("input", (e) => {
+      clearSelection();
+      selectedServer = e.target.value;
+      e.target.style.color = "lime";
+    });
+  </script>
+</body>
+
 </html>

@@ -12,6 +12,7 @@
         margin: 0vh;
         background-color: transparent;
         height: 100%;
+        overflow-y: scroll;
       }
 
       h1 {
@@ -22,6 +23,13 @@
       }
 
       h2 {
+        margin: 4vh;
+        font-size: 5vh;
+        color: #E5C53E;
+        font-family: pixel;
+      }
+
+      h3 {
         font-family: pixel;
       }
 
@@ -88,6 +96,12 @@
         cursor: pointer;
         border: solid 2px white;
       }
+
+      .clearSettingsButton {
+        position: absolute;
+        bottom: 3vh;
+        right: 1vh;
+      }
     </style>
   </head>
 
@@ -95,6 +109,8 @@
     <h1>Settings</h1>
 
     <div id="settingsContainer"></div>
+
+    <button class="clearSettingsButton" onclick="clearAllSettings()">Clear All Settings</button>
 
     <script type="module">
       import * as Settings from "../scripts/settings.js";
@@ -105,9 +121,14 @@
       let toggles = [];
       let sliders = [];
 
+      function createLabel(name) {
+        settingsContainer.innerHTML += `<h2>${name}</h2>`;
+      }
+
       function createToggle(name, value) {
         settingsContainer.innerHTML += `
           <button class="toggle" id="toggle${name.replace(" ", "-")}">${name}: Undefined</button>
+          <br><br>
         `;
         toggles = document.getElementsByClassName("toggle");
       }
@@ -127,19 +148,25 @@
       function createSlider(name, min, max, step, value) {
         settingsContainer.innerHTML += `
                 <div class="slidecontainer">
-                    <h2>${name}: <span id="${name.replace(" ", "-")}-display">${value}</span></h2>
+                    <h3>${name}: <span id="${name.replace(" ", "-")}-display">${value}</span></h3>
                     <input type="range" min="${min}" max="${max}" step="${step}" value="${value}" class="slider" id="${name.replace(" ", "-")}">
-                    <br><br>
+                    <br><br><br>
                 </div>
             `;
         sliders = document.getElementsByClassName("slider");
       }
+
+      createLabel("Video Settings");
 
       createToggle("Post Processing", Settings.settings["post-processing"]);
       createToggle("Use WebGPU", Settings.settings.usewebgpu);
 
       createSlider("FOV", 51, 100, 1, 70);
       createSlider("Resolution", 0.1, 2, 0.1, 1);
+
+      createToggle("Bloom", Settings.settings.bloom);
+      createToggle("Pixelated Effect", Settings.settings.pixelatedEffect);
+      createToggle("Film Effect", Settings.settings.filmEffect);
 
       // Toggle Event Listeners
       for (let i = 0; i < toggles.length; i++) {

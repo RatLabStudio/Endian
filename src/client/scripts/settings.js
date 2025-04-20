@@ -3,7 +3,10 @@ export let settings = {
     "resolution": 1,
     "postprocessing": 1,
     "username": "User",
-    "usewebgpu": 0
+    "usewebgpu": 0,
+    "bloom": 1,
+    "pixelatedEffect": 1,
+    "filmEffect": 1,
 };
 export let settingsKeys = Object.keys(settings);
 
@@ -29,3 +32,9 @@ export function loadSetting(setting) {
         settings[setting] = localStorage.getItem(setting);
     }
 }
+
+export function clearAllSettings() {
+    localStorage.clear();
+    window.location.reload();
+}
+window.clearAllSettings = clearAllSettings;
