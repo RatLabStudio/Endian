@@ -5,8 +5,8 @@ export let settings = {
     "username": "User",
     "usewebgpu": 0,
     "bloom": 1,
-    "pixelatedEffect": 1,
-    "filmEffect": 1,
+    "pixelatedeffect": 1,
+    "filmeffect": 1,
 };
 export let settingsKeys = Object.keys(settings);
 

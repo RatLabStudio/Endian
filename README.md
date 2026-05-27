@@ -1,6 +1,6 @@
 # Project Endian
 
-_Alpha v5.2.6_
+_Alpha v5.2.8_
 
 ![Picture of the game Endian](/project-files/images/gamePhoto.PNG)
 

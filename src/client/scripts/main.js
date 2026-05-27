@@ -105,20 +105,25 @@ guiComposer.addPass(guiRenderPass);
 
 if (Settings.settings["postprocessing"] > 0) {
   const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.2, 0.1);
-  //composer.addPass(unrealBloomPass);
-  //guiComposer.addPass(unrealBloomPass);
-
-  const pixelatedPass = new RenderPixelatedPass(window.innerWidth / 768, scene, player.camera);
-  //composer.addPass(pixelatedPass);
-  //guiComposer.addPass(new RenderPixelatedPass(window.innerWidth / 768, guiScene, guiCamera));
-
-  const filmPass = new FilmPass(window.innerWidth / 3000, false);
-  //composer.addPass(filmPass);
-  //guiComposer.addPass(filmPass);
-
   const bloomPass = new BloomPass(1, 5, 0.5);
-  //composer.addPass(bloomPass);
-  //guiComposer.addPass(bloomPass);
+  if (Settings.settings.bloom > 0) {
+    composer.addPass(unrealBloomPass);
+    guiComposer.addPass(unrealBloomPass);
+    composer.addPass(bloomPass);
+    guiComposer.addPass(bloomPass);
+  }
+
+  if (Settings.settings.pixelatedeffect > 0) {
+    const pixelatedPass = new RenderPixelatedPass(window.innerWidth / 768, scene, player.camera);
+    composer.addPass(pixelatedPass);
+    guiComposer.addPass(new RenderPixelatedPass(window.innerWidth / 768, guiScene, guiCamera));
+  }
+
+  if (Settings.settings.filmeffect > 0) {
+    const filmPass = new FilmPass(window.innerWidth / 3000, false);
+    composer.addPass(filmPass);
+    guiComposer.addPass(filmPass);
+  }
 
   const outputPass = new OutputPass();
   composer.addPass(outputPass);
