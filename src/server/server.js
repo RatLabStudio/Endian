@@ -74,8 +74,7 @@ io.on("connection", (socket) => {
     try {
       delete playerBodyIds[players[socket.id].object.body.id];
       delete players[socket.id];
-    }
-    catch {
+    } catch {
       console.error(`Unable to delete player "${socket.id}"`);
     }
   });
@@ -103,11 +102,26 @@ io.on("connection", (socket) => {
     let compressedPlayers = {};
     for (let i = 0; i < playerKeys.length; i++) compressedPlayers[playerKeys[i]] = players[playerKeys[i]].getData();
 
+    // Compress constructs
+    let constructKeys = Object.keys(Simulation.constructs);
+    let compressedConstructs = {};
+    for (let i = 0; i < constructKeys.length; i++) compressedConstructs[constructKeys[i]] = Simulation.constructs[constructKeys[i]].compress();
+
     // Send Data
     socket.emit("sendSimulationSceneForView", {
       objects: compressedObjs,
       players: compressedPlayers,
+      constructs: compressedConstructs,
     });
+  });
+
+  // Constructs
+  socket.on("requestAllConstructs", () => {
+    // Compress constructs
+    let constructKeys = Object.keys(Simulation.constructs);
+    let compressedConstructs = {};
+    for (let i = 0; i < constructKeys.length; i++) compressedConstructs[constructKeys[i]] = Simulation.constructs[constructKeys[i]].compress();
+    socket.emit("sendAllConstructs", compressedConstructs);
   });
 
   /////////////// Networked Objects ///////////////

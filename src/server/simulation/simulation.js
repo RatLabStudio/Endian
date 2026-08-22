@@ -5,6 +5,8 @@ import * as CANNON from "cannon-es";
 
 import * as Server from "../server.js";
 import { NetworkObject } from "./objects/NetworkObject.js";
+import { Construct } from "./objects/Construct.js";
+import { GameObject } from "./objects/GameObject.js";
 
 let scene = new THREE.Scene(); // This can be sent to a client later!
 
@@ -19,6 +21,7 @@ export let game = {
 };
 
 export let objects = {}; // All world GameObjects
+export let constructs = {};
 export let cpus = {}; // Physical CPU Objects
 export let cpuPairs = {}; // CPU Object and Simulated Computer Pair
 
@@ -68,6 +71,7 @@ export function reset() {
   };
 
   objects = {};
+  constructs = {};
   cpus = {};
 
   setTimeout(function () {
@@ -142,7 +146,6 @@ function updateRays() {
 
       // Bullet travel
       if (closestIntersect.distance > currentRay.distanceTraveled - 0.25 && closestIntersect.distance < currentRay.distanceTraveled + 0.25) {
-
         // If the ray hits a player
         if (Server.playerBodyIds[closestIntersect.body.id]) {
           Server.playerInfo[Server.playerBodyIds[closestIntersect.body.id]].health -= 10; // Take health away from target
@@ -157,8 +160,13 @@ function updateRays() {
         // If the ray hits a generic object
         else {
           // Apply a force the object following the impulse direction of the ray
-          closestIntersect.body.applyImpulse(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000), endPoint);
-          closestIntersect.body.applyTorque(new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000));
+          closestIntersect.body.applyImpulse(
+            new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000),
+            endPoint,
+          );
+          closestIntersect.body.applyTorque(
+            new CANNON.Vec3(currentRay.ray.direction.x * 1000, currentRay.ray.direction.y * 1000, currentRay.ray.direction.z * 1000),
+          );
         }
 
         // Delete the ray after it hits something
@@ -193,14 +201,14 @@ function createNewCpu(id = Object.keys(cpus).length, position = new THREE.Vector
 
     cpuPairs[id] = {
       networkObject: cpus[`cpu${id}`],
-      simulatedCpu: Server.cpus[id]
+      simulatedCpu: Server.cpus[id],
     };
 
     // Allows the CPU to run a function upon starting
     try {
-      if (initialFunction)
-        initialFunction(id);
-    } catch (e) { // Handles errors within the starting function
+      if (initialFunction) initialFunction(id);
+    } catch (e) {
+      // Handles errors within the starting function
       Server.cpus[id].displayError(e);
     }
   }, 1000);
@@ -214,8 +222,12 @@ function spawnBasicObjects() {
   floor.object.position.set(0, -5, 0);
   floor.object.addToGame(game);
 
-  createNewCpu(0, new THREE.Vector3(-4, -1, -20), (id) => { Server.cpus[id].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png"); });
-  createNewCpu(1, new THREE.Vector3(0, -1, -20), (id) => { Server.cpus[id].glitching = true; });
+  createNewCpu(0, new THREE.Vector3(-4, -1, -20), (id) => {
+    Server.cpus[id].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
+  });
+  createNewCpu(1, new THREE.Vector3(0, -1, -20), (id) => {
+    Server.cpus[id].glitching = true;
+  });
   createNewCpu(2, new THREE.Vector3(4, -1, -20), (id) => {
     Server.cpus[id].gpu.nextLine();
     Server.cpus[id].gpu.printString("Simulation Running...");
@@ -230,6 +242,27 @@ function spawnBasicObjects() {
     box.object.position.y = i * 10;
     box.object.addToGame(game);
   }
+
+  let con1 = new Construct(
+    "conTest",
+    [
+      {
+        shape: [60, 5, 60],
+        position: new THREE.Vector3(0, 0, 0),
+        quaternion: new CANNON.Quaternion(0, 0, 0, 0)
+      },
+      {
+        shape: [60, 30, 3],
+        position: new THREE.Vector3(0, 17.5, -28.5),
+        quaternion: new CANNON.Quaternion(0, 0, 0, 0)
+      }
+    ],
+    new THREE.Vector3(-60, -5, 0),
+    new THREE.Quaternion(0, 0, 0, 1),
+    game,
+  );
+
+  constructs["con1"] = con1;
 }
 
 reset();

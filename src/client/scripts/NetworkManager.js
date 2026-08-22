@@ -9,6 +9,7 @@ import { ModelObject } from "./classes/ModelObject.js";
 import * as State from "./state.js";
 import * as UI from "./ui.js";
 import { Ray } from "./classes/Ray.js";
+import { Construct } from "./classes/Construct.js";
 
 let ip = "localhost";
 
@@ -18,6 +19,8 @@ let newIp = urlParams.get("ip");
 
 if (newIp) ip = newIp; // Public Server
 let socket = io(`http://${ip}:3000`);
+
+let loadedConstructs = false;
 
 // Make sure the client waits for player initialization to connect
 State.setState("connecting_to_server");
@@ -32,6 +35,8 @@ export let playerList = {}; // List of players shared from the server
 let playerObjs = {}; // List of physical player objects
 
 export let objs = [];
+
+export let constructs = {};
 
 export let cpuDisplays = {};
 
@@ -49,6 +54,7 @@ socket.on("connect", () => {
   console.log(`Connected with ID: ${socket.id}`);
   localPlayer.networkId = socket.id;
   connected = true;
+  socket.emit("requestAllConstructs");
 });
 
 socket.on("disconnect", () => {
@@ -81,7 +87,7 @@ function createPlayerObj(newPlayer) {
       mass: 0,
       shape: new CANNON.Cylinder(0.6, 0.6, 1.5, 8),
     }),
-    localPlayer.game
+    localPlayer.game,
   );
   playerObjs[newPlayer.networkId].bodyOffset.y = -0.25;
 }
@@ -219,7 +225,7 @@ socket.on("receiveAllCpuLocations", (data) => {
   for (let i = 0; i < dataKeys.length; i++) {
     // Determine how far away the monitor is
     let distance = Math.floor(
-      Math.abs(data[dataKeys[i]].x - localPlayer.position.x + data[dataKeys[i]].y - localPlayer.position.y + data[dataKeys[i]].z - localPlayer.position.z)
+      Math.abs(data[dataKeys[i]].x - localPlayer.position.x + data[dataKeys[i]].y - localPlayer.position.y + data[dataKeys[i]].z - localPlayer.position.z),
     );
     // Only nearby monitors are rendered
     if (distance < 100) nearbyCpus[dataKeys[i]] = true;
@@ -241,7 +247,7 @@ socket.on("receiveCpuData", (data) => {
         localPlayer.game, // Game to place the monitor in
         localPlayer.game.cssScene, // CSS scene to display the screen content
         data[dataKeys[i]].resolution.x, // Resolution of the screen
-        data[dataKeys[i]].resolution.y
+        data[dataKeys[i]].resolution.y,
       );
     }
 
@@ -334,7 +340,7 @@ socket.on("rayUpdate", (rays) => {
     currentRays[rayKeys[i]].object.position.set(
       oldPos.x + (newPos.x - oldPos.x) * travelSpeed,
       oldPos.y + (newPos.y - oldPos.y) * travelSpeed,
-      oldPos.z + (newPos.z - oldPos.z) * travelSpeed
+      oldPos.z + (newPos.z - oldPos.z) * travelSpeed,
     );
   }
 
@@ -347,4 +353,13 @@ socket.on("rayUpdate", (rays) => {
       delete currentRays[currentRayKeys[i]];
     }
   }
+});
+
+socket.on("sendAllConstructs", (newConstructs) => {
+  let cKeys = Object.keys(newConstructs);
+  for (let i = 0; i < cKeys.length; i++) {
+    let c = newConstructs[cKeys[i]];
+    constructs[cKeys[i]] = new Construct(c.id, c.objs, c.position, new CANNON.Quaternion(0, 0, 0, 0), localPlayer.game);
+  }
+  loadedConstructs = true;
 });

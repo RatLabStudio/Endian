@@ -11,8 +11,7 @@ import * as Resources from "./Resources.js";
 
 var debuggerEnabled = false;
 
-if (!localStorage.getItem("debugMode"))
-  localStorage.setItem("debugMode", "false");
+if (!localStorage.getItem("debugMode")) localStorage.setItem("debugMode", "false");
 else if (localStorage.getItem("debugMode") == "true") {
   debuggerEnabled = true;
   document.getElementById("toggleDebugger").classList.add("enabled");
@@ -20,11 +19,7 @@ else if (localStorage.getItem("debugMode") == "true") {
 
 /////////////// IP Management ///////////////
 
-if (!localStorage.getItem("ip") || localStorage.getItem("ip") == "null")
-  localStorage.setItem(
-    "ip",
-    prompt("What Endian Server would you like to view?")
-  );
+if (!localStorage.getItem("ip") || localStorage.getItem("ip") == "null") localStorage.setItem("ip", prompt("What Endian Server would you like to view?"));
 
 let ip = localStorage.getItem("ip");
 //let ip = "192.168.1.254"; // Home PC
@@ -37,6 +32,7 @@ document.getElementById("ip").innerHTML = ip;
 
 let objs = {};
 let players = {};
+let cons = {};
 
 // FPS Counter Creation
 let stats = new Stats();
@@ -58,12 +54,7 @@ let game = {
 
 let cannonDebugger = new CannonDebugger(scene, world, {});
 
-let camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 let renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -100,12 +91,14 @@ socket.on("sendSimulationSceneForView", (data) => {
   let newPlayers = data.players;
   let newPlayerKeys = Object.keys(newPlayers);
 
+  let conKeys = Object.keys(data.constructs);
+  let newCons = data.constructs;
+  let newConKeys = Object.keys(newCons);
+
   // Update Objects
   for (let i = 0; i < newObjKeys.length; i++) {
     if (!objs[newObjKeys[i]]) {
-      objs[newObjKeys[i]] = Resources.createObject(
-        newObjs[newObjKeys[i]].resourceId
-      );
+      objs[newObjKeys[i]] = Resources.createObject(newObjs[newObjKeys[i]].resourceId);
       scene.add(objs[newObjKeys[i]].mesh);
       objs[newObjKeys[i]].body.mass = 0;
       world.addBody(objs[newObjKeys[i]].body);
@@ -136,16 +129,10 @@ socket.on("sendSimulationSceneForView", (data) => {
       world.addBody(players[newPlayerKeys[i]].body);
     }
 
-    players[newPlayerKeys[i]].mesh.position.copy(
-      newPlayers[newPlayerKeys[i]].position
-    );
-    players[newPlayerKeys[i]].body.position.copy(
-      newPlayers[newPlayerKeys[i]].position
-    );
+    players[newPlayerKeys[i]].mesh.position.copy(newPlayers[newPlayerKeys[i]].position);
+    players[newPlayerKeys[i]].body.position.copy(newPlayers[newPlayerKeys[i]].position);
 
-    players[newPlayerKeys[i]].mesh.rotation.copy(
-      newPlayers[newPlayerKeys[i]].rotation
-    );
+    players[newPlayerKeys[i]].mesh.rotation.copy(newPlayers[newPlayerKeys[i]].rotation);
     players[newPlayerKeys[i]].mesh.rotation.x = 0; // Keep the player upright
     players[newPlayerKeys[i]].body.quaternion.x = 0;
     players[newPlayerKeys[i]].body.quaternion.y = 0;
@@ -158,6 +145,27 @@ socket.on("sendSimulationSceneForView", (data) => {
       scene.remove(players[playerKeys[i]].mesh);
       world.removeBody(players[playerKeys[i]].body);
       delete players[playerKeys[i]];
+    }
+  }
+
+  // Update Constructs
+  for (let i = 0; i < newConKeys.length; i++) {
+    let con = data.constructs[newConKeys[i]];
+    let conObjKeys = Object.keys(con.objs);
+    if (!cons[newConKeys[i]]) {
+      cons[newConKeys[i]] = con;
+      for (let c = 0; c < conObjKeys.length; c++) {
+        let o = con.objs[conObjKeys[c]];
+        o.mesh = new THREE.Mesh(new THREE.BoxGeometry(o.scale.x * 2, o.scale.y * 2, o.scale.z * 2), new THREE.MeshLambertMaterial({ color: 0x00ff99 }));
+        o.mesh.position.set(o.position.x, o.position.y, o.position.z);
+        scene.add(o.mesh);
+      }
+    } else {
+      for (let c = 0; c < conObjKeys.length; c++) {
+        let o = cons[newConKeys[i]].objs[c];
+        let newO = con.objs[conObjKeys[c]];
+        o.mesh.position.set(newO.position.x, newO.position.y, newO.position.z);
+      }
     }
   }
 });
@@ -218,14 +226,9 @@ function setCameraFromMemory() {
   let currentDate = [date.getMonth() + 1, date.getDate(), date.getFullYear()];
 
   let setDate = "";
-  if (localStorage.getItem("cameraSetTime"))
-    setDate = localStorage.getItem("cameraSetTime").split("-");
+  if (localStorage.getItem("cameraSetTime")) setDate = localStorage.getItem("cameraSetTime").split("-");
   if (setDate.length > 0) {
-    if (
-      setDate[2] <= currentDate[2] &&
-      setDate[1] <= currentDate[1] &&
-      setDate[0] <= currentDate[0]
-    ) {
+    if (setDate[2] <= currentDate[2] && setDate[1] <= currentDate[1] && setDate[0] <= currentDate[0]) {
       let pos = localStorage.getItem("cameraPosition").split(",");
       controls.object.position.set(pos[0], pos[1], pos[2]);
       let tar = localStorage.getItem("cameraTarget").split(",");
@@ -246,20 +249,11 @@ setInterval(async function () {
 
   // Store Camera Information:
   let cameraPos = controls.object.position;
-  localStorage.setItem(
-    "cameraPosition",
-    `${cameraPos.x},${cameraPos.y},${cameraPos.z}`
-  );
+  localStorage.setItem("cameraPosition", `${cameraPos.x},${cameraPos.y},${cameraPos.z}`);
   let cameraTar = controls.target;
-  localStorage.setItem(
-    "cameraTarget",
-    `${cameraTar.x},${cameraTar.y},${cameraTar.z}`
-  );
+  localStorage.setItem("cameraTarget", `${cameraTar.x},${cameraTar.y},${cameraTar.z}`);
   let date = new Date();
-  localStorage.setItem(
-    "cameraSetTime",
-    `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`
-  );
+  localStorage.setItem("cameraSetTime", `${date.getMonth() + 1}-${date.getDate()}-${date.getFullYear()}`);
 
   stats.update(); // FPS Counter
   controls.update();
