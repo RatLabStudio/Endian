@@ -158,15 +158,17 @@
 
       createLabel("Video Settings");
 
-      createToggle("Post Processing", Settings.settings["post-processing"]);
-      createToggle("Use WebGPU", Settings.settings.usewebgpu);
-
       createSlider("FOV", 51, 100, 1, 70);
       createSlider("Resolution", 0.1, 2, 0.1, 1);
 
-      createToggle("Bloom", Settings.settings.bloom);
+      createToggle("Post Processing", Settings.settings["post-processing"]);
+      //createToggle("Use WebGPU", Settings.settings.usewebgpu);
+
+      /*createToggle("Bloom", Settings.settings.bloom);
       createToggle("Pixelated Effect", Settings.settings.pixelatedEffect);
-      createToggle("Film Effect", Settings.settings.filmEffect);
+      createToggle("Film Effect", Settings.settings.filmEffect);*/
+
+      createToggle("Render Constructs", Settings.settings.renderconstructs);
 
       // Toggle Event Listeners
       for (let i = 0; i < toggles.length; i++) {

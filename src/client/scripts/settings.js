@@ -7,7 +7,7 @@ export let settings = {
     "bloom": 1,
     "pixelatedeffect": 1,
     "filmeffect": 1,
-    "constructbounds": 1,
+    "renderconstructs": 1,
 };
 export let settingsKeys = Object.keys(settings);
 

@@ -136,7 +136,7 @@ if (Settings.settings["postprocessing"] > 0) {
 const stats = new Stats();
 //document.body.append(stats.dom);
 
-// Setting up the sky:
+// Setting up the sky box:
 const loader = new THREE.CubeTextureLoader();
 loader.setPath("assets/textures/sky/");
 const textureCube = loader.load(["sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg"]);

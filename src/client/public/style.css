@@ -274,8 +274,8 @@ button:active {
 
 #applySettings {
   position: absolute;
-  bottom: 3vh;
-  right: 3vh;
+  bottom: 12vh;
+  right: 2vh;
   min-width: 20vh;
 }
 

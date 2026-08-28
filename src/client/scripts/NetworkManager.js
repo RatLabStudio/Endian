@@ -355,6 +355,7 @@ socket.on("rayUpdate", (rays) => {
   }
 });
 
+// Receives all constructs from server at once and loads them
 socket.on("sendAllConstructs", (newConstructs) => {
   let cKeys = Object.keys(newConstructs);
   for (let i = 0; i < cKeys.length; i++) {

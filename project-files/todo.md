@@ -1,11 +1,9 @@
 # Endian Alpha To-do List
 
-## Next Update:
-
-- Give all objects a health variable so they can be destroyed by rays
-- Fix bug where player has no collisions for a while after joining
-  - Note: It appears the player doesn't move in the sim viewer either.
-    - Sometimes, the player doesn't even show in the viewer.
-- Work on Voxel Objects
-- Add damage indicators for all players
-- Add lighting and particle trail for bullets
+## Map Builder:
+The map builder will be a seperate program that allows me to design game maps for the Endian engine without needing to hard-code them.
+### Features:
+- 3D interface to build maps with all constructs available for placement
+- Placeable lighting and objects
+- Snap placement for constructs to ensure everything lines up well
+- The ability to save maps in the form of a JSON file and load them back into the map builder
