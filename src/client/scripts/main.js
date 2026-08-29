@@ -139,7 +139,7 @@ const stats = new Stats();
 // Setting up the sky box:
 const loader = new THREE.CubeTextureLoader();
 loader.setPath("assets/textures/sky/");
-const textureCube = loader.load(["sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg", "sky.jpg"]);
+const textureCube = loader.load(["sky1.jpg", "sky2.jpg", "sky3.jpg", "sky4.jpg", "sky5.jpg", "sky6.jpg"]);
 scene.background = textureCube;
 
 /////////////// Settings and GUI ///////////////
