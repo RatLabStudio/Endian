@@ -225,10 +225,10 @@ function spawnBasicObjects() {
   createNewCpu(0, new THREE.Vector3(-4, -1, -20), (id) => {
     Server.cpus[id].gpu.displayImage("https://ratlabstudio.com/wp-content/uploads/2025/03/ratlabsite.png");
   });
-  createNewCpu(1, new THREE.Vector3(0, -1, -20), (id) => {
+  /*createNewCpu(1, new THREE.Vector3(0, -1, -20), (id) => {
     Server.cpus[id].glitching = true;
-  });
-  createNewCpu(2, new THREE.Vector3(4, -1, -20), (id) => {
+  });*/
+  createNewCpu(1, new THREE.Vector3(4, -1, -20), (id) => {
     Server.cpus[id].gpu.nextLine();
     Server.cpus[id].gpu.printString("Simulation Running...");
     Server.cpus[id].gpu.nextLine();

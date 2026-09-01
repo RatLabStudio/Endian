@@ -12,7 +12,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import * as CANNON from "cannon-es";
 import CannonDebugger from "cannon-es-debugger";
 import { CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
-import WebGPURenderer from "three/addons/renderers/webgpu/WebGPURenderer.js";
+//import WebGPURenderer from "three/addons/renderers/webgpu/WebGPURenderer.js";
 
 // Post-Processing
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -81,13 +81,13 @@ const player = new Player(game);
 NetworkManager.initialize(player);
 
 let renderer;
-if (Settings.settings.usewebgpu == 0) {
-  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  UI.setElement("renderer", "WebGL");
-} else {
+//if (Settings.settings.usewebgpu == 0) {
+renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+UI.setElement("renderer", "WebGL");
+/*} else {
   renderer = new WebGPURenderer({ alpha: true, antialias: true });
   UI.setElement("renderer", "WebGPU");
-}
+}*/
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
